@@ -1,6 +1,7 @@
 {
     "name": "qobo/cakephp-calendar",
     "description": "Calendaring plugin for CakePHP",
+    "type": "cakephp-plugin",
     "license": "GPL-2.0",
     "authors": [
         {
