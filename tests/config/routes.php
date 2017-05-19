@@ -1,5 +1,5 @@
 <?php
-namespace Calendar\Test\App\Config;
+namespace Qobo\Calendar\Test\App\Config;
 
 use Cake\Core\Configure;
 use Cake\Core\Plugin;

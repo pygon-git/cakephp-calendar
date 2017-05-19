@@ -17,13 +17,13 @@
     },
     "autoload": {
         "psr-4": {
-            "Calendar\\": "src/",
-            "Calendar\\Test\\Fixture\\": "tests\\Fixture"
+            "Qobo\\Calendar\\": "src/",
+            "Qobo\\Calendar\\Test\\Fixture\\": "tests\\Fixture"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Calendar\\Test\\": "tests",
+            "Qobo\\Calendar\\Test\\": "tests",
             "Cake\\Test\\": "./vendor/cakephp/cakephp/tests"
         }
     }

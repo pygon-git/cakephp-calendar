@@ -1,5 +1,5 @@
 <?php
-namespace Calendar\Test\Fixture;
+namespace Qobo\Calendar\Test\Fixture;
 
 use Cake\TestSuite\Fixture\TestFixture;
 
