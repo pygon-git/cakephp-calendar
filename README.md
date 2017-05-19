@@ -1,3 +1,12 @@
+# CakePHP-Calendar Plugin
+
+[![Build Status](https://travis-ci.org/QoboLtd/cakephp-calendar.svg?branch=master)](https://travis-ci.org/QoboLtd/cakephp-calendar)
+[![Latest Stable Version](https://poser.pugx.org/qobo/cakephp-calendar/v/stable)](https://packagist.org/packages/qobo/cakephp-calendar)
+[![Total Downloads](https://poser.pugx.org/qobo/cakephp-calendar/downloads)](https://packagist.org/packages/qobo/cakephp-calendar)
+[![Latest Unstable Version](https://poser.pugx.org/qobo/cakephp-calendar/v/unstable)](https://packagist.org/packages/qobo/cakephp-calendar)
+[![License](https://poser.pugx.org/qobo/cakephp-calendar/license)](https://packagist.org/packages/qobo/cakephp-calendar)
+[![codecov](https://codecov.io/gh/QoboLtd/cakephp-calendar/branch/master/graph/badge.svg)](https://codecov.io/gh/QoboLtd/cakephp-calendar)
+
 CakePHP Plugin Template
 =======================
 
