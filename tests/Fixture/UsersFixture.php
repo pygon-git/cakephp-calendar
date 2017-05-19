@@ -1,5 +1,5 @@
 <?php
-namespace Foobar\Test\Fixture;
+namespace Calendar\Test\Fixture;
 
 use Cake\TestSuite\Fixture\TestFixture;
 
