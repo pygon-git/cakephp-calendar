@@ -30,8 +30,6 @@
                         <th scope="col"><?= $this->Paginator->sort('calendar_source_id') ?></th>
                         <th scope="col"><?= $this->Paginator->sort('calendar_source') ?></th>
                         <th scope="col"><?= $this->Paginator->sort('created') ?></th>
-                        <th scope="col"><?= $this->Paginator->sort('modified') ?></th>
-                        <th scope="col"><?= $this->Paginator->sort('trashed') ?></th>
                         <th scope="col" class="actions"><?= __('Actions') ?></th>
                     </tr>
                 </thead>
@@ -45,8 +43,6 @@
                         <td><?= h($calendar->calendar_source_id) ?></td>
                         <td><?= h($calendar->calendar_source) ?></td>
                         <td><?= h($calendar->created) ?></td>
-                        <td><?= h($calendar->modified) ?></td>
-                        <td><?= h($calendar->trashed) ?></td>
                         <td class="actions">
                             <?= $this->Html->link(__('View'), ['action' => 'view', $calendar->id]) ?>
                             <?= $this->Html->link(__('Edit'), ['action' => 'edit', $calendar->id]) ?>
