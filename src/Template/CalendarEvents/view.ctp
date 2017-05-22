@@ -3,55 +3,95 @@
  * @var \App\View\AppView $this
  */
 ?>
-<nav class="large-3 medium-4 columns" id="actions-sidebar">
-    <ul class="side-nav">
-        <li class="heading"><?= __('Actions') ?></li>
-        <li><?= $this->Html->link(__('Edit Calendar Event'), ['action' => 'edit', $calendarEvent->id]) ?> </li>
-        <li><?= $this->Form->postLink(__('Delete Calendar Event'), ['action' => 'delete', $calendarEvent->id], ['confirm' => __('Are you sure you want to delete # {0}?', $calendarEvent->id)]) ?> </li>
-        <li><?= $this->Html->link(__('List Calendar Events'), ['action' => 'index']) ?> </li>
-        <li><?= $this->Html->link(__('New Calendar Event'), ['action' => 'add']) ?> </li>
-        <li><?= $this->Html->link(__('List Calendars'), ['controller' => 'Calendars', 'action' => 'index']) ?> </li>
-        <li><?= $this->Html->link(__('New Calendar'), ['controller' => 'Calendars', 'action' => 'add']) ?> </li>
-    </ul>
-</nav>
-<div class="calendarEvents view large-9 medium-8 columns content">
-    <h3><?= h($calendarEvent->title) ?></h3>
-    <table class="vertical-table">
-        <tr>
-            <th scope="row"><?= __('Id') ?></th>
-            <td><?= h($calendarEvent->id) ?></td>
-        </tr>
-        <tr>
-            <th scope="row"><?= __('Calendar') ?></th>
-            <td><?= $calendarEvent->has('calendar') ? $this->Html->link($calendarEvent->calendar->name, ['controller' => 'Calendars', 'action' => 'view', $calendarEvent->calendar->id]) : '' ?></td>
-        </tr>
-        <tr>
-            <th scope="row"><?= __('Event Source Id') ?></th>
-            <td><?= h($calendarEvent->event_source_id) ?></td>
-        </tr>
-        <tr>
-            <th scope="row"><?= __('Event Source') ?></th>
-            <td><?= h($calendarEvent->event_source) ?></td>
-        </tr>
-        <tr>
-            <th scope="row"><?= __('Title') ?></th>
-            <td><?= h($calendarEvent->title) ?></td>
-        </tr>
-        <tr>
-            <th scope="row"><?= __('Start Date') ?></th>
-            <td><?= h($calendarEvent->start_date) ?></td>
-        </tr>
-        <tr>
-            <th scope="row"><?= __('End Date') ?></th>
-            <td><?= h($calendarEvent->end_date) ?></td>
-        </tr>
-        <tr>
-            <th scope="row"><?= __('Duration') ?></th>
-            <td><?= h($calendarEvent->duration) ?></td>
-        </tr>
-    </table>
+<section class="content-header">
     <div class="row">
-        <h4><?= __('Content') ?></h4>
-        <?= $this->Text->autoParagraph(h($calendarEvent->content)); ?>
+        <div class="col-xs-12 col-md-6">
+            <h4>
+                <?php echo $this->Html->link('Calendar Evens', ['plugin' => 'Qobo/Calendar', 'controller' => 'CalendarEvents', 'action' => 'index']); ?>
+                &raquo;
+                <?php echo $calendarEvent->title;?>
+            </h4>
+        </div>
+        <div class="col-xs-12 col-md-6">
+            <div class="pull-right">
+                <div class="btn-group btn-group-sm" role="group">
+                <?php $url = [
+                        'plugin' => $this->request->plugin,
+                        'controller' => $this->request->controller,
+                        'action' => 'edit',
+                        $calendarEvent->id
+                    ];
+                    $menu[] = [
+                        'html' => $this->Html->link(
+                            '<i class="fa fa-pencil"></i> ' . __('Edit'),
+                            $url,
+                            [
+                                'title' => __('Edit'), 'escape' => false, 'class' => 'btn btn-default'
+                            ]
+                        ),
+                        'url' => $url
+                    ];
+
+                    foreach ($menu as $item) {
+                        echo $item['html'];
+                    }
+                ?>
+                </div>
+            </div>
+        </div>
     </div>
-</div>
+</section>
+
+<section class="content">
+    <div class="box box-default">
+        <div class="box-header with-border">
+            <h3 class="box-title"><?= h($calendarEvent->title); ?></h3>
+        </div>
+        <div class="box-body">
+            <div class="row">
+                <div class="col-xs-4 col-md-2 text-right">
+                    <strong>ID: </strong>
+                </div>
+                <div class="col-xs-8 col-md-4">
+                    <?= $calendarEvent->id;?>
+                </div>
+                <div class="col-xs-4 col-md-2 text-right">
+                    <strong>Calendar:</strong>
+                </div>
+                <div class="col-xs-8 col-md-4">
+                    <?= $calendarEvent->has('calendar') ? $this->Html->link($calendarEvent->calendar->name, ['controller' => 'Calendars', 'action' => 'view', $calendarEvent->calendar->id]) : '' ?>
+                </div>
+                <div class="col-xs-4 col-md-2 text-right">
+                    <strong>Event Source ID:</strong>
+                </div>
+                <div class="col-xs-8 col-md-4">
+                    <?= $calendarEvent->event_source_id;?>
+                </div>
+
+                <div class="col-xs-4 col-md-2 text-right">
+                    <strong>Calendar Event Source:</strong>
+                </div>
+                <div class="col-xs-8 col-md-4">
+                    <?= $calendarEvent->event_source;?>
+                </div>
+                <div class="col-xs-4 col-md-2 text-right"><strong>Start Date:</strong></div>
+                <div class="col-xs-8 col-md-4"><?= $calendarEvent->start_date;?></div>
+
+                <div class="col-xs-4 col-md-2 text-right"><strong>End Date:</strong></div>
+                <div class="col-xs-8 col-md-4"><?= $calendarEvent->end_date;?></div>
+
+                <div class="col-xs-4 col-md-2 text-right"><strong>Duration:</strong></div>
+                <div class="col-xs-8 col-md-4"><?= $calendarEvent->duration;?></div>
+            </div>
+            <div class="row">
+                <div class="col-xs-4 col-md-2 text-right"><strong>Title: </strong></div>
+                <div class="col-xs-8 col-md-4"><?= $calendarEvent->title;?></div>
+
+                <div class="col-xs-4 col-md-2 text-right"><strong>Content:</strong></div>
+                <div class="col-xs-8 col-md-4">
+                    <?= $this->Text->autoParagraph(h($calendarEvent->content)); ?>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
