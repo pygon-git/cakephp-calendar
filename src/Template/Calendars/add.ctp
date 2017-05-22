@@ -3,27 +3,36 @@
   * @var \App\View\AppView $this
   */
 ?>
-<nav class="large-3 medium-4 columns" id="actions-sidebar">
-    <ul class="side-nav">
-        <li class="heading"><?= __('Actions') ?></li>
-        <li><?= $this->Html->link(__('List Calendars'), ['action' => 'index']) ?></li>
-        <li><?= $this->Html->link(__('List Calendar Events'), ['controller' => 'CalendarEvents', 'action' => 'index']) ?></li>
-        <li><?= $this->Html->link(__('New Calendar Event'), ['controller' => 'CalendarEvents', 'action' => 'add']) ?></li>
-    </ul>
-</nav>
-<div class="calendars form large-9 medium-8 columns content">
-    <?= $this->Form->create($calendar) ?>
-    <fieldset>
-        <legend><?= __('Add Calendar') ?></legend>
-        <?php
-            echo $this->Form->control('name');
-            echo $this->Form->control('color');
-            echo $this->Form->control('icon');
-            echo $this->Form->control('calendar_source_id');
-            echo $this->Form->control('calendar_source');
-            echo $this->Form->control('trashed');
-        ?>
-    </fieldset>
-    <?= $this->Form->button(__('Submit')) ?>
-    <?= $this->Form->end() ?>
+<?= $this->Form->create($calendar) ?>
+<section class="content-header">
+    <div class="row">
+        <div class="col-xs-12 col-md-6">
+            <h4><?php echo __('Add Calendar'); ?></h4>
+        </div>
+        <div class="col-xs-12 col-md-6"></div>
+    </div>
+</section>
+<div class="content">
+    <div class='box box-primary'>
+        <div class="box-header with-border">
+            <h3 class="box-title"><?= __('Calendar Details');?></h3>
+        </div>
+        <div class="box-body">
+            <div class="row">
+                <div class="col-xs-12 col-md-6">
+                    <?= $this->Form->control('name'); ?>
+                    <?= $this->Form->control('calendar_source_id');?>
+                    <?= $this->Form->control('calendar_source'); ?>
+                </div>
+                <div class="col-xs-12 col-md-6">
+                    <?= $this->Form->control('color');?>
+                    <?= $this->Form->control('icon');?>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div>
+        <?= $this->Form->button(__('Submit')) ?>
+        <?= $this->Form->end() ?>
+    </div>
 </div>
