@@ -1,7 +1,7 @@
 <?php
 /**
-  * @var \App\View\AppView $this
-  */
+ * @var \App\View\AppView $this
+ */
 ?>
 <nav class="large-3 medium-4 columns" id="actions-sidebar">
     <ul class="side-nav">
@@ -28,7 +28,7 @@
             </tr>
         </thead>
         <tbody>
-            <?php foreach ($calendarEvents as $calendarEvent): ?>
+            <?php foreach ($calendarEvents as $calendarEvent) : ?>
             <tr>
                 <td><?= h($calendarEvent->id) ?></td>
                 <td><?= $calendarEvent->has('calendar') ? $this->Html->link($calendarEvent->calendar->name, ['controller' => 'Calendars', 'action' => 'view', $calendarEvent->calendar->id]) : '' ?></td>

@@ -1,7 +1,7 @@
 <?php
 /**
-  * @var \App\View\AppView $this
-  */
+ * @var \App\View\AppView $this
+ */
 ?>
 <section class="content-header">
     <div class="row">
@@ -15,24 +15,27 @@
         <div class="col-xs-12 col-md-6">
             <div class="pull-right">
                 <div class="btn-group btn-group-sm" role="group">
-                <?php
-					$url = [
+                <?php $url = [
                         'plugin' => $this->request->plugin,
                         'controller' => $this->request->controller,
                         'action' => 'edit',
                         $calendar->id
                     ];
                     $menu[] = [
-                        'html' => $this->Html->link('<i class="fa fa-pencil"></i> ' . __('Edit'), $url, [
-                        'title' => __('Edit'), 'escape' => false, 'class' => 'btn btn-default'
-                    ]),
+                        'html' => $this->Html->link(
+                            '<i class="fa fa-pencil"></i> ' . __('Edit'),
+                            $url,
+                            [
+                                'title' => __('Edit'), 'escape' => false, 'class' => 'btn btn-default'
+                            ]
+                        ),
                         'url' => $url
                     ];
 
                     foreach ($menu as $item) {
                         echo $item['html'];
                     }
-				?>
+                ?>
                 </div>
             </div>
         </div>

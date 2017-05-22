@@ -1,7 +1,7 @@
 <?php
 /**
-  * @var \App\View\AppView $this
-  */
+ * @var \App\View\AppView $this
+ */
 ?>
 <section class="content-header">
     <div class="row">
@@ -34,7 +34,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <?php foreach ($calendars as $calendar): ?>
+                    <?php foreach ($calendars as $calendar) : ?>
                     <tr>
                         <td><?= h($calendar->id) ?></td>
                         <td><?= h($calendar->name) ?></td>
