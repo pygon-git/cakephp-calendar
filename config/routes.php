@@ -2,7 +2,7 @@
 use Cake\Routing\Router;
 
 Router::plugin(
-    'Calendar',
+    'Qobo/Calendar',
     ['path' => '/calendars'],
     function ($routes) {
         $routes->fallbacks('DashedRoute');
