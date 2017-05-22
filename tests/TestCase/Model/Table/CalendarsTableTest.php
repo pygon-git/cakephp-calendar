@@ -25,7 +25,6 @@ class CalendarsTableTest extends TestCase
      */
     public $fixtures = [
         'plugin.qobo/calendar.calendars',
-        'plugin.qobo/calendar.calendar_sources',
         'plugin.qobo/calendar.calendar_events'
     ];
 
