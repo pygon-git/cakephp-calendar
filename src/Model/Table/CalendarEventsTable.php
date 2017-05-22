@@ -37,6 +37,9 @@ class CalendarEventsTable extends Table
         $this->setDisplayField('title');
         $this->setPrimaryKey('id');
 
+        $this->addBehavior('Timestamp');
+        $this->addBehavior('Muffin/Trash.Trash');
+
         $this->belongsTo('Calendars', [
             'foreignKey' => 'calendar_id',
             'joinType' => 'INNER',
