@@ -21,7 +21,7 @@
             <div class="row">
                 <div class="col-xs-12 col-md-6">
                     <?= $this->Form->control('name'); ?>
-                    <?= $this->Form->control('calendar_source_id');?>
+                    <?= $this->Form->control('calendar_source_id', ['type' => 'text']);?>
                     <?= $this->Form->control('calendar_source'); ?>
                 </div>
                 <div class="col-xs-12 col-md-6">

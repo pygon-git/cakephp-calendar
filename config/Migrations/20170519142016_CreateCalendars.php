@@ -47,7 +47,7 @@ class CreateCalendars extends AbstractMigration
         ]);
         $table->addColumn('trashed', 'datetime', [
             'default' => null,
-            'null' => false,
+            'null' => true,
         ]);
         $table->addPrimaryKey([
             'id',

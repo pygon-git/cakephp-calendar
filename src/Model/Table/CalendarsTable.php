@@ -40,6 +40,7 @@ class CalendarsTable extends Table
         $this->setPrimaryKey('id');
 
         $this->addBehavior('Timestamp');
+        $this->addBehavior('Muffin/Trash.Trash');
 
         $this->hasMany('CalendarEvents', [
             'foreignKey' => 'calendar_id',
@@ -70,11 +71,6 @@ class CalendarsTable extends Table
 
         $validator
             ->allowEmpty('calendar_source');
-
-        $validator
-            ->dateTime('trashed')
-            ->requirePresence('trashed', 'create')
-            ->notEmpty('trashed');
 
         return $validator;
     }

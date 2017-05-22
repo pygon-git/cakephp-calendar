@@ -51,6 +51,18 @@ class CreateCalendarEvents extends AbstractMigration
             'default' => null,
             'null' => true
         ]);
+        $table->addColumn('created', 'datetime', [
+            'default' => null,
+            'null' => false
+        ]);
+        $table->addColumn('modified', 'datetime', [
+            'default' => null,
+            'null' => false,
+        ]);
+        $table->addColumn('trashed', 'datetime', [
+            'default' => null,
+            'null' => true
+        ]);
         $table->addPrimaryKey([
             'id',
         ]);
