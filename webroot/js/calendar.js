@@ -21,8 +21,18 @@ var calendar = calendar || {};
                 week: 'week',
                 day: 'day'
             },
-            editable: true,
-            events: []
+            editable: false,
+            eventClick: function (calEvent, jsEvent, view) {
+                console.log('modal pops up with Event Details');
+                console.log(calEvent);
+
+            },
+            dayClick: function (date, jsEvent, view) {
+                console.log('day click clack');
+                console.log('adding event pops up');
+                console.log(date);
+                $('#calendar-modal-add-event').modal('toggle');
+            }
         });
 
         //checkbox options chosen and load is clicked.
