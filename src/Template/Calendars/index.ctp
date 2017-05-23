@@ -73,7 +73,7 @@ $options = [
 
         <?php
             //add event modal form
-            echo $this->element('Qobo/Calendar.add_calendar_event');
+            echo $this->element('Qobo/Calendar.add_calendar_event', ['calendars' => $calendars]);
             //view details dialog
             echo $this->element('Qobo/Calendar.view_calendar_event');
         ?>

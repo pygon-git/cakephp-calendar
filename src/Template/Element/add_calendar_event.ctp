@@ -1,3 +1,11 @@
+<?php
+$calendarOptions = [];
+if (!empty($calendars)) {
+    foreach ($calendars as $calendar) {
+        $calendarOptions[$calendar->id] = $calendar->name;
+    }
+}
+?>
 <div class="modal fade" id="calendar-modal-add-event" tabindex="-1" role="dialog" aria-labelledby="calendar-modal-label">
     <?= $this->Form->create('CalendarEvents', ['url' => false, 'class' => 'calendar-form-add-event']);?>
     <div class="modal-dialog" role="document">
@@ -9,15 +17,15 @@
             <div class="modal-body">
                 <div class="row">
                     <div class="col-xs-12">
-                        <?= $this->Form->input('CalendarEvents.calendar_id', ['type' => 'select', 'options' => [], 'empty' => 'Choose Calendar']);?>
+                        <?= $this->Form->input('CalendarEvents.calendar_id', ['type' => 'select', 'options' => $calendarOptions, 'empty' => 'Choose Calendar']);?>
                     </div>
                 </div>
                 <div class="row">
                     <div class="col-xs-12 col-md-6">
-                        <?= $this->Form->input('CalendarEvents.start_date', ['type' => 'text', 'class' => 'calendar-datetimepicker']);?>
+                        <?= $this->Form->input('CalendarEvents.start_date', ['type' => 'text', 'class' => 'calendar-datetimepicker calendar-start_date']);?>
                     </div>
                     <div class="col-xs-12 col-md-6">
-                        <?= $this->Form->input('CalendarEvents.end_date', ['type' => 'text', 'class' => 'calendar-datetimepicker']);?>
+                        <?= $this->Form->input('CalendarEvents.end_date', ['type' => 'text', 'class' => 'calendar-datetimepicker calendar-end_date']);?>
                     </div>
                 </div>
                 <div class="row">
