@@ -113,4 +113,25 @@ class CalendarEventsController extends AppController
 
         return $this->redirect(['action' => 'index']);
     }
+
+    /**
+     * Create Event via AJAX call
+     */
+    public function createEvent()
+    {
+        $result = [];
+        $calendarEvent = $this->CalendarEvents->newEntity();
+
+        if ($this->request->is(['patch', 'post', 'put'])) {
+            $calendarEvent = $this->CalendarEvents->patchEntity($calendarEvent, $this->request->getData());
+            if ($this->CalendarEvents->save($calendarEvent)) {
+                $result['message'] = 'Successfully saved Event';
+            } else {
+                $result['message'] = 'Couldn\'t save Calendar Event';
+            }
+        }
+
+        $this->set(compact('result'));
+        $this->set('_serialize', ['result']);
+    }
 }

@@ -142,8 +142,8 @@ class CalendarsController extends AppController
                     'id' => $event['id'],
                     'title' => $event['title'],
                     'description' => $event['content'],
-                    'start' => $event['start_date']->format('Y-m-d H:i:s'),
-                    'end' => $event['end_date']->format('Y-m-d H:i:s'),
+                    'start' => $event['start_date'],
+                    'end' => $event['end_date'],
                     'color' => (isset($calendar) ? $calendar->color : 'blue'),
                 ];
             }

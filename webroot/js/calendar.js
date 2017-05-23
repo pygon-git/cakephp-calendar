@@ -9,6 +9,17 @@ var calendar = calendar || {};
     }
 
     QoboCalendar.prototype.init = function () {
+        // date range picker (used for datetime pickers)
+        $('.calendar-datetimepicker').daterangepicker({
+            singleDatePicker: true,
+            showDropdowns: true,
+            timePicker: true,
+            drops: "down",
+            timePicker12Hour: false,
+            timePickerIncrement: 5,
+            format: "YYYY-MM-DD HH:mm",
+        });
+
         $(this.calendarContainer).fullCalendar({
             header: {
                 left: 'prev,next today',
@@ -21,8 +32,30 @@ var calendar = calendar || {};
                 week: 'week',
                 day: 'day'
             },
-            editable: true,
-            events: []
+            editable: false,
+            eventClick: function (calEvent, jsEvent, view) {
+                $('#calendar-modal-view-event').modal('toggle');
+            },
+            dayClick: function (date, jsEvent, view) {
+                // FIXME : refactor to generic method.
+                drp = $('.calendar-start_date').data('daterangepicker');
+                drp2 = $('.calendar-end_date').data('daterangepicker');
+
+                if ('month' === view.intervalUnit) {
+                    date.add(9, 'hours');
+                }
+
+                drp.setStartDate(date);
+                drp.setEndDate(date);
+
+                var end = moment(date);
+                end.add(30, 'minutes');
+
+                drp2.setStartDate(end);
+                drp2.setEndDate(end);
+
+                $('#calendar-modal-add-event').modal('toggle');
+            }
         });
 
         //checkbox options chosen and load is clicked.
@@ -42,7 +75,26 @@ var calendar = calendar || {};
                 that.unloadSelectedCalendarEvents(calendarId);
             }
         });
+
+        $('.calendar-form-add-event').on('submit', function () {
+            that.createEvent($(this).serialize());
+
+            return false;
+        });
     };
+
+    QoboCalendar.prototype.createEvent = function (data) {
+        $.ajax({
+            method: 'POST',
+            dataType: 'json',
+            url: '/calendars/calendar-events/create-event',
+            data: data,
+            success: function (resp) {
+                console.log(resp);
+                console.log('sent...');
+            }
+        });
+    }
 
     QoboCalendar.prototype.unloadSelectedCalendarEvents = function (calendarId) {
         var that = this;

@@ -2,6 +2,7 @@
 echo $this->Html->css(
     [
         'AdminLTE./plugins/fullcalendar/fullcalendar.min.css',
+        'AdminLTE./plugins/daterangepicker/daterangepicker-bs3',
     ]
 );
 
@@ -9,6 +10,7 @@ echo $this->Html->script(
     [
         'AdminLTE./plugins/daterangepicker/moment.min',
         'AdminLTE./plugins/fullcalendar/fullcalendar.min.js',
+        'AdminLTE./plugins/daterangepicker/daterangepicker',
         'Qobo/Calendar.calendar',
     ],
     ['block' => 'scriptBotton']
@@ -59,22 +61,9 @@ $options = [
                     </div>
                 </div>
             </div>
+        </div>
 
-            <div class="box">
-                <div class="box-header with-border">
-                    <h3 class="box-title"><?= __('Events');?></h3>
-                </div>
-                <div class="box-body">
-                    <div class="row">
-                        <div class="col-md-12">
-                            <?= $this->Form->button(__('Add Event'), ['class' => 'calendar-add-event btn btn-info']);?>
-                        </div>
-                    </div>
-                </div>
-            </div>
-      </div>
-
-     <div class="col-md-8">
+        <div class="col-md-8">
             <div class="box">
                 <div class='box-body'>
                     <div id="qobrix-calendar"></div>
@@ -82,7 +71,12 @@ $options = [
             </div>
         </div>
 
-
+        <?php
+            //add event modal form
+            echo $this->element('Qobo/Calendar.add_calendar_event', ['calendars' => $calendars]);
+            //view details dialog
+            echo $this->element('Qobo/Calendar.view_calendar_event');
+        ?>
     </div> <!-- //end first row -->
 
     <div class="row">
