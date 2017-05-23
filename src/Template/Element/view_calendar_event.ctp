@@ -1,9 +1,9 @@
-<div class="modal fade" id="calendar-modal-add-event" tabindex="-1" role="dialog" aria-labelledby="calendar-modal-label">
+<div class="modal fade" id="calendar-modal-view-event" tabindex="-1" role="dialog" aria-labelledby="calendar-modal-label">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title" id="calendar-modal-label">Add Event</h4>
+                <h4 class="modal-title" id="calendar-modal-label">View Event</h4>
             </div> <!-- //modal-header -->
             <div class="modal-body">
             </div> <!-- //modal-body -->

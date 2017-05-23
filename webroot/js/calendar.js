@@ -25,7 +25,7 @@ var calendar = calendar || {};
             eventClick: function (calEvent, jsEvent, view) {
                 console.log('modal pops up with Event Details');
                 console.log(calEvent);
-
+                $('#calendar-modal-view-event').modal('toggle');
             },
             dayClick: function (date, jsEvent, view) {
                 console.log('day click clack');
