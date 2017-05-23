@@ -2,6 +2,7 @@
 echo $this->Html->css(
     [
         'AdminLTE./plugins/fullcalendar/fullcalendar.min.css',
+        'AdminLTE./plugins/daterangepicker/daterangepicker-bs3',
     ]
 );
 
@@ -9,6 +10,7 @@ echo $this->Html->script(
     [
         'AdminLTE./plugins/daterangepicker/moment.min',
         'AdminLTE./plugins/fullcalendar/fullcalendar.min.js',
+        'AdminLTE./plugins/daterangepicker/daterangepicker',
         'Qobo/Calendar.calendar',
     ],
     ['block' => 'scriptBotton']

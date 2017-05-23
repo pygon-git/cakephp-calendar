@@ -35,6 +35,18 @@ var calendar = calendar || {};
             }
         });
 
+		// date range picker (used for datetime pickers)
+		$('.calendar-datetimepicker').daterangepicker({
+			singleDatePicker: true,
+			showDropdowns: true,
+			timePicker: true,
+			drops: "down",
+			timePicker12Hour: false,
+			timePickerIncrement: 5,
+			format: "YYYY-MM-DD HH:mm",
+		});
+
+
         //checkbox options chosen and load is clicked.
         this.attachCalendarEvents();
     };
