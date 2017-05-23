@@ -1,6 +1,7 @@
 <?php
 namespace Qobo\Calendar\Controller;
 
+use Cake\ORM\TableRegistry;
 use Qobo\Calendar\Controller\AppController;
 
 /**
@@ -107,5 +108,48 @@ class CalendarsController extends AppController
         }
 
         return $this->redirect(['action' => 'index']);
+    }
+
+    /**
+     * Get Calendar Events
+     *
+     * @return array $events containing indexed array of events by calendar.
+     */
+    public function getEvents()
+    {
+        $events = [];
+        $calendar = null;
+
+        $eventTable = TableRegistry::get('CalendarEvents');
+
+        $data = $this->request->getData();
+
+        if (!empty($data['calendarId'])) {
+            $calendar = $this->Calendars->get($data['calendarId']);
+
+            $resultSet = $eventTable->find()
+                ->where(
+                    [
+                        'calendar_id' => $data['calendarId']
+                    ]
+                )
+                ->toArray();
+        }
+
+        if (!empty($resultSet)) {
+            foreach ($resultSet as $event) {
+                $events[] = [
+                    'id' => $event['id'],
+                    'title' => $event['title'],
+                    'description' => $event['content'],
+                    'start' => $event['start_date']->format('Y-m-d H:i:s'),
+                    'end' => $event['end_date']->format('Y-m-d H:i:s'),
+                    'color' => (isset($calendar) ? $calendar->color : 'blue'),
+                ];
+            }
+        }
+
+        $this->set(compact('events'));
+        $this->set('_serialize', ['events']);
     }
 }
