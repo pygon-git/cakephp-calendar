@@ -9,6 +9,8 @@ var calendar = calendar || {};
     }
 
     QoboCalendar.prototype.init = function () {
+        var that = this;
+
         // date range picker (used for datetime pickers)
         $('.calendar-datetimepicker').daterangepicker({
             singleDatePicker: true,
@@ -33,9 +35,10 @@ var calendar = calendar || {};
                 day: 'day'
             },
             editable: false,
-            eventClick: function (calEvent, jsEvent, view) {
-                $('#calendar-modal-view-event').modal('toggle');
+            eventClick: function (event) {
+                that.loadSelectedCalendarEvent(event);
             },
+
             dayClick: function (date, jsEvent, view) {
                 // FIXME : refactor to generic method.
                 drp = $('.calendar-start_date').data('daterangepicker');
@@ -60,6 +63,22 @@ var calendar = calendar || {};
 
         //checkbox options chosen and load is clicked.
         this.attachCalendarEvents();
+    };
+
+    QoboCalendar.prototype.loadSelectedCalendarEvent = function (event) {
+        $.ajax({
+            method: 'POST',
+            url: '/calendars/calendar-events/view-event',
+            data: { 'id' : event.id },
+        }).done(function (resp) {
+            if (resp) {
+                $('#calendar-modal-view-event').find('.modal-body').empty();
+                $('#calendar-modal-view-event').find('.modal-body').append(resp);
+                $('#calendar-modal-view-event').modal('toggle');
+            }
+        });
+
+        console.log('event clicked');
     };
 
     QoboCalendar.prototype.attachCalendarEvents = function () {
