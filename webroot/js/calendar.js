@@ -77,8 +77,6 @@ var calendar = calendar || {};
                 $('#calendar-modal-view-event').modal('toggle');
             }
         });
-
-        console.log('event clicked');
     };
 
     QoboCalendar.prototype.attachCalendarEvents = function () {
@@ -109,8 +107,7 @@ var calendar = calendar || {};
             url: '/calendars/calendar-events/create-event',
             data: data,
             success: function (resp) {
-                console.log(resp);
-                console.log('sent...');
+                $('#calendar-modal-add-event').modal('toggle');
             }
         });
     }
