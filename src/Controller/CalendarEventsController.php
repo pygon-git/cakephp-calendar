@@ -134,4 +134,22 @@ class CalendarEventsController extends AppController
         $this->set(compact('result'));
         $this->set('_serialize', ['result']);
     }
+
+    /**
+     * View Event via AJAX
+     */
+    public function viewEvent()
+    {
+        $this->viewBuilder()->setLayout('Qobo/Calendar.ajax');
+
+        $calEvent = [];
+
+        if ($this->request->is(['post', 'patch', 'put'])) {
+            $data = $this->request->getData();
+
+            $calEvent = $this->CalendarEvents->get($data['id']);
+        }
+        $this->set(compact('calEvent'));
+        $this->set('_serialize', ['calEvent']);
+    }
 }

@@ -6,6 +6,7 @@
                 <h4 class="modal-title" id="calendar-modal-label">View Event</h4>
             </div> <!-- //modal-header -->
             <div class="modal-body">
+
             </div> <!-- //modal-body -->
             <div class="modal-footer">
                 <?= $this->Form->button(__('Close'), ['data-dismiss' => 'modal', 'class' => 'btn btn-default']);?>
