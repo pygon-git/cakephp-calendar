@@ -15,6 +15,18 @@ class CalendarsController extends AppController
 {
 
     /**
+     * @var array $colors for the Calendars
+     */
+    public $colors = [
+        '#e3910f' => 'Orange',
+        '#ffc8e8' => 'Pink',
+        '#e0e8f2' => 'Ice Blue',
+        '#C0362C' => 'Red',
+        '#668D3C' => 'Green',
+        '#007996' => 'Blue',
+    ];
+
+    /**
      * Index method
      *
      * @return \Cake\Http\Response|null
@@ -61,6 +73,8 @@ class CalendarsController extends AppController
             }
             $this->Flash->error(__('The calendar could not be saved. Please, try again.'));
         }
+
+        $this->set('calendarColors', $this->_getColors());
         $this->set(compact('calendar'));
         $this->set('_serialize', ['calendar']);
     }
@@ -86,6 +100,8 @@ class CalendarsController extends AppController
             }
             $this->Flash->error(__('The calendar could not be saved. Please, try again.'));
         }
+
+        $this->set('calendarColors', $this->_getColors());
         $this->set(compact('calendar'));
         $this->set('_serialize', ['calendar']);
     }
@@ -151,5 +167,10 @@ class CalendarsController extends AppController
 
         $this->set(compact('events'));
         $this->set('_serialize', ['events']);
+    }
+
+    protected function _getColors()
+    {
+        return $this->colors;
     }
 }

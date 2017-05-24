@@ -25,7 +25,7 @@
                     <?= $this->Form->control('calendar_source'); ?>
                 </div>
                 <div class="col-xs-12 col-md-6">
-                    <?= $this->Form->control('color');?>
+                    <?= $this->Form->control('color', ['type' => 'select', 'options' => $calendarColors]);?>
                     <?= $this->Form->control('icon');?>
                 </div>
             </div>
