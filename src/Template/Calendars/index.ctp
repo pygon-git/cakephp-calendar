@@ -15,11 +15,6 @@ echo $this->Html->script(
     ],
     ['block' => 'scriptBotton']
 );
-
-$options = [
-    '123' => 'Calendar 1',
-    '456' => 'Calendar 2',
-];
 ?>
 <section class="content-header">
     <div class="row">
@@ -36,7 +31,6 @@ $options = [
     </div>
 </section>
 <section class="content">
-
     <div class="row">
        <div class="col-md-4">
             <div class='box'>
@@ -47,20 +41,83 @@ $options = [
                     <div class="row">
                         <div class="col-md-12">
                             <?php foreach ($calendars as $calendar) : ?>
-                                <?php echo $this->Form->input('Calendar._ids', [
-                                    'id' => false,
-                                    'type' => 'checkbox',
-                                    'multiple' => true,
-                                    'value' => $calendar->id,
-                                    'label' => $calendar->name,
-                                    'class' => 'calendar-id',
-                                    'hiddenField' => false,
-                                ]);?>
+                                <div class="row">
+                                    <div class="col-xs-8">
+                                    <?php
+                                        $label = (!empty($calendar->icon) ? "<i class='fa fa-{$calendar->icon}'></i>&nbsp;&nbsp;" . $calendar->name : $calendar->name);
+                                        echo $this->Form->input('Calendar._ids', [
+                                            'id' => false,
+                                            'type' => 'checkbox',
+                                            'multiple' => true,
+                                            'value' => $calendar->id,
+                                            //'label' => $calendar->name,
+                                            'class' => 'calendar-id',
+                                            'hiddenField' => false,
+                                            'label' => $label,
+                                            'escape' => false,
+                                        ]);?>
+                                    </div>
+                                    <div class="col-xs-4">
+                                        <div class="btn-group btn-group-xs pull-right">
+                                            <?php
+                                                echo $this->Html->link(
+                                                    '<i class="fa fa-eye"></i>',
+                                                    [
+                                                        'plugin' => 'Qobo/Calendar',
+                                                        'controller' => 'Calendars',
+                                                        'action' => 'view',
+                                                        $calendar->id,
+                                                    ],
+                                                    [
+                                                        'class' => 'btn btn-default',
+                                                        'escape' => false
+                                                    ]
+                                                );
+                                                echo $this->Html->link(
+                                                    '<i class="fa fa-pencil"></i>',
+                                                    [
+                                                        'plugin' => 'Qobo/Calendar',
+                                                        'controller' => 'Calendars',
+                                                        'action' => 'edit',
+                                                        $calendar->id,
+                                                    ],
+                                                    [
+                                                        'class' => 'btn btn-default',
+                                                        'escape' => false
+                                                    ]
+                                                );
+                                                echo $this->Form->postLink(
+                                                    '<i class="fa fa-trash"></i>',
+                                                    [
+                                                        'plugin' => 'Qobo/Calendar',
+                                                        'controller' => 'Calendars',
+                                                        'action' => 'delete',
+                                                        $calendar->id,
+                                                    ],
+                                                    [
+                                                        'class' => 'btn btn-default',
+                                                        'escape' => false,
+                                                        'confirm' => __('Are you sure you want to delete calendar "{0}"?', $calendar->name),
+                                                    ]
+                                                );?>
+                                        </div>
+                                    </div>
+                                </div>
                             <?php endforeach; ?>
                         </div>
                     </div>
                 </div>
             </div>
+<!--
+            <div class="box">
+                <div class="box-header with-border">
+                    <h3 class="box-title">Organizer</h3>
+                </div>
+                <div class='box-body'>
+                    WTF!
+                </div>
+            </div>
+-->
         </div>
 
         <div class="col-md-8">
@@ -78,55 +135,4 @@ $options = [
             echo $this->element('Qobo/Calendar.view_calendar_event');
         ?>
     </div> <!-- //end first row -->
-
-    <div class="row">
-        <div class="col-md-12">
-            <div class="box">
-                <div class="box-body">
-                    <table class="table table-hover table-condensed table-vertical-align table-datatable" width="100%">
-                        <thead>
-                            <tr>
-                                <th scope="col"><?= $this->Paginator->sort('id') ?></th>
-                                <th scope="col"><?= $this->Paginator->sort('name') ?></th>
-                                <th scope="col"><?= $this->Paginator->sort('color') ?></th>
-                                <th scope="col"><?= $this->Paginator->sort('icon') ?></th>
-                                <th scope="col"><?= $this->Paginator->sort('calendar_source_id') ?></th>
-                                <th scope="col"><?= $this->Paginator->sort('calendar_source') ?></th>
-                                <th scope="col"><?= $this->Paginator->sort('created') ?></th>
-                                <th scope="col" class="actions"><?= __('Actions') ?></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php foreach ($calendars as $calendar) : ?>
-                            <tr>
-                                <td><?= h($calendar->id) ?></td>
-                                <td><?= h($calendar->name) ?></td>
-                                <td><?= h($calendar->color) ?></td>
-                                <td><?= h($calendar->icon) ?></td>
-                                <td><?= h($calendar->calendar_source_id) ?></td>
-                                <td><?= h($calendar->calendar_source) ?></td>
-                                <td><?= h($calendar->created) ?></td>
-                                <td class="actions">
-                                    <?= $this->Html->link(__('View'), ['action' => 'view', $calendar->id]) ?>
-                                    <?= $this->Html->link(__('Edit'), ['action' => 'edit', $calendar->id]) ?>
-                                    <?= $this->Form->postLink(__('Delete'), ['action' => 'delete', $calendar->id], ['confirm' => __('Are you sure you want to delete # {0}?', $calendar->id)]) ?>
-                                </td>
-                            </tr>
-                            <?php endforeach; ?>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-            <div class="paginator">
-                <ul class="pagination">
-                    <?= $this->Paginator->first('<< ' . __('first')) ?>
-                    <?= $this->Paginator->prev('< ' . __('previous')) ?>
-                    <?= $this->Paginator->numbers() ?>
-                    <?= $this->Paginator->next(__('next') . ' >') ?>
-                    <?= $this->Paginator->last(__('last') . ' >>') ?>
-                </ul>
-                <p><?= $this->Paginator->counter(['format' => __('Page {{page}} of {{pages}}, showing {{current}} record(s) out of {{count}} total')]) ?></p>
-            </div>
-        </div>
-    </div>
 </section>

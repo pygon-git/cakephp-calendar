@@ -1,8 +1,10 @@
 <?php
 namespace Qobo\Calendar\Controller;
 
+use Cake\Event\Event;
 use Cake\ORM\TableRegistry;
 use Qobo\Calendar\Controller\AppController;
+use Qobo\Utils\Utility;
 
 /**
  * Calendars Controller
@@ -13,6 +15,17 @@ use Qobo\Calendar\Controller\AppController;
  */
 class CalendarsController extends AppController
 {
+    /**
+     * {@inheritDoc}
+     */
+    public function beforeFilter(Event $event)
+    {
+        $icons = Utility::getIcons();
+        $colors = Utility::getColors();
+
+        $this->set('icons', $icons);
+        $this->set('colors', $colors);
+    }
 
     /**
      * Index method
@@ -21,7 +34,10 @@ class CalendarsController extends AppController
      */
     public function index()
     {
-        $calendars = $this->paginate($this->Calendars);
+        $query = $this->Calendars->find()
+                ->order(['name' => 'ASC']);
+
+        $calendars = $query->all();
 
         $this->set(compact('calendars'));
         $this->set('_serialize', ['calendars']);
@@ -61,6 +77,7 @@ class CalendarsController extends AppController
             }
             $this->Flash->error(__('The calendar could not be saved. Please, try again.'));
         }
+
         $this->set(compact('calendar'));
         $this->set('_serialize', ['calendar']);
     }
@@ -77,6 +94,7 @@ class CalendarsController extends AppController
         $calendar = $this->Calendars->get($id, [
             'contain' => []
         ]);
+
         if ($this->request->is(['patch', 'post', 'put'])) {
             $calendar = $this->Calendars->patchEntity($calendar, $this->request->getData());
             if ($this->Calendars->save($calendar)) {
@@ -86,6 +104,7 @@ class CalendarsController extends AppController
             }
             $this->Flash->error(__('The calendar could not be saved. Please, try again.'));
         }
+
         $this->set(compact('calendar'));
         $this->set('_serialize', ['calendar']);
     }
@@ -151,5 +170,13 @@ class CalendarsController extends AppController
 
         $this->set(compact('events'));
         $this->set('_serialize', ['events']);
+    }
+
+    /**
+     * @return array $colors of the calendar
+     */
+    protected function _getColors()
+    {
+        return $this->colors;
     }
 }

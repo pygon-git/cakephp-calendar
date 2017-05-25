@@ -2,6 +2,28 @@
 /**
  * @var \App\View\AppView $this
  */
+echo $this->Html->css(
+    [
+        'AdminLTE./plugins/select2/select2.min',
+        'Qobo/Utils.select2-bootstrap.min',
+        'Qobo/Utils.select2-style',
+    ],
+    ['block' => 'css']
+);
+
+echo $this->Html->script(
+    [
+        'AdminLTE./plugins/select2/select2.full.min',
+        'Qobo/Utils.select2.init',
+    ],
+    ['block' => 'scriptBotton']
+);
+
+foreach ($icons as $k => $v) {
+    $icons[$v] = '<i class="fa fa-' . $v . '"></i>&nbsp;&nbsp;' . $v;
+    unset($icons[$k]);
+}
+
 ?>
 <?= $this->Form->create($calendar) ?>
 <section class="content-header">
@@ -25,8 +47,21 @@
                     <?= $this->Form->control('calendar_source'); ?>
                 </div>
                 <div class="col-xs-12 col-md-6">
-                    <?= $this->Form->control('color');?>
-                    <?= $this->Form->control('icon');?>
+                    <?php // $this->Form->control('color', ['type' => 'select', 'options' => $calendarColors]);?>
+                    <?= $this->Form->input('color', [
+                        'type' => 'select',
+                        'options' => $colors,
+                        'class' => 'select2',
+                        'empty' => true
+                    ]) ?>
+
+                    <?= $this->Form->input('icon', [
+                        'type' => 'select',
+                        'options' => $icons,
+                        'class' => 'select2',
+                        'empty' => true
+                    ]) ?>
+
                 </div>
             </div>
         </div>

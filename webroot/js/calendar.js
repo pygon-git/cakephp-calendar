@@ -72,13 +72,11 @@ var calendar = calendar || {};
             data: { 'id' : event.id },
         }).done(function (resp) {
             if (resp) {
-                $('#calendar-modal-view-event').find('.modal-body').empty();
-                $('#calendar-modal-view-event').find('.modal-body').append(resp);
+                $('#calendar-modal-view-event').find('.modal-content').empty();
+                $('#calendar-modal-view-event').find('.modal-content').append(resp);
                 $('#calendar-modal-view-event').modal('toggle');
             }
         });
-
-        console.log('event clicked');
     };
 
     QoboCalendar.prototype.attachCalendarEvents = function () {
@@ -109,8 +107,7 @@ var calendar = calendar || {};
             url: '/calendars/calendar-events/create-event',
             data: data,
             success: function (resp) {
-                console.log(resp);
-                console.log('sent...');
+                $('#calendar-modal-add-event').modal('toggle');
             }
         });
     }
