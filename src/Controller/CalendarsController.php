@@ -1,8 +1,10 @@
 <?php
 namespace Qobo\Calendar\Controller;
 
+use Cake\Event\Event;
 use Cake\ORM\TableRegistry;
 use Qobo\Calendar\Controller\AppController;
+use Qobo\Utils\Utility;
 
 /**
  * Calendars Controller
@@ -13,18 +15,17 @@ use Qobo\Calendar\Controller\AppController;
  */
 class CalendarsController extends AppController
 {
-
     /**
-     * @var array $colors for the Calendars
+     * {@inheritDoc}
      */
-    public $colors = [
-        '#e3910f' => 'Orange',
-        '#ffc8e8' => 'Pink',
-        '#e0e8f2' => 'Ice Blue',
-        '#C0362C' => 'Red',
-        '#668D3C' => 'Green',
-        '#007996' => 'Blue',
-    ];
+    public function beforeFilter(Event $event)
+    {
+        $icons = Utility::getIcons();
+        $colors = Utility::getColors();
+
+        $this->set('icons', $icons);
+        $this->set('colors', $colors);
+    }
 
     /**
      * Index method
@@ -33,7 +34,10 @@ class CalendarsController extends AppController
      */
     public function index()
     {
-        $calendars = $this->paginate($this->Calendars);
+        $query = $this->Calendars->find()
+                ->order(['name' => 'ASC']);
+
+        $calendars = $query->all();
 
         $this->set(compact('calendars'));
         $this->set('_serialize', ['calendars']);
@@ -74,7 +78,6 @@ class CalendarsController extends AppController
             $this->Flash->error(__('The calendar could not be saved. Please, try again.'));
         }
 
-        $this->set('calendarColors', $this->_getColors());
         $this->set(compact('calendar'));
         $this->set('_serialize', ['calendar']);
     }
@@ -91,6 +94,7 @@ class CalendarsController extends AppController
         $calendar = $this->Calendars->get($id, [
             'contain' => []
         ]);
+
         if ($this->request->is(['patch', 'post', 'put'])) {
             $calendar = $this->Calendars->patchEntity($calendar, $this->request->getData());
             if ($this->Calendars->save($calendar)) {
@@ -101,7 +105,6 @@ class CalendarsController extends AppController
             $this->Flash->error(__('The calendar could not be saved. Please, try again.'));
         }
 
-        $this->set('calendarColors', $this->_getColors());
         $this->set(compact('calendar'));
         $this->set('_serialize', ['calendar']);
     }
