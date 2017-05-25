@@ -169,6 +169,9 @@ class CalendarsController extends AppController
         $this->set('_serialize', ['events']);
     }
 
+    /**
+     * @return array $colors of the calendar
+     */
     protected function _getColors()
     {
         return $this->colors;

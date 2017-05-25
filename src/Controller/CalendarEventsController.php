@@ -147,7 +147,7 @@ class CalendarEventsController extends AppController
         if ($this->request->is(['post', 'patch', 'put'])) {
             $data = $this->request->getData();
 
-            $calEvent = $this->CalendarEvents->get($data['id']);
+            $calEvent = $this->CalendarEvents->get($data['id'], ['contain' => 'Calendars']);
         }
         $this->set(compact('calEvent'));
         $this->set('_serialize', ['calEvent']);
