@@ -43,11 +43,16 @@ foreach ($icons as $k => $v) {
             <div class="row">
                 <div class="col-xs-12 col-md-6">
                     <?= $this->Form->control('name'); ?>
-                    <?= $this->Form->control('calendar_source_id', ['type' => 'text']);?>
+
+                    <?= $this->Form->input('calendar_type', [
+                        'type' => 'select',
+                        'options' => $calendarTypes,
+                        'class' => 'select2',
+                        'empty' => true
+                    ]) ?>
                     <?= $this->Form->control('calendar_source'); ?>
                 </div>
                 <div class="col-xs-12 col-md-6">
-                    <?php // $this->Form->control('color', ['type' => 'select', 'options' => $calendarColors]);?>
                     <?= $this->Form->input('color', [
                         'type' => 'select',
                         'options' => $colors,
@@ -61,7 +66,7 @@ foreach ($icons as $k => $v) {
                         'class' => 'select2',
                         'empty' => true
                     ]) ?>
-
+                    <?= $this->Form->control('calendar_source_id', ['type' => 'text']);?>
                 </div>
             </div>
         </div>

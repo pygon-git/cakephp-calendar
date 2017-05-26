@@ -1,6 +1,9 @@
 <?php
 namespace Qobo\Calendar\Controller;
 
+use Cake\Core\Configure;
+use Cake\Event\Event;
+use Cake\ORM\TableRegistry;
 use Qobo\Calendar\Controller\AppController;
 
 /**
@@ -12,7 +15,6 @@ use Qobo\Calendar\Controller\AppController;
  */
 class CalendarEventsController extends AppController
 {
-
     /**
      * Index method
      *
@@ -54,6 +56,7 @@ class CalendarEventsController extends AppController
     public function add()
     {
         $calendarEvent = $this->CalendarEvents->newEntity();
+
         if ($this->request->is('post')) {
             $calendarEvent = $this->CalendarEvents->patchEntity($calendarEvent, $this->request->getData());
             if ($this->CalendarEvents->save($calendarEvent)) {
@@ -77,9 +80,25 @@ class CalendarEventsController extends AppController
      */
     public function edit($id = null)
     {
+        $eventTypes = [];
+
         $calendarEvent = $this->CalendarEvents->get($id, [
-            'contain' => []
+            'contain' => ['Calendars']
         ]);
+
+        $calendars = $this->CalendarEvents->Calendars->find('list', ['limit' => 200]);
+
+        $calendarType = $calendarEvent->calendar->calendar_type;
+        $types = Configure::read('Types');
+
+        foreach ($types as $typeInfo) {
+            if ($typeInfo['value'] === $calendarType) {
+                foreach ($typeInfo['types'] as $type) {
+                    $eventTypes[$type['value']] = $type['name'];
+                }
+            }
+        }
+
         if ($this->request->is(['patch', 'post', 'put'])) {
             $calendarEvent = $this->CalendarEvents->patchEntity($calendarEvent, $this->request->getData());
             if ($this->CalendarEvents->save($calendarEvent)) {
@@ -89,7 +108,8 @@ class CalendarEventsController extends AppController
             }
             $this->Flash->error(__('The calendar event could not be saved. Please, try again.'));
         }
-        $calendars = $this->CalendarEvents->Calendars->find('list', ['limit' => 200]);
+
+        $this->set('eventTypes', $eventTypes);
         $this->set(compact('calendarEvent', 'calendars'));
         $this->set('_serialize', ['calendarEvent']);
     }
@@ -151,5 +171,37 @@ class CalendarEventsController extends AppController
         }
         $this->set(compact('calEvent'));
         $this->set('_serialize', ['calEvent']);
+    }
+
+    public function getEventTypes()
+    {
+        $eventTypes = [];
+        $types = Configure::read('Types');
+
+        $this->Calendars = TableRegistry::get('Calendars');
+
+        if ($this->request->is(['post', 'patch', 'put'])) {
+            $data = $this->request->getData();
+
+            $calendar = $this->Calendars->get($data['id']);
+            $calendarType = $calendar->calendar_type;
+
+            foreach ($types as $typeInfo) {
+                if ($typeInfo['value'] == $calendarType) {
+                    foreach ($typeInfo['types'] as $k => $type) {
+                        array_push(
+                            $eventTypes,
+                            [
+                                'id' => $type['value'],
+                                'text' => $type['name']
+                             ]
+                        );
+                    }
+                }
+            }
+        }
+
+        $this->set(compact('eventTypes'));
+        $this->set('_serialize', ['eventTypes']);
     }
 }

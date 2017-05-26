@@ -23,8 +23,7 @@
                     <?php
                         echo $this->Form->control('title');
                         echo $this->Form->control('calendar_id', ['options' => $calendars]);
-                        echo $this->Form->control('event_source_id', ['type' => 'text']);
-                        echo $this->Form->control('event_source');
+                        echo $this->Form->control('event_type', ['options' => $eventTypes]);
                     ?>
                 </div>
                 <div class="col-xs-12 col-md-6">
@@ -32,6 +31,8 @@
                     echo $this->Form->control('start_date', ['empty' => true]);
                     echo $this->Form->control('end_date', ['empty' => true]);
                     echo $this->Form->control('duration', ['empty' => true]);
+                    echo $this->Form->control('event_source_id', ['type' => 'text']);
+                    echo $this->Form->control('event_source');
                 ?>
                 </div>
             </div>

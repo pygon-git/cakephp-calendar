@@ -17,7 +17,12 @@ if (!empty($calendars)) {
             <div class="modal-body">
                 <div class="row">
                     <div class="col-xs-12">
-                        <?= $this->Form->input('CalendarEvents.calendar_id', ['type' => 'select', 'options' => $calendarOptions, 'empty' => 'Choose Calendar']);?>
+                        <?= $this->Form->input('CalendarEvents.calendar_id', ['type' => 'select', 'class' => 'calendar-dyn-calendar-type', 'options' => $calendarOptions, 'empty' => 'Choose Calendar']);?>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-12">
+                        <?= $this->Form->input('CalendarEvents.event_type', ['type' => 'select', 'class' => 'calendar-dyn-event-type', 'options' => [], 'empty' => 'Choose Event Type']);?>
                     </div>
                 </div>
                 <div class="row">
