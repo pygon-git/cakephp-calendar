@@ -1,6 +1,7 @@
 <?php
 namespace Qobo\Calendar\Controller;
 
+use Cake\Core\Configure;
 use Cake\Event\Event;
 use Cake\ORM\TableRegistry;
 use Qobo\Calendar\Controller\AppController;
@@ -22,7 +23,15 @@ class CalendarsController extends AppController
     {
         $icons = Utility::getIcons();
         $colors = Utility::getColors();
+        $types = Configure::read('Types');
 
+        $calendarTypes = [];
+
+        foreach ($types as $typeInfo) {
+            $calendarTypes[$typeInfo['value']] = $typeInfo['name'];
+        }
+
+        $this->set('calendarTypes', $calendarTypes);
         $this->set('icons', $icons);
         $this->set('colors', $colors);
     }
@@ -34,10 +43,7 @@ class CalendarsController extends AppController
      */
     public function index()
     {
-        $query = $this->Calendars->find()
-                ->order(['name' => 'ASC']);
-
-        $calendars = $query->all();
+        $calendars = $this->Calendars->getCalendars();
 
         $this->set(compact('calendars'));
         $this->set('_serialize', ['calendars']);
@@ -134,25 +140,18 @@ class CalendarsController extends AppController
      *
      * @return array $events containing indexed array of events by calendar.
      */
-    public function getEvents()
+    public function events()
     {
         $events = [];
         $calendar = null;
 
-        $eventTable = TableRegistry::get('CalendarEvents');
-
+        $eventsTable = TableRegistry::get('Qobo/Calendar.CalendarEvents');
         $data = $this->request->getData();
 
         if (!empty($data['calendarId'])) {
             $calendar = $this->Calendars->get($data['calendarId']);
 
-            $resultSet = $eventTable->find()
-                ->where(
-                    [
-                        'calendar_id' => $data['calendarId']
-                    ]
-                )
-                ->toArray();
+            $resultSet = $eventsTable->getCalendarEvents(['calendar_id' => $data['calendarId']]);
         }
 
         if (!empty($resultSet)) {

@@ -3,6 +3,9 @@ echo $this->Html->css(
     [
         'AdminLTE./plugins/fullcalendar/fullcalendar.min.css',
         'AdminLTE./plugins/daterangepicker/daterangepicker-bs3',
+        'AdminLTE./plugins/select2/select2.min',
+        'Qobo/Utils.select2-bootstrap.min',
+        'Qobo/Utils.select2-style',
     ]
 );
 
@@ -11,7 +14,9 @@ echo $this->Html->script(
         'AdminLTE./plugins/daterangepicker/moment.min',
         'AdminLTE./plugins/fullcalendar/fullcalendar.min.js',
         'AdminLTE./plugins/daterangepicker/daterangepicker',
+        'AdminLTE./plugins/select2/select2.min',
         'Qobo/Calendar.calendar',
+        'Qobo/Calendar.calendar.misc',
     ],
     ['block' => 'scriptBotton']
 );
@@ -50,11 +55,11 @@ echo $this->Html->script(
                                             'type' => 'checkbox',
                                             'multiple' => true,
                                             'value' => $calendar->id,
-                                            //'label' => $calendar->name,
                                             'class' => 'calendar-id',
                                             'hiddenField' => false,
                                             'label' => $label,
                                             'escape' => false,
+                                            'checked' => $calendar->active,
                                         ]);?>
                                     </div>
                                     <div class="col-xs-4">
@@ -114,7 +119,7 @@ echo $this->Html->script(
                     <h3 class="box-title">Organizer</h3>
                 </div>
                 <div class='box-body'>
-                    WTF!
+
                 </div>
             </div>
 -->

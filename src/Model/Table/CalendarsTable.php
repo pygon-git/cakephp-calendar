@@ -1,6 +1,8 @@
 <?php
 namespace Qobo\Calendar\Model\Table;
 
+use Cake\Event\Event;
+use Cake\Event\EventManager;
 use Cake\ORM\Query;
 use Cake\ORM\RulesChecker;
 use Cake\ORM\Table;
@@ -85,5 +87,25 @@ class CalendarsTable extends Table
     public function buildRules(RulesChecker $rules)
     {
         return $rules;
+    }
+
+    /**
+     * Get Calendar entities.
+     *
+     * @param array $options for filtering calendars
+     */
+    public function getCalendars($options = [])
+    {
+        $result = [];
+
+        $event = new Event('Calendars.Model.getCalendars', $this, [
+            'options' => $options,
+        ]);
+
+        EventManager::instance()->dispatch($event);
+
+        $result = $event->result;
+
+        return $result;
     }
 }
