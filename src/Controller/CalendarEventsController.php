@@ -173,6 +173,9 @@ class CalendarEventsController extends AppController
         $this->set('_serialize', ['calEvent']);
     }
 
+    /**
+     * @return array $eventTypes of the current calendar type.
+     */
     public function getEventTypes()
     {
         $eventTypes = [];
