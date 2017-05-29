@@ -86,4 +86,21 @@ class CalendarsTable extends Table
     {
         return $rules;
     }
+
+    /**
+     * Get Calendar entities.
+     *
+     * @param array $options for filtering calendars
+     */
+    public function getCalendars($options = [])
+    {
+        $result = [];
+
+        $query = $this->find()
+            ->order(['name' => 'ASC']);
+
+        $result = $query->all();
+
+        return $result;
+    }
 }

@@ -43,10 +43,7 @@ class CalendarsController extends AppController
      */
     public function index()
     {
-        $query = $this->Calendars->find()
-                ->order(['name' => 'ASC']);
-
-        $calendars = $query->all();
+        $calendars = $this->Calendars->getCalendars();
 
         $this->set(compact('calendars'));
         $this->set('_serialize', ['calendars']);

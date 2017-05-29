@@ -55,11 +55,11 @@ echo $this->Html->script(
                                             'type' => 'checkbox',
                                             'multiple' => true,
                                             'value' => $calendar->id,
-                                            //'label' => $calendar->name,
                                             'class' => 'calendar-id',
                                             'hiddenField' => false,
                                             'label' => $label,
                                             'escape' => false,
+                                            'checked' => $calendar->active,
                                         ]);?>
                                     </div>
                                     <div class="col-xs-4">
@@ -119,7 +119,7 @@ echo $this->Html->script(
                     <h3 class="box-title">Organizer</h3>
                 </div>
                 <div class='box-body'>
-                    WTF!
+
                 </div>
             </div>
 -->

@@ -82,6 +82,13 @@ var calendar = calendar || {};
     QoboCalendar.prototype.attachCalendarEvents = function () {
         var that = this;
 
+        // load events based on active calendars on load.
+        $.each( $(this.calendarIdContainer), function (index, el) {
+            if ($(el).is(':checked')) {
+                that.loadSelectedCalendarEvents($(el).val());
+            }
+        });
+
         // adding event handler for calendar list checkboxes.
         $(this.calendarIdContainer).on('click', function () {
             var calendarId = $(this).val();
