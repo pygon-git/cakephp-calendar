@@ -98,4 +98,33 @@ class CalendarEventsTable extends Table
 
         return $rules;
     }
+
+    /**
+     * Get Events of specific calendar
+     *
+     * @param array $options with filter params
+     *
+     * @return array $result
+     */
+    public function getCalendarEvents($options = [])
+    {
+        $result = [];
+
+        if (empty($options['calendar_id'])) {
+            return $result;
+        }
+
+        $resultSet = $this->find()
+            ->where(
+                [
+                    'calendar_id' => $options['calendar_id']
+                ]
+            )->toArray();
+
+        if (!empty($resultSet)) {
+            $result = $resultSet;
+        }
+
+        return $result;
+    }
 }

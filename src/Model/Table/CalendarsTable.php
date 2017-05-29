@@ -1,6 +1,8 @@
 <?php
 namespace Qobo\Calendar\Model\Table;
 
+use Cake\Event\Event;
+use Cake\Event\EventManager;
 use Cake\ORM\Query;
 use Cake\ORM\RulesChecker;
 use Cake\ORM\Table;
@@ -99,7 +101,16 @@ class CalendarsTable extends Table
         $query = $this->find()
             ->order(['name' => 'ASC']);
 
-        $result = $query->all();
+        $entities = $query->all();
+
+        $event = new Event('Calendars.Model.getCalendars', $this, [
+            'options' => $options,
+            'entities' => $entities,
+        ]);
+
+        EventManager::instance()->dispatch($event);
+
+        $result = $event->result;
 
         return $result;
     }

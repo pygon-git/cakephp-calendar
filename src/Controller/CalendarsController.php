@@ -140,27 +140,18 @@ class CalendarsController extends AppController
      *
      * @return array $events containing indexed array of events by calendar.
      */
-    public function getEvents()
+    public function events()
     {
         $events = [];
         $calendar = null;
 
-        $eventTable = TableRegistry::get('CalendarEvents');
-
+        $eventsTable = TableRegistry::get('Qobo/Calendar.CalendarEvents');
         $data = $this->request->getData();
 
         if (!empty($data['calendarId'])) {
             $calendar = $this->Calendars->get($data['calendarId']);
 
-            // FIXME: remove trashed check in favor of plugin enabling
-            $resultSet = $eventTable->find()
-                ->where(
-                    [
-                        'calendar_id' => $data['calendarId'],
-                        'trashed IS' => null,
-                    ]
-                )
-                ->toArray();
+            $resultSet = $eventsTable->getCalendarEvents(['calendar_id' => $data['calendarId']]);
         }
 
         if (!empty($resultSet)) {

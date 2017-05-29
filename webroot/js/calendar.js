@@ -142,7 +142,7 @@ var calendar = calendar || {};
         $.ajax({
             method: 'POST',
             dataType: 'json',
-            url: "/calendars/calendars/get-events",
+            url: "/calendars/calendars/events",
             data: { 'calendarId': calendarId },
             success: function (resp) {
                 if (resp.events.length) {
@@ -164,7 +164,7 @@ var calendar = calendar || {};
         $.ajax({
             method: 'POST',
             dataType: 'json',
-            url: "/calendars/calendars/get-events",
+            url: "/calendars/calendars/events",
             data: { 'calendarId': calendarId },
             success: function (resp) {
                 if (resp.events.length) {
