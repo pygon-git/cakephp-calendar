@@ -67,6 +67,8 @@ foreach ($icons as $k => $v) {
                         'empty' => true
                     ]) ?>
                     <?= $this->Form->control('calendar_source_id', ['type' => 'text']);?>
+
+                    <?= $this->Form->control('active');?>
                 </div>
             </div>
         </div>
