@@ -98,14 +98,8 @@ class CalendarsTable extends Table
     {
         $result = [];
 
-        $query = $this->find()
-            ->order(['name' => 'ASC']);
-
-        $entities = $query->all();
-
         $event = new Event('Calendars.Model.getCalendars', $this, [
             'options' => $options,
-            'entities' => $entities,
         ]);
 
         EventManager::instance()->dispatch($event);

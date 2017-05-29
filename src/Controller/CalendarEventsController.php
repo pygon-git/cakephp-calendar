@@ -3,6 +3,7 @@ namespace Qobo\Calendar\Controller;
 
 use Cake\Core\Configure;
 use Cake\Event\Event;
+use Cake\Event\EventManager;
 use Cake\ORM\TableRegistry;
 use Qobo\Calendar\Controller\AppController;
 
@@ -140,27 +141,24 @@ class CalendarEventsController extends AppController
     public function getEventTypes()
     {
         $eventTypes = [];
-        $types = Configure::read('Types');
-
-        $this->Calendars = TableRegistry::get('Calendars');
 
         if ($this->request->is(['post', 'patch', 'put'])) {
             $data = $this->request->getData();
 
-            $calendar = $this->Calendars->get($data['id']);
-            $calendarType = $calendar->calendar_type;
+            $event = new Event('Calendars.Model.getCalendars', $this, [
+                'options' => ['id' => $data['id']]
+            ]);
 
-            foreach ($types as $typeInfo) {
-                if ($typeInfo['value'] == $calendarType) {
-                    foreach ($typeInfo['types'] as $k => $type) {
-                        array_push(
-                            $eventTypes,
-                            [
-                                'id' => $type['value'],
-                                'text' => $type['name']
-                             ]
-                        );
-                    }
+            EventManager::instance()->dispatch($event);
+
+            $calendar = !empty($event->result[0]) ? $event->result[0]: [];
+
+            if (isset($calendar->event_types) && !empty($calendar->event_types)) {
+                foreach ($calendar->event_types as $k => $eventType) {
+                    array_push($eventTypes, [
+                        'id' => $eventType['value'],
+                        'text' => $eventType['name'],
+                    ]);
                 }
             }
         }
