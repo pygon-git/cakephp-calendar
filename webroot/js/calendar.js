@@ -68,7 +68,7 @@ var calendar = calendar || {};
     QoboCalendar.prototype.loadSelectedCalendarEvent = function (event) {
         $.ajax({
             method: 'POST',
-            url: '/calendars/calendar-events/view-event',
+            url: '/calendars/calendar-events/view',
             data: { 'id' : event.id },
         }).done(function (resp) {
             if (resp) {
@@ -101,16 +101,29 @@ var calendar = calendar || {};
     };
 
     QoboCalendar.prototype.createEvent = function (data) {
+        var that = this;
+
         $.ajax({
             method: 'POST',
             dataType: 'json',
-            url: '/calendars/calendar-events/create-event',
+            url: '/calendars/calendar-events/add',
             data: data,
             success: function (resp) {
+                if (resp.event.entity !== undefined) {
+                    var event = {
+                        id: resp.event.entity.id,
+                        title: resp.event.entity.title,
+                        start: moment().format(resp.event.entity.start),
+                        color: resp.event.entity.color
+                    };
+
+                    $(that.calendarContainer).fullCalendar('addEventSource', [event]);
+                }
+
                 $('#calendar-modal-add-event').modal('toggle');
             }
         });
-    }
+    };
 
     QoboCalendar.prototype.unloadSelectedCalendarEvents = function (calendarId) {
         var that = this;
@@ -132,8 +145,7 @@ var calendar = calendar || {};
                 }
             }
         });
-
-    }
+    };
 
     QoboCalendar.prototype.loadSelectedCalendarEvents = function (calendarId) {
         var that = this;

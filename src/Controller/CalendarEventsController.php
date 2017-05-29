@@ -16,62 +16,6 @@ use Qobo\Calendar\Controller\AppController;
 class CalendarEventsController extends AppController
 {
     /**
-     * Index method
-     *
-     * @return \Cake\Http\Response|null
-     */
-    public function index()
-    {
-        $this->paginate = [
-            'contain' => ['Calendars']
-        ];
-        $calendarEvents = $this->paginate($this->CalendarEvents);
-
-        $this->set(compact('calendarEvents'));
-        $this->set('_serialize', ['calendarEvents']);
-    }
-
-    /**
-     * View method
-     *
-     * @param string|null $id Calendar Event id.
-     * @return \Cake\Http\Response|null
-     * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
-     */
-    public function view($id = null)
-    {
-        $calendarEvent = $this->CalendarEvents->get($id, [
-            'contain' => ['Calendars']
-        ]);
-
-        $this->set('calendarEvent', $calendarEvent);
-        $this->set('_serialize', ['calendarEvent']);
-    }
-
-    /**
-     * Add method
-     *
-     * @return \Cake\Http\Response|null Redirects on successful add, renders view otherwise.
-     */
-    public function add()
-    {
-        $calendarEvent = $this->CalendarEvents->newEntity();
-
-        if ($this->request->is('post')) {
-            $calendarEvent = $this->CalendarEvents->patchEntity($calendarEvent, $this->request->getData());
-            if ($this->CalendarEvents->save($calendarEvent)) {
-                $this->Flash->success(__('The calendar event has been saved.'));
-
-                return $this->redirect(['action' => 'index']);
-            }
-            $this->Flash->error(__('The calendar event could not be saved. Please, try again.'));
-        }
-        $calendars = $this->CalendarEvents->Calendars->find('list', ['limit' => 200]);
-        $this->set(compact('calendarEvent', 'calendars'));
-        $this->set('_serialize', ['calendarEvent']);
-    }
-
-    /**
      * Edit method
      *
      * @param string|null $id Calendar Event id.
@@ -104,7 +48,7 @@ class CalendarEventsController extends AppController
             if ($this->CalendarEvents->save($calendarEvent)) {
                 $this->Flash->success(__('The calendar event has been saved.'));
 
-                return $this->redirect(['action' => 'index']);
+                return $this->redirect(['plugin' => 'Qobo/Calendar', 'controller' => 'Calendars', 'action' => 'index']);
             }
             $this->Flash->error(__('The calendar event could not be saved. Please, try again.'));
         }
@@ -131,34 +75,51 @@ class CalendarEventsController extends AppController
             $this->Flash->error(__('The calendar event could not be deleted. Please, try again.'));
         }
 
-        return $this->redirect(['action' => 'index']);
+        return $this->redirect(['plugin' => 'Qobo/Calendar', 'controller' => 'Calendars', 'action' => 'index']);
     }
 
     /**
      * Create Event via AJAX call
      */
-    public function createEvent()
+    public function add()
     {
         $result = [];
         $calendarEvent = $this->CalendarEvents->newEntity();
+        $this->Calendars = TableRegistry::get('Calendars');
 
         if ($this->request->is(['patch', 'post', 'put'])) {
             $calendarEvent = $this->CalendarEvents->patchEntity($calendarEvent, $this->request->getData());
-            if ($this->CalendarEvents->save($calendarEvent)) {
+
+            $calendar = $this->Calendars->get($calendarEvent->calendar_id);
+
+            $saved = $this->CalendarEvents->save($calendarEvent);
+            $entity = [
+                'id' => $saved->id,
+                'title' => $saved->title,
+                'start' => $saved->start_date,
+                'end' => $saved->end_date,
+                'color' => $calendar->color
+            ];
+
+            if ($saved) {
+                $result['entity'] = $entity;
                 $result['message'] = 'Successfully saved Event';
             } else {
+                $result['entity'] = [];
                 $result['message'] = 'Couldn\'t save Calendar Event';
             }
         }
 
-        $this->set(compact('result'));
-        $this->set('_serialize', ['result']);
+        $event = $result;
+
+        $this->set(compact('event'));
+        $this->set('_serialize', ['event']);
     }
 
     /**
      * View Event via AJAX
      */
-    public function viewEvent()
+    public function view()
     {
         $this->viewBuilder()->setLayout('Qobo/Calendar.ajax');
 

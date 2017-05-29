@@ -155,10 +155,12 @@ class CalendarsController extends AppController
         if (!empty($data['calendarId'])) {
             $calendar = $this->Calendars->get($data['calendarId']);
 
+            // FIXME: remove trashed check in favor of plugin enabling
             $resultSet = $eventTable->find()
                 ->where(
                     [
-                        'calendar_id' => $data['calendarId']
+                        'calendar_id' => $data['calendarId'],
+                        'trashed IS' => null,
                     ]
                 )
                 ->toArray();
