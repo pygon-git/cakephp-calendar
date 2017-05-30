@@ -1,6 +1,8 @@
 <?php
 namespace Qobo\Calendar\Model\Table;
 
+use Cake\Event\Event;
+use Cake\Event\EventManager;
 use Cake\ORM\Query;
 use Cake\ORM\RulesChecker;
 use Cake\ORM\Table;
@@ -110,20 +112,13 @@ class CalendarEventsTable extends Table
     {
         $result = [];
 
-        if (empty($options['calendar_id'])) {
-            return $result;
-        }
+        $event = new Event('Calendars.Model.getCalendarEvents', $this, [
+            'options' => $options
+        ]);
 
-        $resultSet = $this->find()
-            ->where(
-                [
-                    'calendar_id' => $options['calendar_id']
-                ]
-            )->toArray();
+        EventManager::instance()->dispatch($event);
 
-        if (!empty($resultSet)) {
-            $result = $resultSet;
-        }
+        $result = $event->result;
 
         return $result;
     }
