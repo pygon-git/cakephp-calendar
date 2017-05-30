@@ -23,47 +23,14 @@ class GetCalendarEventsListener implements EventListenerInterface
      * Get Calendar Events entities
      *
      * @param Cake\Event\Event $event passed through model
+     * @param Cake\Table\Entity $calendar object
      * @param array $options containing model options
      *
-     * @return array $result containing filtered out calendars.
+     * @return void
      */
-    public function getCalendarEvents(Event $event, $options = [])
+    public function getCalendarEvents(Event $event, $calendar, $options = [])
     {
         $result = [];
-        $table = TableRegistry::get('Qobo/Calendar.CalendarEvents');
-
-        if (!empty($options['calendar_id'])) {
-            $resultSet = $table->find()
-                    ->where(
-                        [
-                            'calendar_id' => $options['calendar_id'],
-                        ]
-                    )->toArray();
-
-            if (!empty($resultSet)) {
-                $result = $resultSet;
-            }
-        }
-
-        $event->result = $result;
-    }
-
-    /**
-     * Get Calendar Event Info
-     *
-     * @param Cake\Event\Event $event being broadcasted
-     * @param array $options with search conditions
-     *
-     * @return array $result containing event info
-     */
-    public function getCalendarEventInfo(Event $event, $options = [])
-    {
-        $result = [];
-        $table = TableRegistry::get('Qobo/Calendar.CalendarEvents');
-
-        if (!empty($options['id'])) {
-            $result = $table->get($options['id'], ['contain' => 'Calendars']);
-        }
 
         $event->result = $result;
     }

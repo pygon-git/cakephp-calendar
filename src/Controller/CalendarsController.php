@@ -2,6 +2,7 @@
 namespace Qobo\Calendar\Controller;
 
 use Cake\Event\Event;
+use Cake\Event\EventManager;
 use Cake\ORM\TableRegistry;
 use Qobo\Calendar\Controller\AppController;
 use Qobo\Utils\Utility;
@@ -33,11 +34,17 @@ class CalendarsController extends AppController
     /**
      * Index method
      *
-     * @return \Cake\Http\Response|null
+     * @return void
      */
     public function index()
     {
-        $calendars = $this->Calendars->getCalendars();
+        $event = new Event('Calendars.Model.getCalendars', $this, [
+            'options' => []
+        ]);
+
+        EventManager::instance()->dispatch($event);
+
+        $calendars = $event->result;
 
         $this->set(compact('calendars'));
         $this->set('_serialize', ['calendars']);
@@ -47,14 +54,16 @@ class CalendarsController extends AppController
      * View method
      *
      * @param string|null $id Calendar id.
-     * @return \Cake\Http\Response|null
+     * @return void
      * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
      */
     public function view($id = null)
     {
-        $calendar = $this->Calendars->get($id, [
-            'contain' => ['CalendarEvents']
-        ]);
+        $calendars = $this->Calendars->getCalendars(['id' => $id]);
+
+        if (!empty($calendars)) {
+            $calendar = array_shift($calendars);
+        }
 
         $this->set('calendar', $calendar);
         $this->set('_serialize', ['calendar']);
@@ -132,7 +141,7 @@ class CalendarsController extends AppController
     /**
      * Get Calendar Events
      *
-     * @return array $events containing indexed array of events by calendar.
+     * @return void
      */
     public function events()
     {
@@ -140,12 +149,26 @@ class CalendarsController extends AppController
         $calendar = null;
 
         $eventsTable = TableRegistry::get('Qobo/Calendar.CalendarEvents');
+
         $data = $this->request->getData();
 
         if (!empty($data['calendarId'])) {
-            $calendar = $this->Calendars->get($data['calendarId']);
+            $calendars = $this->Calendars->getCalendars(['id' => $data['calendarId']]);
+            if (!empty($calendars)) {
+                $calendar = $calendars[0];
+            }
+            $resultSet = $eventsTable->getCalendarEvents($calendar);
+        }
 
-            $resultSet = $eventsTable->getCalendarEvents(['calendar_id' => $data['calendarId']]);
+        $event = new Event('Calendars.Model.getCalendarEvents', $this, [
+            'calendar' => $calendar,
+            'options' => $data,
+        ]);
+
+        EventManager::instance()->dispatch($event);
+
+        if (!empty($event->result)) {
+            $resultSet = $event->result;
         }
 
         if (!empty($resultSet)) {

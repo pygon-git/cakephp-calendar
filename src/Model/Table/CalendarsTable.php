@@ -1,11 +1,13 @@
 <?php
 namespace Qobo\Calendar\Model\Table;
 
+use Cake\Core\Configure;
 use Cake\Event\Event;
 use Cake\Event\EventManager;
 use Cake\ORM\Query;
 use Cake\ORM\RulesChecker;
 use Cake\ORM\Table;
+use Cake\ORM\TableRegistry;
 use Cake\Validation\Validator;
 
 /**
@@ -93,18 +95,41 @@ class CalendarsTable extends Table
      * Get Calendar entities.
      *
      * @param array $options for filtering calendars
+     *
+     * @return array $result containing calendar entities with event_types
      */
     public function getCalendars($options = [])
     {
-        $result = [];
+        $result = $conditions = [];
+        $table = TableRegistry::get('Qobo/Calendar.Calendars');
 
-        $event = new Event('Calendars.Model.getCalendars', $this, [
-            'options' => $options,
-        ]);
+        if (!empty($options['id'])) {
+            $conditions['id'] = $options['id'];
+        }
 
-        EventManager::instance()->dispatch($event);
+        $query = $table->find()
+                ->where($conditions)
+                ->order(['name' => 'ASC'])
+                ->all();
+        $result = $query->toArray();
 
-        $result = $event->result;
+        // loading types for calendars and events.
+        $types = Configure::read('Calendar.Types');
+
+        //adding event_types attached for the calendars
+        foreach ($result as $k => $calendar) {
+            $result[$k]->event_types = [];
+
+            if (empty($types)) {
+                continue;
+            }
+
+            foreach ($types as $type) {
+                if ($type['value'] == $calendar->calendar_type) {
+                    $result[$k]->event_types = $type['types'];
+                }
+            }
+        }
 
         return $result;
     }
@@ -120,13 +145,13 @@ class CalendarsTable extends Table
     {
         $result = [];
 
-        $event = new Event('Calendars.Model.getCalendarTypes', $this, [
-            'options' => $options
-        ]);
+        $config = Configure::read('Calendar.Types');
 
-        EventManager::instance()->dispatch($event);
-
-        $result = $event->result;
+        if (!empty($config)) {
+            foreach ($config as $k => $val) {
+                $result[$val['value']] = $val['name'];
+            }
+        }
 
         return $result;
     }
