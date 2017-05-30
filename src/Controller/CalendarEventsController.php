@@ -81,6 +81,8 @@ class CalendarEventsController extends AppController
 
     /**
      * Create Event via AJAX call
+     *
+     * @return void
      */
     public function add()
     {
@@ -119,6 +121,8 @@ class CalendarEventsController extends AppController
 
     /**
      * View Event via AJAX
+     *
+     * @return void
      */
     public function view()
     {
@@ -127,13 +131,18 @@ class CalendarEventsController extends AppController
         $calEvent = [];
 
         if ($this->request->is(['post', 'patch', 'put'])) {
+            $data = $this->request->getData();
+            $calEvent = $this->CalendarEvents->get($data['id']);
+
             $event = new Event('Calendars.Model.getCalendarEventInfo', $this, [
-                'options' => $this->request->getData(),
+                'options' => $data,
             ]);
 
             EventManager::instance()->dispatch($event);
 
-            $calEvent = $event->result;
+            if (!empty($event->result)) {
+                $calEvent = $event->result;
+            }
         }
 
         $this->set(compact('calEvent'));
@@ -141,31 +150,29 @@ class CalendarEventsController extends AppController
     }
 
     /**
-     * @return array $eventTypes of the current calendar type.
+     * array $eventTypes of the current calendar type.
+     *
+     * @return void
      */
     public function getEventTypes()
     {
+        $calendar = null;
         $eventTypes = [];
 
         if ($this->request->is(['post', 'patch', 'put'])) {
             $data = $this->request->getData();
 
             $event = new Event('Calendars.Model.getCalendars', $this, [
-                'options' => ['id' => $data['id']]
+                'options' => $data,
             ]);
 
             EventManager::instance()->dispatch($event);
 
-            $calendar = !empty($event->result[0]) ? $event->result[0]: [];
-
-            if (isset($calendar->event_types) && !empty($calendar->event_types)) {
-                foreach ($calendar->event_types as $k => $eventType) {
-                    array_push($eventTypes, [
-                        'id' => $eventType['value'],
-                        'text' => $eventType['name'],
-                    ]);
-                }
+            if (!empty($event->result)) {
+                $calendar = array_shift($event->result);
             }
+
+            $eventTypes = $this->CalendarEvents->getEventTypes($calendar);
         }
 
         $this->set(compact('eventTypes'));

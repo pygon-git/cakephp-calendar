@@ -104,21 +104,51 @@ class CalendarEventsTable extends Table
     /**
      * Get Events of specific calendar
      *
+     * @param Cake\Table\Entity $calendar record
      * @param array $options with filter params
      *
      * @return array $result
      */
-    public function getCalendarEvents($options = [])
+    public function getCalendarEvents($calendar, $options = [])
     {
         $result = [];
 
-        $event = new Event('Calendars.Model.getCalendarEvents', $this, [
-            'options' => $options
-        ]);
+        if (!$calendar) {
+            return $result;
+        }
 
-        EventManager::instance()->dispatch($event);
+        $resultSet = $this->find()
+                ->where(['calendar_id' => $calendar->id])
+                ->toArray();
 
-        $result = $event->result;
+        if (!empty($resultSet)) {
+            $result = $resultSet;
+        }
+
+        return $result;
+    }
+
+    /**
+     * Get Calendar Event types based on configuration
+     *
+     * @param Cake\Table\Entity $calendar record
+     *
+     * @return array $result containing event types for select2 dropdown
+     */
+    public function getEventTypes($calendar)
+    {
+        $result = [];
+
+        if (!$calendar || !isset($calendar->event_types)) {
+            return $result;
+        }
+
+        foreach ($calendar->event_types as $k => $eventType) {
+            array_push($result, [
+                'id' => $eventType['value'],
+                'text' => $eventType['name'],
+            ]);
+        }
 
         return $result;
     }
