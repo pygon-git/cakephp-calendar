@@ -16,6 +16,7 @@ class GetCalendarsListener implements EventListenerInterface
     {
         return [
             'Calendars.Model.getCalendars' => 'getCalendars',
+            'Calendars.Model.getCalendarTypes' => 'getCalendarTypes',
         ];
     }
 
@@ -43,7 +44,7 @@ class GetCalendarsListener implements EventListenerInterface
         $result = $query->toArray();
 
         // loading types for calendars and events.
-        $types = Configure::read('Types');
+        $types = Configure::read('Calendar.Types');
 
         //adding event_types attached for the calendars
         foreach ($result as $k => $calendar) {
@@ -61,5 +62,27 @@ class GetCalendarsListener implements EventListenerInterface
         }
 
         $event->result = $result;
+    }
+
+    /**
+     * Return the list of calendar types
+     *
+     * @param Cake\Event\Event $event broadcasted
+     * @param array $options for filter options.
+     *
+     * @return array $result containing calendar types.
+     */
+    public function getCalendarTypes(Event $event, $options = [])
+    {
+        $result = [];
+        $types = Configure::read('Calendar.Types');
+
+        foreach ($types as $typeInfo) {
+            $result[$typeInfo['value']] = $typeInfo['name'];
+        }
+
+        if (!empty($result)) {
+            $event->result = $result;
+        }
     }
 }

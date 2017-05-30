@@ -108,4 +108,26 @@ class CalendarsTable extends Table
 
         return $result;
     }
+
+    /**
+     * Get Calendar Types
+     *
+     * @param array $options with extra filters
+     *
+     * @return array $result containing calendar types.
+     */
+    public function getCalendarTypes($options = [])
+    {
+        $result = [];
+
+        $event = new Event('Calendars.Model.getCalendarTypes', $this, [
+            'options' => $options
+        ]);
+
+        EventManager::instance()->dispatch($event);
+
+        $result = $event->result;
+
+        return $result;
+    }
 }

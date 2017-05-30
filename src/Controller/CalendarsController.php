@@ -1,7 +1,6 @@
 <?php
 namespace Qobo\Calendar\Controller;
 
-use Cake\Core\Configure;
 use Cake\Event\Event;
 use Cake\ORM\TableRegistry;
 use Qobo\Calendar\Controller\AppController;
@@ -23,13 +22,8 @@ class CalendarsController extends AppController
     {
         $icons = Utility::getIcons();
         $colors = Utility::getColors();
-        $types = Configure::read('Types');
 
-        $calendarTypes = [];
-
-        foreach ($types as $typeInfo) {
-            $calendarTypes[$typeInfo['value']] = $typeInfo['name'];
-        }
+        $calendarTypes = $this->Calendars->getCalendarTypes();
 
         $this->set('calendarTypes', $calendarTypes);
         $this->set('icons', $icons);

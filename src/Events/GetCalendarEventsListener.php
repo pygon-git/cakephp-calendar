@@ -1,7 +1,6 @@
 <?php
 namespace Qobo\Calendar\Events;
 
-use Cake\Core\Configure;
 use Cake\Event\Event;
 use Cake\Event\EventListenerInterface;
 use Cake\Network\Request;
