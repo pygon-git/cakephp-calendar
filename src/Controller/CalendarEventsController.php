@@ -34,7 +34,7 @@ class CalendarEventsController extends AppController
         $calendars = $this->CalendarEvents->Calendars->find('list', ['limit' => 200]);
 
         $calendarType = $calendarEvent->calendar->calendar_type;
-        $types = Configure::read('Types');
+        $types = Configure::read('Calendar.Types');
 
         foreach ($types as $typeInfo) {
             if ($typeInfo['value'] === $calendarType) {
