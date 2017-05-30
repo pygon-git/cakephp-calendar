@@ -2,6 +2,22 @@
 /**
  * @var \App\View\AppView $this
  */
+echo $this->Html->css(
+    [
+        'AdminLTE./plugins/daterangepicker/daterangepicker-bs3',
+    ]
+);
+
+echo $this->Html->script(
+    [
+        'AdminLTE./plugins/daterangepicker/moment.min',
+        'AdminLTE./plugins/fullcalendar/fullcalendar.min.js',
+        'AdminLTE./plugins/daterangepicker/daterangepicker',
+        'Qobo/Calendar.calendar',
+    ],
+    ['block' => 'scriptBotton']
+);
+
 ?>
 <?= $this->Form->create($calendarEvent) ?>
 <section class="content-header">
@@ -29,9 +45,8 @@
                 </div>
                 <div class="col-xs-12 col-md-6">
                 <?php
-                    echo $this->Form->control('start_date', ['empty' => true]);
-                    echo $this->Form->control('end_date', ['empty' => true]);
-                    echo $this->Form->control('duration', ['empty' => true]);
+                    echo $this->Form->input('start_date', ['value' => $calendarEvent->start_date->format('Y-m-d H:i'), 'type' => 'text', 'class' => 'calendar-datetimepicker calendar-start_date']);
+                    echo $this->Form->input('end_date', ['type' => 'text', 'value' => $calendarEvent->end_date->format('Y-m-d H:i'), 'class' => 'calendar-datetimepicker calendar-end_date']);
                 ?>
                 </div>
             </div>

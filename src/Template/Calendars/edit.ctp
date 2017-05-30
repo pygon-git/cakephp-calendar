@@ -50,7 +50,7 @@ foreach ($icons as $k => $v) {
                         'class' => 'select2',
                         'empty' => true
                     ]) ?>
-                    <?= $this->Form->control('calendar_source'); ?>
+                    <?= $this->Form->control('calendar_source', ['label' => __('Source Name')]); ?>
                 </div>
                 <div class="col-xs-12 col-md-6">
                     <?= $this->Form->input('color', [
@@ -66,7 +66,7 @@ foreach ($icons as $k => $v) {
                         'class' => 'select2',
                         'empty' => true
                     ]) ?>
-                    <?= $this->Form->control('calendar_source_id', ['type' => 'text']);?>
+                    <?= $this->Form->control('calendar_source_id', ['type' => 'text', 'label' => __('Source ID')]);?>
 
                     <?= $this->Form->control('active');?>
                 </div>
