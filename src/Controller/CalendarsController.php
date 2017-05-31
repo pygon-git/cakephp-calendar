@@ -157,7 +157,7 @@ class CalendarsController extends AppController
             if (!empty($calendars)) {
                 $calendar = $calendars[0];
             }
-            $resultSet = $eventsTable->getCalendarEvents($calendar);
+            $resultSet = $eventsTable->getCalendarEvents($calendar, $data);
         }
 
         $event = new Event('Calendars.Model.getCalendarEvents', $this, [
@@ -179,7 +179,10 @@ class CalendarsController extends AppController
                     'description' => $event['content'],
                     'start' => $event['start_date'],
                     'end' => $event['end_date'],
-                    'color' => (isset($calendar) ? $calendar->color : 'blue'),
+                    'color' => (empty($event['color']) ? $calendar->color : $event['color']),
+                    // NOTE: adding extra variable for lookup values, of the calendar.
+                    'calendar_id' => $calendar->id,
+                    'event_type' => (!empty($event['event_type']) ? $event['event_type'] : null),
                 ];
             }
         }
