@@ -31,6 +31,7 @@ if (!empty($color)) {
     </div>
 </div>
     <div class="modal-footer">
+        <?php if (!isset($calEvent->dynamic_event) || $calEvent->dynamic_event == false) : ?>
         <?= $this->Html->link(
             __('Edit'),
             [
@@ -43,7 +44,6 @@ if (!empty($color)) {
                 'class' => 'btn btn-success'
             ]
         );?>
-        <?= $this->Form->button(__('Close'), ['data-dismiss' => 'modal', 'class' => 'btn btn-success']);?>
         <?= $this->Form->postLink(
             __('Delete'),
             [
@@ -57,6 +57,8 @@ if (!empty($color)) {
                 'class' => 'btn btn-danger',
             ]
         );?>
+        <?php endif; ?>
+        <?= $this->Form->button(__('Close'), ['data-dismiss' => 'modal', 'class' => 'btn btn-success']);?>
     </div> <!-- //modal-footer -->
 </div>
 

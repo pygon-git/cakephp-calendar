@@ -15,7 +15,6 @@ class GetCalendarEventsListener implements EventListenerInterface
     {
         return [
             'Calendars.Model.getCalendarEvents' => 'getCalendarEvents',
-            'Calendars.Model.getCalendarEventInfo' => 'getCalendarEventInfo',
         ];
     }
 

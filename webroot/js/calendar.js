@@ -6,6 +6,7 @@ var calendar = calendar || {};
     {
         this.calendarContainer = options.container;
         this.calendarIdContainer = options.calendarIdContainer;
+        this.calendarOptions = {};
     }
 
     QoboCalendar.prototype.init = function () {
@@ -35,7 +36,7 @@ var calendar = calendar || {};
                 day: 'day'
             },
             editable: false,
-            eventClick: function (event) {
+            eventClick: function (event, jsEvent, view) {
                 that.loadSelectedCalendarEvent(event);
             },
 
@@ -61,6 +62,10 @@ var calendar = calendar || {};
             }
         });
 
+        this.calendarOptions = {
+            currentDate: $(this.calendarContainer).fullCalendar('getDate')
+        };
+
         //checkbox options chosen and load is clicked.
         this.attachCalendarEvents();
     };
@@ -69,7 +74,11 @@ var calendar = calendar || {};
         $.ajax({
             method: 'POST',
             url: '/calendars/calendar-events/view',
-            data: { 'id' : event.id },
+            data: {
+                'id': event.id,
+                'calendar_id': event.calendar_id,
+                'event_type': event.event_type
+            },
         }).done(function (resp) {
             if (resp) {
                 $('#calendar-modal-view-event').find('.modal-content').empty();
@@ -134,16 +143,21 @@ var calendar = calendar || {};
 
     QoboCalendar.prototype.unloadSelectedCalendarEvents = function (calendarId) {
         var that = this;
+        var currentDate = false;
 
         if (!calendarId) {
             return false;
+        }
+
+        if (typeof this.calendarOptions.currentDate !== undefined) {
+            currentDate = this.calendarOptions.currentDate.format('YYYY-MM-DD HH:MM');
         }
 
         $.ajax({
             method: 'POST',
             dataType: 'json',
             url: "/calendars/calendars/events",
-            data: { 'calendarId': calendarId },
+            data: { 'calendarId': calendarId, 'currentDate': currentDate },
             success: function (resp) {
                 if (resp.events.length) {
                     resp.events.forEach(function (item) {
@@ -156,16 +170,21 @@ var calendar = calendar || {};
 
     QoboCalendar.prototype.loadSelectedCalendarEvents = function (calendarId) {
         var that = this;
+        var currentDate = false;
 
         if (!calendarId) {
             return false;
+        }
+
+        if (typeof this.calendarOptions.currentDate !== undefined) {
+            currentDate = this.calendarOptions.currentDate.format('YYYY-MM-DD HH:MM');
         }
 
         $.ajax({
             method: 'POST',
             dataType: 'json',
             url: "/calendars/calendars/events",
-            data: { 'calendarId': calendarId },
+            data: { 'calendarId': calendarId, 'currentDate': currentDate },
             success: function (resp) {
                 if (resp.events.length) {
                     $(that.calendarContainer).fullCalendar('addEventSource', resp.events);
