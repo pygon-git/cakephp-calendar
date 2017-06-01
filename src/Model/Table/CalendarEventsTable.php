@@ -107,7 +107,7 @@ class CalendarEventsTable extends Table
      * @param Cake\Table\Entity $calendar record
      * @param array $options with filter params
      *
-     * @return array $result
+     * @return array $result of events (minimal structure)
      */
     public function getCalendarEvents($calendar, $options = [])
     {
@@ -122,7 +122,19 @@ class CalendarEventsTable extends Table
                 ->toArray();
 
         if (!empty($resultSet)) {
-            $result = $resultSet;
+            foreach ($resultSet as $event) {
+                $result[] = [
+                    'id' => $event['id'],
+                    'title' => $event['title'],
+                    'description' => $event['content'],
+                    'start' => $event['start_date'],
+                    'end' => $event['end_date'],
+                    'color' => (empty($event['color']) ? $calendar->color : $event['color']),
+                    // NOTE: adding extra variable for lookup values, of the calendar.
+                    'calendar_id' => $calendar->id,
+                    'event_type' => (!empty($event['event_type']) ? $event['event_type'] : null),
+                ];
+            }
         }
 
         return $result;

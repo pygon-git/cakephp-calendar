@@ -38,13 +38,7 @@ class CalendarsController extends AppController
      */
     public function index()
     {
-        $event = new Event('Calendars.Model.getCalendars', $this, [
-            'options' => []
-        ]);
-
-        EventManager::instance()->dispatch($event);
-
-        $calendars = $event->result;
+        $calendars = $this->Calendars->getCalendars();
 
         $this->set(compact('calendars'));
         $this->set('_serialize', ['calendars']);
@@ -154,48 +148,15 @@ class CalendarsController extends AppController
 
         if (!empty($data['calendarId'])) {
             $calendars = $this->Calendars->getCalendars(['id' => $data['calendarId']]);
+
             if (!empty($calendars)) {
                 $calendar = $calendars[0];
             }
-            $resultSet = $eventsTable->getCalendarEvents($calendar, $data);
-        }
 
-        $event = new Event('Calendars.Model.getCalendarEvents', $this, [
-            'calendar' => $calendar,
-            'options' => $data,
-        ]);
-
-        EventManager::instance()->dispatch($event);
-
-        if (!empty($event->result)) {
-            $resultSet = $event->result;
-        }
-
-        if (!empty($resultSet)) {
-            foreach ($resultSet as $event) {
-                $events[] = [
-                    'id' => $event['id'],
-                    'title' => $event['title'],
-                    'description' => $event['content'],
-                    'start' => $event['start_date'],
-                    'end' => $event['end_date'],
-                    'color' => (empty($event['color']) ? $calendar->color : $event['color']),
-                    // NOTE: adding extra variable for lookup values, of the calendar.
-                    'calendar_id' => $calendar->id,
-                    'event_type' => (!empty($event['event_type']) ? $event['event_type'] : null),
-                ];
-            }
+            $events = $eventsTable->getCalendarEvents($calendar, $data);
         }
 
         $this->set(compact('events'));
         $this->set('_serialize', ['events']);
-    }
-
-    /**
-     * @return array $colors of the calendar
-     */
-    protected function _getColors()
-    {
-        return $this->colors;
     }
 }
