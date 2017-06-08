@@ -129,7 +129,7 @@ var calendar = calendar || {};
                     var event = {
                         id: resp.event.entity.id,
                         title: resp.event.entity.title,
-                        start: moment().format(resp.event.entity.start),
+                        start: moment().format(resp.event.entity.start_date),
                         color: resp.event.entity.color
                     };
 
@@ -171,6 +171,7 @@ var calendar = calendar || {};
     QoboCalendar.prototype.loadSelectedCalendarEvents = function (calendarId) {
         var that = this;
         var currentDate = false;
+        var calendarEvents = [];
 
         if (!calendarId) {
             return false;
@@ -187,7 +188,19 @@ var calendar = calendar || {};
             data: { 'calendarId': calendarId, 'currentDate': currentDate },
             success: function (resp) {
                 if (resp.events.length) {
-                    $(that.calendarContainer).fullCalendar('addEventSource', resp.events);
+                    resp.events.forEach(function (elem, index) {
+                        calendarEvents.push({
+                            id: elem.id,
+                            title: elem.title,
+                            start: moment().format(elem.start_date),
+                            end: moment().format(elem.end_date),
+                            color: elem.color,
+                            calendar_id: elem.calendar_id,
+                            event_type: elem.elem_type
+                        });
+                    });
+
+                    $(that.calendarContainer).fullCalendar('addEventSource', calendarEvents);
                 }
             }
         });

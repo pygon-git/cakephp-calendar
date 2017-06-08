@@ -102,9 +102,12 @@ class CalendarsTable extends Table
     {
         $result = $conditions = [];
         $table = TableRegistry::get('Qobo/Calendar.Calendars');
+        $tableEvents = TableRegistry::get('Qobo/Calendar.CalendarEvents');
 
         if (!empty($options['id'])) {
             $conditions['id'] = $options['id'];
+        } elseif (!empty($options['conditions'])) {
+            $conditions = $options['conditions'];
         }
 
         $query = $table->find()
@@ -116,9 +119,16 @@ class CalendarsTable extends Table
         // loading types for calendars and events.
         $types = Configure::read('Calendar.Types');
 
-        //adding event_types attached for the calendars
+        //adding event_types & events attached for the calendars
         foreach ($result as $k => $calendar) {
             $result[$k]->event_types = [];
+            $result[$k]->calendar_events = [];
+
+            $events = $tableEvents->getCalendarEvents($calendar, $options);
+
+            if (!empty($events)) {
+                $result[$k]->calendar_events = $events;
+            }
 
             if (empty($types)) {
                 continue;
@@ -152,6 +162,25 @@ class CalendarsTable extends Table
                 $result[$val['value']] = $val['name'];
             }
         }
+
+        return $result;
+    }
+
+    public function syncCalendars($options = [])
+    {
+        $result = $calendars = [];
+
+        $event = new Event('Plugin.Calendars.Model.getCalendars', $this, [
+            'options' => $options,
+        ]);
+
+        EventManager::instance()->dispatch($event);
+
+        if (!empty($event->result)) {
+            $calendars = $event->result;
+        }
+
+        $result = $calendars;
 
         return $result;
     }

@@ -126,9 +126,9 @@ class CalendarEventsTable extends Table
                 $result[] = [
                     'id' => $event['id'],
                     'title' => $event['title'],
-                    'description' => $event['content'],
-                    'start' => $event['start_date'],
-                    'end' => $event['end_date'],
+                    'content' => $event['content'],
+                    'start_date' => date('Y-m-d H:i:s', strtotime($event['start_date'])),
+                    'end_date' => date('Y-m-d H:i:s', strtotime($event['end_date'])),
                     'color' => (empty($event['color']) ? $calendar->color : $event['color']),
                     // NOTE: adding extra variable for lookup values, of the calendar.
                     'calendar_id' => $calendar->id,

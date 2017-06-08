@@ -53,6 +53,7 @@ class CalendarsController extends AppController
      */
     public function view($id = null)
     {
+        $calendar = null;
         $calendars = $this->Calendars->getCalendars(['id' => $id]);
 
         if (!empty($calendars)) {

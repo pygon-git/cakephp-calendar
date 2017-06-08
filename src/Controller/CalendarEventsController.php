@@ -133,13 +133,9 @@ class CalendarEventsController extends AppController
         if ($this->request->is(['post', 'patch', 'put'])) {
             $data = $this->request->getData();
 
-            $query = $this->CalendarEvents->find()
+            $calEvent = $this->CalendarEvents->find()
                     ->where(['id' => $data['id']])
                     ->first();
-
-            if ($query) {
-                $calEvent = $query->toArray();
-            }
 
             $event = new Event('Calendars.Model.getCalendarEventInfo', $this, [
                 'options' => $data,
