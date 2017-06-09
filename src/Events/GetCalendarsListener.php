@@ -62,7 +62,7 @@ class GetCalendarsListener implements EventListenerInterface
         // locally created calendars don't have calendar_source_id (external link).
         $options = [
             'conditions' => [
-                'calendar_source_id IS' => null,
+                'calendar_source LIKE' => 'Plugin__%',
             ]
         ];
 

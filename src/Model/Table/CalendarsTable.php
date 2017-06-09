@@ -169,6 +169,11 @@ class CalendarsTable extends Table
     public function syncCalendars($options = [])
     {
         $result = $calendars = [];
+        $calendarDiff = [
+            'add' => [],
+            'update' => [],
+            'delete' => [],
+        ];
 
         $event = new Event('Plugin.Calendars.Model.getCalendars', $this, [
             'options' => $options,
@@ -176,11 +181,163 @@ class CalendarsTable extends Table
 
         EventManager::instance()->dispatch($event);
 
-        if (!empty($event->result)) {
-            $calendars = $event->result;
+        if (empty($event->result)) {
+            return $calendarDiff;
         }
 
-        $result = $calendars;
+        $data = $event->result;
+
+        foreach ($data as $k => $calendarData) {
+            $calendar = !empty($calendarData['calendar']) ? $calendarData['calendar'] : null;
+            $calendars[] = $calendar;
+
+            $query = $this->find()
+                        ->where([
+                            'calendar_source' => $calendar['calendar_source'],
+                        ])
+                        ->all();
+
+            $existingCalendars = $query->toArray();
+
+            $toAdd = $this->_calendarToAdd($calendar, $existingCalendars);
+            if (!empty($toAdd)) {
+                $calendarDiff['add'][] = $toAdd;
+            }
+
+            $toUpdate = $this->_calendarToUpdate($calendar, $existingCalendars);
+            if (!empty($toUpdate)) {
+                $calendarDiff['update'][] = $toUpdate;
+            }
+        }
+
+        foreach ($calendarDiff as $actionName => $items) {
+            if (empty($items)) {
+                continue;
+            }
+
+            foreach ($items as $k => $item) {
+                if ('add' == $actionName) {
+                    $entity = $this->newEntity();
+                    $entity = $this->patchEntity($entity, $item);
+                    $result['add'][] = $this->save($entity);
+                } elseif ('update' == $actionName) {
+                    if (!empty($item['entity']) && !empty($item['data'])) {
+                        $entity = $this->patchEntity($item['entity'], $item['data']);
+                        $result['update'][] = $this->save($entity);
+                    }
+                }
+            }
+        }
+
+        $toDelete = $this->_calendarsToDelete($calendars);
+        if (!empty($toDelete)) {
+            foreach ($toDelete as $k => $item) {
+                if ($this->delete($item)) {
+                    $result['delete'][] = $item;
+                }
+            }
+        }
+
+        return $result;
+    }
+
+    protected function _calendarToAdd($calendar, $existingCalendars = [])
+    {
+        $result = $calendar;
+
+        if (empty($existingCalendars)) {
+            return $result;
+        }
+
+        foreach ($existingCalendars as $k => $item) {
+            if($item->calendar_source_id == $calendar['calendar_source_id']) {
+                $result = [];
+                break;
+            }
+        }
+
+        return $result;
+    }
+
+    protected function _calendarToUpdate($calendar, $existingCalendars = [])
+    {
+        $found = [];
+        $result = [
+            'entity' => [],
+            'data' => []
+        ];
+
+        if (empty($existingCalendars)) {
+            return $result;
+        }
+
+        foreach ($existingCalendars as $item) {
+            if ($item->calendar_source_id == $calendar['calendar_source_id']) {
+                $found = $item;
+            }
+        }
+
+        if (empty($found)) {
+            return $result;
+        }
+
+        $fieldsToCheck = ['name', 'color', 'icon'];
+
+        foreach ($fieldsToCheck as $fieldName) {
+            // what should be changed.
+            if ($found->$fieldName != $calendar[$fieldName]) {
+                $result['data'][$fieldName] = $calendar[$fieldName];
+            }
+        }
+
+        if (!empty($result['data'])) {
+            $result['entity'] = $found;
+        } else {
+            $result = [];
+        }
+
+        return $result;
+    }
+
+    protected function _calendarsToDelete($calendars = [])
+    {
+        $query = $this->find()->all();
+        $dbCalendars = $query->toArray();
+        foreach ($calendars as $calendar) {
+            foreach ($dbCalendars as $k => $dbCalendar) {
+                if ($calendar['calendar_source_id'] == $dbCalendar->calendar_source_id
+                    && $calendar['calendar_source'] == $dbCalendar->calendar_source) {
+
+                    unset($dbCalendars[$k]);
+                }
+            }
+        }
+
+        return $dbCalendars;
+    }
+
+    protected function _getCalendarSource($calendarSource = null)
+    {
+        $parts = null;
+        $result = [
+            'source' => null,
+            'module' => null,
+            'id' => null,
+        ];
+
+        if (empty($calendarSource)) {
+            return $result;
+        }
+
+        if (preg_match('/__/', $calendarSource)) {
+            $parts = explode('__', $calendarSource);
+        }
+
+        if (!empty($parts)) {
+            $result['source'] = !empty($parts[0]) ? $parts[0] : null;
+            $result['module'] = !empty($parts[1]) ? $parts[1] : null;
+            $result['id'] = !empty($parts[2]) ? $parts[2] : null;
+        }
 
         return $result;
     }
