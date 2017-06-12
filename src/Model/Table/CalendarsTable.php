@@ -166,14 +166,16 @@ class CalendarsTable extends Table
         return $result;
     }
 
+    /**
+     * Synchronize calendars
+     *
+     * @param array $options passed from the outside.
+     *
+     * @return array $result of the synchronize method.
+     */
     public function syncCalendars($options = [])
     {
-        $result = $calendars = [];
-        $calendarDiff = [
-            'add' => [],
-            'update' => [],
-            'delete' => [],
-        ];
+        $result = [];
 
         $event = new Event('Plugin.Calendars.Model.getCalendars', $this, [
             'options' => $options,
@@ -182,10 +184,65 @@ class CalendarsTable extends Table
         EventManager::instance()->dispatch($event);
 
         if (empty($event->result)) {
-            return $calendarDiff;
+            return $result;
         }
 
-        $data = $event->result;
+        $calendarDiff = $this->_getCalendarsDifference($event->result);
+
+        foreach ($calendarDiff as $actionName => $items) {
+            if (empty($items)) {
+                continue;
+            }
+
+            foreach ($items as $k => $item) {
+                $data = [];
+
+                if (empty($item)) {
+                    continue;
+                }
+
+                switch ($actionName) {
+                    case 'add':
+                        $entity = $this->newEntity();
+                        $data = $item;
+                        break;
+                    case 'update':
+                        $entity = $item['entity'];
+                        $data = $item['data'];
+                        break;
+                }
+
+                if (in_array($actionName, ['add', 'update']) && !empty($data)) {
+                    $entity = $this->patchEntity($entity, $data);
+                    $result[$actionName][] = $this->save($entity);
+                }
+
+                if (in_array($actionName, ['delete']) && !empty($item)) {
+                    if ($this->delete($item)) {
+                        $result['delete'][] = $item;
+                    }
+                }
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * Collect calendars difference.
+     *
+     * @param array $data containing received calendars from the events/models.
+     *
+     * @return $calendarDiff containing the list of calendars to add/update/delete.
+     */
+    protected function _getCalendarsDifference($data = [])
+    {
+        $calendars = [];
+        $calendarDiff = [
+            'add' => [],
+            'update' => [],
+            'delete' => [],
+        ];
 
         foreach ($data as $k => $calendarData) {
             $calendar = !empty($calendarData['calendar']) ? $calendarData['calendar'] : null;
@@ -210,37 +267,20 @@ class CalendarsTable extends Table
             }
         }
 
-        foreach ($calendarDiff as $actionName => $items) {
-            if (empty($items)) {
-                continue;
-            }
-
-            foreach ($items as $k => $item) {
-                if ('add' == $actionName) {
-                    $entity = $this->newEntity();
-                    $entity = $this->patchEntity($entity, $item);
-                    $result['add'][] = $this->save($entity);
-                } elseif ('update' == $actionName) {
-                    if (!empty($item['entity']) && !empty($item['data'])) {
-                        $entity = $this->patchEntity($item['entity'], $item['data']);
-                        $result['update'][] = $this->save($entity);
-                    }
-                }
-            }
-        }
-
         $toDelete = $this->_calendarsToDelete($calendars);
-        if (!empty($toDelete)) {
-            foreach ($toDelete as $k => $item) {
-                if ($this->delete($item)) {
-                    $result['delete'][] = $item;
-                }
-            }
-        }
+        $calendarDiff['delete'] = $toDelete;
 
-        return $result;
+        return $calendarDiff;
     }
 
+    /**
+     * Check if calendar should be added
+     *
+     * @param array $calendar to inspect
+     * @param array $existingCalendars with same calendar_source
+     *
+     * @return array $result with the comparison result.
+     */
     protected function _calendarToAdd($calendar, $existingCalendars = [])
     {
         $result = $calendar;
@@ -250,7 +290,7 @@ class CalendarsTable extends Table
         }
 
         foreach ($existingCalendars as $k => $item) {
-            if($item->calendar_source_id == $calendar['calendar_source_id']) {
+            if ($item->calendar_source_id == $calendar['calendar_source_id']) {
                 $result = [];
                 break;
             }
@@ -259,6 +299,14 @@ class CalendarsTable extends Table
         return $result;
     }
 
+    /**
+     * Check if the calendar should be updated
+     *
+     * @param array $calendar to be checked
+     * @param array $existingCalendars to loop through for changes
+     *
+     * @return array $result containing entity of the calendar from DB and changes in data key
+     */
     protected function _calendarToUpdate($calendar, $existingCalendars = [])
     {
         $found = [];
@@ -299,46 +347,27 @@ class CalendarsTable extends Table
         return $result;
     }
 
+    /**
+     * Check calendars for deletion
+     *
+     * @param array $calendars taht should be unset from the DB if any match.
+     *
+     * @return array $dbCalendars that should be removed.
+     */
     protected function _calendarsToDelete($calendars = [])
     {
         $query = $this->find()->all();
         $dbCalendars = $query->toArray();
+
         foreach ($calendars as $calendar) {
             foreach ($dbCalendars as $k => $dbCalendar) {
                 if ($calendar['calendar_source_id'] == $dbCalendar->calendar_source_id
                     && $calendar['calendar_source'] == $dbCalendar->calendar_source) {
-
                     unset($dbCalendars[$k]);
                 }
             }
         }
 
         return $dbCalendars;
-    }
-
-    protected function _getCalendarSource($calendarSource = null)
-    {
-        $parts = null;
-        $result = [
-            'source' => null,
-            'module' => null,
-            'id' => null,
-        ];
-
-        if (empty($calendarSource)) {
-            return $result;
-        }
-
-        if (preg_match('/__/', $calendarSource)) {
-            $parts = explode('__', $calendarSource);
-        }
-
-        if (!empty($parts)) {
-            $result['source'] = !empty($parts[0]) ? $parts[0] : null;
-            $result['module'] = !empty($parts[1]) ? $parts[1] : null;
-            $result['id'] = !empty($parts[2]) ? $parts[2] : null;
-        }
-
-        return $result;
     }
 }

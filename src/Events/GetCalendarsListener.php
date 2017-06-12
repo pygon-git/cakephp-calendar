@@ -3,8 +3,8 @@ namespace Qobo\Calendar\Events;
 
 use Cake\Core\Configure;
 use Cake\Event\Event;
-use Cake\Event\EventManager;
 use Cake\Event\EventListenerInterface;
+use Cake\Event\EventManager;
 use Cake\Network\Request;
 use Cake\ORM\TableRegistry;
 
@@ -31,7 +31,7 @@ class GetCalendarsListener implements EventListenerInterface
      */
     public function sendGetCalendarsToApp(Event $event, $options = [])
     {
-        $eventName = preg_replace('/^(Plugin)/','App', $event->name());
+        $eventName = preg_replace('/^(Plugin)/', 'App', $event->name());
 
         $ev = new Event($eventName, $this, [
             'options' => $options
