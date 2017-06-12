@@ -188,6 +188,23 @@ class CalendarsTable extends Table
         }
 
         $calendarDiff = $this->_getCalendarsDifference($event->result);
+        $result = $this->saveCalendarDifferences($calendarDiff);
+
+        return $result;
+    }
+
+    /**
+     * saveCalendarDifferences method
+     *
+     * Updating calendar DB with differences
+     *
+     * @param array $calendarDiff prepopulated calendars
+     *
+     * @return array $result with updated/deleted/added calendars.
+     */
+    public function saveCalendarDifferences($calendarDiff = [])
+    {
+        $result = [];
 
         foreach ($calendarDiff as $actionName => $items) {
             if (empty($items)) {
