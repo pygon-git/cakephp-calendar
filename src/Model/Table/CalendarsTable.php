@@ -175,7 +175,7 @@ class CalendarsTable extends Table
      */
     public function syncCalendars($options = [])
     {
-        $result = [];
+        $result = $saved = [];
 
         $event = new Event('Plugin.Calendars.Model.getCalendars', $this, [
             'options' => $options,
@@ -187,26 +187,71 @@ class CalendarsTable extends Table
             return $result;
         }
 
-        $calendarDiff = $this->_getCalendarsDifference($event->result);
-        $result = $this->saveCalendarDifferences($calendarDiff);
+        $receivedCalendarsData = $event->result;
+
+        $appCalendars = [];
+
+        foreach ($receivedCalendarsData as $k => $item) {
+            if (!empty($item['calendar'])) {
+                $appCalendars[] = $item['calendar'];
+            }
+        }
+
+        $eventsTable = TableRegistry::get('Qobo/Calendar.CalendarEvents');
+
+        foreach ($receivedCalendarsData as $k => $calendarData) {
+            $diffCalendar = $this->_getItemDifferences(
+                $this,
+                $calendarData['calendar'],
+                [
+                    'source' => 'calendar_source',
+                    'source_id' => 'calendar_source_id',
+                ]
+            );
+
+            $saved[$k]['calendar'] = $this->saveItemDifferences($this, $diffCalendar);
+
+            if (!empty($calendarData['events'])) {
+                $saved[$k]['events'] = [];
+                foreach ($calendarData['events'] as $key => $ev) {
+                    $diffEvent = $this->_getItemDifferences(
+                        $eventsTable,
+                        $ev,
+                        [
+                            'source' => 'event_source',
+                            'source_id' => 'event_source_id',
+                        ]
+                    );
+                    $saved[$k]['events'][] = $this->saveItemDifferences(
+                        $eventsTable,
+                        $diffEvent,
+                        [
+                            'extra_fields' => [
+                                'calendar_id' => $saved[$k]['calendar']->id
+                            ]
+                        ]
+                    );
+                }
+            }
+        }
+
+        //@FIXME: add Deletion of calendars/events.
+
+
+        if (!empty($saved)) {
+            $result = $saved;
+        }
 
         return $result;
     }
 
-    /**
-     * saveCalendarDifferences method
-     *
-     * Updating calendar DB with differences
-     *
-     * @param array $calendarDiff prepopulated calendars
-     *
-     * @return array $result with updated/deleted/added calendars.
-     */
-    public function saveCalendarDifferences($calendarDiff = [])
+    public function saveCalendarEventsDifferences($eventsDiff = [])
     {
         $result = [];
 
-        foreach ($calendarDiff as $actionName => $items) {
+        $table = TableRegistry::get('Qobo/Calendar.CalendarEvents');
+
+        foreach ($eventsDiff as $actionName => $items) {
             if (empty($items)) {
                 continue;
             }
@@ -220,7 +265,7 @@ class CalendarsTable extends Table
 
                 switch ($actionName) {
                     case 'add':
-                        $entity = $this->newEntity();
+                        $entity = $table->newEntity();
                         $data = $item;
                         break;
                     case 'update':
@@ -230,13 +275,71 @@ class CalendarsTable extends Table
                 }
 
                 if (in_array($actionName, ['add', 'update']) && !empty($data)) {
-                    $entity = $this->patchEntity($entity, $data);
-                    $result[$actionName][] = $this->save($entity);
+                    $entity = $table->patchEntity($entity, $data);
+                    $result[$actionName][] = $table->save($entity);
                 }
 
                 if (in_array($actionName, ['delete']) && !empty($item)) {
-                    if ($this->delete($item)) {
+                    if ($table->delete($item)) {
                         $result['delete'][] = $item;
+                    }
+                }
+            }
+        }
+
+        debug($result);die('w0000t');
+
+        return $result;
+    }
+
+    /**
+     * saveCalendarDifferences method
+     *
+     * Updating calendar DB with differences
+     *
+     * @param array $calendarDiff prepopulated calendars
+     *
+     * @return array $result with updated/deleted/added calendars.
+     */
+    public function saveItemDifferences($table, $diff = [], $options = [])
+    {
+        $result = [];
+
+        foreach ($diff as $actionName => $items) {
+            if (empty($items)) {
+                continue;
+            }
+
+            foreach ($items as $k => $item) {
+                $data = [];
+
+                if (empty($item)) {
+                    continue;
+                }
+
+                switch ($actionName) {
+                    case 'add':
+                        $entity = $table->newEntity();
+                        $data = $item;
+                        break;
+                    case 'update':
+                        $entity = $item['entity'];
+                        $data = $item['data'];
+                        break;
+                }
+
+                if (in_array($actionName, ['add', 'update']) && !empty($data)) {
+                    if (!empty($options['extra_fields'])) {
+                        $data = array_merge($data, $options['extra_fields']);
+                    }
+
+                    $entity = $table->patchEntity($entity, $data);
+                    $result = $table->save($entity);
+                }
+
+                if (in_array($actionName, ['delete']) && !empty($item)) {
+                    if ($table->delete($item)) {
+                        $result = $item;
                     }
                 }
             }
@@ -252,42 +355,45 @@ class CalendarsTable extends Table
      *
      * @return $calendarDiff containing the list of calendars to add/update/delete.
      */
-    protected function _getCalendarsDifference($data = [])
+    protected function _getItemDifferences($table, $item = null, $options = [])
     {
-        $calendars = [];
-        $calendarDiff = [
+        $conditions = [];
+        $source = $options['source'];
+        $sourceId = $options['source_id'];
+
+        $diff = [
             'add' => [],
             'update' => [],
             'delete' => [],
         ];
 
-        foreach ($data as $k => $calendarData) {
-            $calendar = !empty($calendarData['calendar']) ? $calendarData['calendar'] : null;
-            $calendars[] = $calendar;
-
-            $query = $this->find()
-                        ->where([
-                            'calendar_source' => $calendar['calendar_source'],
-                        ])
-                        ->all();
-
-            $existingCalendars = $query->toArray();
-
-            $toAdd = $this->_calendarToAdd($calendar, $existingCalendars);
-            if (!empty($toAdd)) {
-                $calendarDiff['add'][] = $toAdd;
-            }
-
-            $toUpdate = $this->_calendarToUpdate($calendar, $existingCalendars);
-            if (!empty($toUpdate)) {
-                $calendarDiff['update'][] = $toUpdate;
-            }
+        if (empty($item)) {
+            return $diff;
         }
 
-        $toDelete = $this->_calendarsToDelete($calendars);
-        $calendarDiff['delete'] = $toDelete;
+        if (is_null($item[$source])) {
+            $conditions[$source . ' IS'] = $item[$source];
+        } else {
+            $conditions[$source] = $item[$source];
+        }
 
-        return $calendarDiff;
+        $query = $table->find()
+                ->where($conditions)
+                ->all();
+
+        $dbItems = $query->toArray();
+
+        $toAdd = $this->_itemsToAdd($item, $dbItems, $sourceId);
+        if (!empty($toAdd)) {
+            $diff['add'][] = $toAdd;
+        }
+
+        $toUpdate = $this->_itemsToUpdate($item, $dbItems, $sourceId);
+        if (!empty($toUpdate)) {
+            $diff['update'][] = $toUpdate;
+        }
+
+        return $diff;
     }
 
     /**
@@ -298,16 +404,16 @@ class CalendarsTable extends Table
      *
      * @return array $result with the comparison result.
      */
-    protected function _calendarToAdd($calendar, $existingCalendars = [])
+    protected function _itemsToAdd($item, $dbItems = [], $fieldToCheck = null)
     {
-        $result = $calendar;
+        $result = $item;
 
-        if (empty($existingCalendars)) {
+        if (empty($dbItems)) {
             return $result;
         }
 
-        foreach ($existingCalendars as $k => $item) {
-            if ($item->calendar_source_id == $calendar['calendar_source_id']) {
+        foreach ($dbItems as $k => $dbItem) {
+            if ($dbItem->$fieldToCheck == $item[$fieldToCheck]) {
                 $result = [];
                 break;
             }
@@ -324,21 +430,21 @@ class CalendarsTable extends Table
      *
      * @return array $result containing entity of the calendar from DB and changes in data key
      */
-    protected function _calendarToUpdate($calendar, $existingCalendars = [])
+    protected function _itemsToUpdate($item, $dbItems = [], $fieldToCheck = null)
     {
-        $found = [];
+        $found = null;
         $result = [
             'entity' => [],
             'data' => []
         ];
 
-        if (empty($existingCalendars)) {
+        if (empty($dbItems)) {
             return $result;
         }
 
-        foreach ($existingCalendars as $item) {
-            if ($item->calendar_source_id == $calendar['calendar_source_id']) {
-                $found = $item;
+        foreach ($dbItems as $dbItem) {
+            if ($dbItem->$fieldToCheck == $item[$fieldToCheck]) {
+                $found = $dbItem;
             }
         }
 
@@ -346,20 +452,8 @@ class CalendarsTable extends Table
             return $result;
         }
 
-        $fieldsToCheck = ['name', 'color', 'icon'];
-
-        foreach ($fieldsToCheck as $fieldName) {
-            // what should be changed.
-            if ($found->$fieldName != $calendar[$fieldName]) {
-                $result['data'][$fieldName] = $calendar[$fieldName];
-            }
-        }
-
-        if (!empty($result['data'])) {
-            $result['entity'] = $found;
-        } else {
-            $result = [];
-        }
+        $result['entity'] = $found;
+        $result['data'] = $item;
 
         return $result;
     }
