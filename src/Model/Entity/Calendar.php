@@ -10,12 +10,11 @@ use Cake\ORM\Entity;
  * @property string $name
  * @property string $color
  * @property string $icon
- * @property string $calendar_source_id
+ * @property string $source_id
  * @property \Cake\I18n\Time $created
  * @property \Cake\I18n\Time $modified
  * @property \Cake\I18n\Time $trashed
  *
- * @property \Qobo\Calendar\Model\Entity\CalendarSource $calendar_source
  * @property \Qobo\Calendar\Model\Entity\CalendarEvent[] $calendar_events
  */
 class Calendar extends Entity

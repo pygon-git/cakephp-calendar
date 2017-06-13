@@ -74,7 +74,7 @@ class CalendarsTable extends Table
             ->allowEmpty('icon');
 
         $validator
-            ->allowEmpty('calendar_source');
+            ->allowEmpty('source');
 
         return $validator;
     }
@@ -191,8 +191,6 @@ class CalendarsTable extends Table
                 $this,
                 $calendar,
                 [
-                    'source' => 'calendar_source',
-                    'source_id' => 'calendar_source_id',
                     'range' => (!empty($options['period']) ? $options['period'] : []),
                 ]
             );
@@ -200,14 +198,7 @@ class CalendarsTable extends Table
             $saved['modified'][] = $this->saveItemDifferences($this, $diffCalendar);
         }
 
-        $ignored = $this->_itemsToDelete(
-            $this,
-            $saved['modified'],
-            [
-                'source' => 'calendar_source',
-                'source_id' => 'calendar_source_id',
-            ]
-        );
+        $ignored = $this->_itemsToDelete($this, $saved['modified']);
 
         $saved['removed'] = $this->saveItemDifferences($this, ['delete' => $ignored]);
 
@@ -284,8 +275,8 @@ class CalendarsTable extends Table
     protected function _getItemDifferences($table, $item = null, $options = [])
     {
         $conditions = [];
-        $source = $options['source'];
-        $sourceId = $options['source_id'];
+        $source = empty($options['source']) ? 'source' : $options['source'];
+        $sourceId = empty($options['source_id']) ? 'source_id' : $options['source_id'];
 
         $diff = [
             'add' => [],
@@ -326,7 +317,7 @@ class CalendarsTable extends Table
      * Check if calendar should be added
      *
      * @param array $calendar to inspect
-     * @param array $existingCalendars with same calendar_source
+     * @param array $existingCalendars with same source
      *
      * @return array $result with the comparison result.
      */
@@ -396,8 +387,8 @@ class CalendarsTable extends Table
     protected function _itemsToDelete($table, $items, $options = [])
     {
         $result = $conditions = [];
-        $source = $options['source'];
-        $sourceId = $options['source_id'];
+        $source = empty($options['source']) ? 'source' : $options['source'];
+        $sourceId = empty($options['source_id']) ? 'source_id' : $options['source_id'];
 
         if (!empty($options['range'])) {
             if (!empty($options['range']['start_date'])) {

@@ -58,10 +58,11 @@ class GetCalendarsListener implements EventListenerInterface
         if (!empty($event->result)) {
             $result = $event->result;
         }
-        // locally created calendars don't have calendar_source_id (external link).
+
+        // locally created calendars don't have source_id (external link).
         $options = array_merge($options, [
             'conditions' => [
-                'calendar_source LIKE' => 'Plugin__%',
+                'source LIKE' => 'Plugin__%',
             ]
         ]);
 

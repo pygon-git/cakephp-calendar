@@ -8,14 +8,13 @@ use Cake\ORM\Entity;
  *
  * @property string $id
  * @property string $calendar_id
- * @property string $event_source_id
+ * @property string $source_id
  * @property string $title
  * @property string $content
  * @property \Cake\I18n\Time $start_date
  * @property \Cake\I18n\Time $end_date
  * @property \Cake\I18n\Time $duration
  *
- * @property \Qobo\Calendar\Model\Entity\EventSource $event_source
  * @property \Qobo\Calendar\Model\Entity\Calendar $calendar
  */
 class CalendarEvent extends Entity
