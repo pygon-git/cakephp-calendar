@@ -189,14 +189,6 @@ class CalendarsTable extends Table
 
         $receivedCalendarsData = $event->result;
 
-        $appCalendars = [];
-
-        foreach ($receivedCalendarsData as $k => $item) {
-            if (!empty($item['calendar'])) {
-                $appCalendars[] = $item['calendar'];
-            }
-        }
-
         $eventsTable = TableRegistry::get('Qobo/Calendar.CalendarEvents');
 
         foreach ($receivedCalendarsData as $k => $calendarData) {
@@ -237,8 +229,34 @@ class CalendarsTable extends Table
             }
         }
 
-        //@FIXME: add Deletion of calendars/events.
+        $savedCalendars = [];
+        $savedCalendars = array_map(function ($item) {
+            return $item['calendar'];
+        }, $saved);
 
+        $ignoredCalendars = $this->_itemsToDelete(
+            $this,
+            $savedCalendars,
+            [
+                'source' => 'calendar_source',
+                'source_id' => 'calendar_source_id',
+            ]
+        );
+
+        $savedEvents = [];
+        foreach ($saved as $k => $savedItem) {
+            $savedEvents = array_merge($savedEvents, $savedItem['events']);
+        }
+
+        $ignoredEvents = $this->_itemsToDelete(
+            $eventsTable,
+            $savedEvents,
+            [
+                'source' => 'event_source',
+                'source_id' => 'event_source_id',
+                'range' => (!empty($options['period']) ? $options['period'] : []),
+            ]
+        );
 
         if (!empty($saved)) {
             $result = $saved;
@@ -409,6 +427,57 @@ class CalendarsTable extends Table
 
         $result['entity'] = $found;
         $result['data'] = $item;
+
+        return $result;
+    }
+
+    /**
+     * Remove item from from the set
+     *
+     * @param ORM\Table $table instance of the target
+     * @param array $items containing current items
+     * @param array $options with extra config
+     *
+     * @return array $result containing the items that should be deleted.
+     */
+    protected function _itemsToDelete($table, $items, $options = [])
+    {
+        $result = $conditions = [];
+        $source = $options['source'];
+        $sourceId = $options['source_id'];
+
+        if (!empty($options['range'])) {
+            if (!empty($options['range']['start_date'])) {
+                $conditions['start_date >='] = $options['range']['start_date'];
+            }
+
+            if (!empty($options['range']['end_date'])) {
+                $conditions['end_date <='] = $options['range']['end_date'];
+            }
+        }
+
+        $query = $table->find()
+                    ->where($conditions)
+                    ->all();
+
+        $dbItems = $query->toArray();
+
+        if (empty($dbItems) || empty($items)) {
+            return $result;
+        }
+
+        foreach ($dbItems as $key => $dbItem) {
+            foreach ($items as $k => $item) {
+                if ($dbItem->$source == $item->$source
+                    && $dbItem->$sourceId == $item->$sourceId) {
+                    unset($dbItems[$key]);
+                }
+            }
+        }
+
+        if (!empty($dbItems)) {
+            $result = $dbItems;
+        }
 
         return $result;
     }
