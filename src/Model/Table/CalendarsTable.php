@@ -245,53 +245,6 @@ class CalendarsTable extends Table
         return $result;
     }
 
-    public function saveCalendarEventsDifferences($eventsDiff = [])
-    {
-        $result = [];
-
-        $table = TableRegistry::get('Qobo/Calendar.CalendarEvents');
-
-        foreach ($eventsDiff as $actionName => $items) {
-            if (empty($items)) {
-                continue;
-            }
-
-            foreach ($items as $k => $item) {
-                $data = [];
-
-                if (empty($item)) {
-                    continue;
-                }
-
-                switch ($actionName) {
-                    case 'add':
-                        $entity = $table->newEntity();
-                        $data = $item;
-                        break;
-                    case 'update':
-                        $entity = $item['entity'];
-                        $data = $item['data'];
-                        break;
-                }
-
-                if (in_array($actionName, ['add', 'update']) && !empty($data)) {
-                    $entity = $table->patchEntity($entity, $data);
-                    $result[$actionName][] = $table->save($entity);
-                }
-
-                if (in_array($actionName, ['delete']) && !empty($item)) {
-                    if ($table->delete($item)) {
-                        $result['delete'][] = $item;
-                    }
-                }
-            }
-        }
-
-        debug($result);die('w0000t');
-
-        return $result;
-    }
-
     /**
      * saveCalendarDifferences method
      *
@@ -456,29 +409,5 @@ class CalendarsTable extends Table
         $result['data'] = $item;
 
         return $result;
-    }
-
-    /**
-     * Check calendars for deletion
-     *
-     * @param array $calendars taht should be unset from the DB if any match.
-     *
-     * @return array $dbCalendars that should be removed.
-     */
-    protected function _calendarsToDelete($calendars = [])
-    {
-        $query = $this->find()->all();
-        $dbCalendars = $query->toArray();
-
-        foreach ($calendars as $calendar) {
-            foreach ($dbCalendars as $k => $dbCalendar) {
-                if ($calendar['calendar_source_id'] == $dbCalendar->calendar_source_id
-                    && $calendar['calendar_source'] == $dbCalendar->calendar_source) {
-                    unset($dbCalendars[$k]);
-                }
-            }
-        }
-
-        return $dbCalendars;
     }
 }
