@@ -101,8 +101,6 @@ class CalendarsTable extends Table
     public function getCalendars($options = [])
     {
         $result = $conditions = [];
-        $table = TableRegistry::get('Qobo/Calendar.Calendars');
-        $tableEvents = TableRegistry::get('Qobo/Calendar.CalendarEvents');
 
         if (!empty($options['id'])) {
             $conditions['id'] = $options['id'];
@@ -110,7 +108,7 @@ class CalendarsTable extends Table
             $conditions = $options['conditions'];
         }
 
-        $query = $table->find()
+        $query = $this->find()
                 ->where($conditions)
                 ->order(['name' => 'ASC'])
                 ->all();
@@ -122,13 +120,6 @@ class CalendarsTable extends Table
         //adding event_types & events attached for the calendars
         foreach ($result as $k => $calendar) {
             $result[$k]->event_types = [];
-            $result[$k]->calendar_events = [];
-
-            $events = $tableEvents->getCalendarEvents($calendar, $options);
-
-            if (!empty($events)) {
-                $result[$k]->calendar_events = $events;
-            }
 
             if (empty($types)) {
                 continue;
@@ -175,7 +166,7 @@ class CalendarsTable extends Table
      */
     public function syncCalendars($options = [])
     {
-        $result = $saved = [];
+        $result = $saved = $savedCalendars = $removed = [];
 
         $event = new Event('Plugin.Calendars.Model.getCalendars', $this, [
             'options' => $options,
@@ -187,14 +178,18 @@ class CalendarsTable extends Table
             return $result;
         }
 
-        $receivedCalendarsData = $event->result;
+        $appCalendars = $event->result;
 
-        $eventsTable = TableRegistry::get('Qobo/Calendar.CalendarEvents');
+        foreach ($appCalendars as $k => $calendarData) {
+            $calendar = !empty($calendarData['calendar']) ? $calendarData['calendar'] : [];
 
-        foreach ($receivedCalendarsData as $k => $calendarData) {
+            if (empty($calendar)) {
+                continue;
+            }
+
             $diffCalendar = $this->_getItemDifferences(
                 $this,
-                $calendarData['calendar'],
+                $calendar,
                 [
                     'source' => 'calendar_source',
                     'source_id' => 'calendar_source_id',
@@ -202,61 +197,19 @@ class CalendarsTable extends Table
                 ]
             );
 
-            $saved[$k]['calendar'] = $this->saveItemDifferences($this, $diffCalendar);
-
-            if (!empty($calendarData['events'])) {
-                $saved[$k]['events'] = [];
-                foreach ($calendarData['events'] as $key => $ev) {
-                    $diffEvent = $this->_getItemDifferences(
-                        $eventsTable,
-                        $ev,
-                        [
-                            'source' => 'event_source',
-                            'source_id' => 'event_source_id',
-                            'range' => (!empty($options['period']) ? $options['period'] : []),
-                        ]
-                    );
-                    $saved[$k]['events'][] = $this->saveItemDifferences(
-                        $eventsTable,
-                        $diffEvent,
-                        [
-                            'extra_fields' => [
-                                'calendar_id' => $saved[$k]['calendar']->id
-                            ]
-                        ]
-                    );
-                }
-            }
+            $saved['modified'][] = $this->saveItemDifferences($this, $diffCalendar);
         }
 
-        $savedCalendars = [];
-        $savedCalendars = array_map(function ($item) {
-            return $item['calendar'];
-        }, $saved);
-
-        $ignoredCalendars = $this->_itemsToDelete(
+        $ignored = $this->_itemsToDelete(
             $this,
-            $savedCalendars,
+            $saved['modified'],
             [
                 'source' => 'calendar_source',
                 'source_id' => 'calendar_source_id',
             ]
         );
 
-        $savedEvents = [];
-        foreach ($saved as $k => $savedItem) {
-            $savedEvents = array_merge($savedEvents, $savedItem['events']);
-        }
-
-        $ignoredEvents = $this->_itemsToDelete(
-            $eventsTable,
-            $savedEvents,
-            [
-                'source' => 'event_source',
-                'source_id' => 'event_source_id',
-                'range' => (!empty($options['period']) ? $options['period'] : []),
-            ]
-        );
+        $saved['removed'] = $this->saveItemDifferences($this, ['delete' => $ignored]);
 
         if (!empty($saved)) {
             $result = $saved;
@@ -312,7 +265,7 @@ class CalendarsTable extends Table
 
                 if (in_array($actionName, ['delete']) && !empty($item)) {
                     if ($table->delete($item)) {
-                        $result = $item;
+                        $result[] = $item;
                     }
                 }
             }
