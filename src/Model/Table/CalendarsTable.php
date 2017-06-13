@@ -206,6 +206,7 @@ class CalendarsTable extends Table
                 [
                     'source' => 'calendar_source',
                     'source_id' => 'calendar_source_id',
+                    'range' => (!empty($options['period']) ? $options['period'] : []),
                 ]
             );
 
@@ -220,6 +221,7 @@ class CalendarsTable extends Table
                         [
                             'source' => 'event_source',
                             'source_id' => 'event_source_id',
+                            'range' => (!empty($options['period']) ? $options['period'] : []),
                         ]
                     );
                     $saved[$k]['events'][] = $this->saveItemDifferences(

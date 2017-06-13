@@ -111,14 +111,20 @@ class CalendarEventsTable extends Table
      */
     public function getCalendarEvents($calendar, $options = [])
     {
-        $result = [];
+        $result = $conditions = [];
 
         if (!$calendar) {
             return $result;
         }
+        $conditions['calendar_id'] = $calendar->id;
+
+        if (!empty($options['period'])) {
+            $conditions['start_date >='] = $options['period']['start_date'];
+            $conditions['end_date <='] = $options['period']['end_date'];
+        }
 
         $resultSet = $this->find()
-                ->where(['calendar_id' => $calendar->id])
+                ->where($conditions)
                 ->toArray();
 
         if (!empty($resultSet)) {
