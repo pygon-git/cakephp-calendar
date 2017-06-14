@@ -16,8 +16,10 @@ class GetCalendarsListener implements EventListenerInterface
     public function implementedEvents()
     {
         return [
-            'App.Calendars.Model.getCalendars' => 'getPluginCalendars',
             'Plugin.Calendars.Model.getCalendars' => 'sendGetCalendarsToApp',
+            'Plugin.Calendars.Model.getCalendarEvents' => 'sendGetCalendarEventsToApp',
+            'App.Calendars.Model.getCalendars' => 'getPluginCalendars',
+            'App.Calendars.Model.getCalendarEvents' => 'getPluginCalendarEvents',
         ];
     }
 
@@ -34,6 +36,28 @@ class GetCalendarsListener implements EventListenerInterface
         $eventName = preg_replace('/^(Plugin)/', 'App', $event->name());
 
         $ev = new Event($eventName, $this, [
+            'options' => $options
+        ]);
+
+        EventManager::instance()->dispatch($ev);
+
+        $event->result = $ev->result;
+    }
+
+    /**
+     * Re-broadcasting the event outside of the plugin
+     *
+     * @param Cake\Event\Event $event received by the plugin
+     * @param array $options for calendar conditions
+     *
+     * @return void
+     */
+    public function sendGetCalendarEventsToApp(Event $event, $calendar, $options = [])
+    {
+        $eventName = preg_replace('/^(Plugin)/', 'App', $event->name());
+
+        $ev = new Event($eventName, $this, [
+            'calendar' => $calendar,
             'options' => $options
         ]);
 
@@ -73,11 +97,8 @@ class GetCalendarsListener implements EventListenerInterface
         }
 
         foreach ($calendars as $k => $calendar) {
-            $events = !empty($calendar->calendar_events) ? $calendar->calendar_events : [];
             unset($calendar->calendar_events);
-
             $content[$k]['calendar'] = json_decode(json_encode($calendar), true);
-            $content[$k]['events'] = json_decode(json_encode($events), true);
         }
 
         if (!empty($content)) {
@@ -85,5 +106,22 @@ class GetCalendarsListener implements EventListenerInterface
         }
 
         $event->result = $result;
+    }
+
+    /**
+     * Get calendar events from the plugin only.
+     *
+     * @param Cake\Event\Event $event passed through
+     * @param array $options for calendars
+     *
+     * @return void
+     */
+    public function getPluginCalendarEvents(Event $event, $calendar, $options = [])
+    {
+        $table = TableRegistry::get('Qobo/Calendar.CalendarEvents');
+
+        $events = $table->getCalendarEvents($calendar, $options);
+
+        $event->result = $events;
     }
 }

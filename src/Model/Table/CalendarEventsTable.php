@@ -116,6 +116,7 @@ class CalendarEventsTable extends Table
         if (!$calendar) {
             return $result;
         }
+
         $conditions['calendar_id'] = $calendar->id;
 
         if (!empty($options['period'])) {

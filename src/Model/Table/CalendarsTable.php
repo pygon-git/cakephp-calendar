@@ -166,7 +166,7 @@ class CalendarsTable extends Table
      */
     public function syncCalendars($options = [])
     {
-        $result = $saved = $savedCalendars = $removed = [];
+        $result = $savedCalendars = $removed = [];
 
         $event = new Event('Plugin.Calendars.Model.getCalendars', $this, [
             'options' => $options,
@@ -195,15 +195,68 @@ class CalendarsTable extends Table
                 ]
             );
 
-            $saved['modified'][] = $this->saveItemDifferences($this, $diffCalendar);
+            $result['modified'][] = $this->saveItemDifferences($this, $diffCalendar);
         }
 
-        $ignored = $this->_itemsToDelete($this, $saved['modified']);
+        $ignored = $this->_itemsToDelete($this, $result['modified']);
 
-        $saved['removed'] = $this->saveItemDifferences($this, ['delete' => $ignored]);
+        $result['removed'] = $this->saveItemDifferences($this, ['delete' => $ignored]);
 
-        if (!empty($saved)) {
-            $result = $saved;
+        return $result;
+    }
+
+    /**
+     * Synchronize calendar events
+     *
+     * @param Model\Table $calendar instance from the db
+     * @param array $options with extra configs
+     *
+     * @return array $result with events responses.
+     */
+    public function syncCalendarEvents($calendar, $options = [])
+    {
+        $result = [];
+        $table = TableRegistry::get('Qobo/Calendar.CalendarEvents');
+
+        if (empty($calendar) || empty($action)) {
+            return $result;
+        }
+
+        $event = new Event('Plugin.Calendars.Model.getCalendarEvents', $this, [
+            'calendar' => $calendar,
+            'options' => $options,
+        ]);
+
+        EventManager::instance()->dispatch($event);
+
+        $calendarEvents = $event->result;
+
+        if (empty($calendarEvents)) {
+            return $result;
+        }
+
+        foreach ($calendarEvents as $k => $calendarInfo) {
+            if (empty($calendarInfo['events'])) {
+                continue;
+            }
+            foreach ($calendarInfo['events'] as $item) {
+                 $diff = $this->_getItemDifferences(
+                    $table,
+                    $item,
+                    [
+                        'range' => (!empty($options['period']) ? $options['period'] : []),
+                    ]
+                );
+
+                $result['modified'][] = $this->saveItemDifferences($table, $diff, [
+                    'extra_fields' => [
+                        'calendar_id' => $calendarInfo['calendar']->id
+                    ],
+                ]);
+            }
+
+            $ignored = $this->_itemsToDelete($table, $result['modified']);
+            $result['removed'] = $this->saveItemDifferences($table, ['delete' => $ignored]);
         }
 
         return $result;
