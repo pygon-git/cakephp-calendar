@@ -70,7 +70,7 @@ class CalendarEventsTable extends Table
 
         $validator
             ->requirePresence('content', 'create')
-            ->notEmpty('content');
+            ->allowEmpty('content');
 
         $validator
             ->dateTime('start_date')
