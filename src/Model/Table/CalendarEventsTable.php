@@ -104,7 +104,7 @@ class CalendarEventsTable extends Table
     /**
      * Get Events of specific calendar
      *
-     * @param Cake\Table\Entity $calendar record
+     * @param \Cake\ORM\Table $calendar record
      * @param array $options with filter params
      *
      * @return array $result of events (minimal structure)
@@ -152,7 +152,7 @@ class CalendarEventsTable extends Table
     /**
      * Get Calendar Event types based on configuration
      *
-     * @param Cake\Table\Entity $calendar record
+     * @param \Cake\ORM\Table $calendar record
      *
      * @return array $result containing event types for select2 dropdown
      */

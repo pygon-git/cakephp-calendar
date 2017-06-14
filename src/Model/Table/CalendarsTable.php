@@ -208,7 +208,7 @@ class CalendarsTable extends Table
     /**
      * Synchronize calendar events
      *
-     * @param Model\Table $calendar instance from the db
+     * @param \Model\Entity\Calendar $calendar instance from the db
      * @param array $options with extra configs
      *
      * @return array $result with events responses.
@@ -218,7 +218,7 @@ class CalendarsTable extends Table
         $result = [];
         $table = TableRegistry::get('Qobo/Calendar.CalendarEvents');
 
-        if (empty($calendar) || empty($action)) {
+        if (empty($calendar)) {
             return $result;
         }
 
@@ -241,12 +241,12 @@ class CalendarsTable extends Table
             }
             foreach ($calendarInfo['events'] as $item) {
                  $diff = $this->_getItemDifferences(
-                    $table,
-                    $item,
-                    [
+                     $table,
+                     $item,
+                     [
                         'range' => (!empty($options['period']) ? $options['period'] : []),
-                    ]
-                );
+                     ]
+                 );
 
                 $result['modified'][] = $this->saveItemDifferences($table, $diff, [
                     'extra_fields' => [
@@ -267,7 +267,9 @@ class CalendarsTable extends Table
      *
      * Updating calendar DB with differences
      *
-     * @param array $calendarDiff prepopulated calendars
+     * @param \Cake\ORM\Table $table of the instance
+     * @param array $diff prepopulated calendars
+     * @param array $options with extra configs if any.
      *
      * @return array $result with updated/deleted/added calendars.
      */
@@ -321,7 +323,9 @@ class CalendarsTable extends Table
     /**
      * Collect calendars difference.
      *
-     * @param array $data containing received calendars from the events/models.
+     * @param \Cake\ORM\Table $table related instance.
+     * @param array $item to be checked for add/update (aka calendar or event).
+     * @param array $options with extra configs
      *
      * @return $calendarDiff containing the list of calendars to add/update/delete.
      */
@@ -369,8 +373,9 @@ class CalendarsTable extends Table
     /**
      * Check if calendar should be added
      *
-     * @param array $calendar to inspect
-     * @param array $existingCalendars with same source
+     * @param array $item to inspect for adding
+     * @param array $dbItems to be compared with
+     * @param string $fieldToCheck lookup field name
      *
      * @return array $result with the comparison result.
      */
@@ -395,10 +400,11 @@ class CalendarsTable extends Table
     /**
      * Check if the calendar should be updated
      *
-     * @param array $calendar to be checked
-     * @param array $existingCalendars to loop through for changes
+     * @param array $item to be checked for update
+     * @param array $dbItems to be checked against
+     * @param string $fieldToCheck lookup field name
      *
-     * @return array $result containing entity of the calendar from DB and changes in data key
+     * @return array $result containing comparison result
      */
     protected function _itemsToUpdate($item, $dbItems = [], $fieldToCheck = null)
     {

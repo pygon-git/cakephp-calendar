@@ -92,7 +92,7 @@ var calendar = calendar || {};
         var that = this;
 
         // load events based on active calendars on load.
-        $.each( $(this.calendarIdContainer), function (index, el) {
+        $.each($(this.calendarIdContainer), function (index, el) {
             if ($(el).is(':checked')) {
                 that.loadSelectedCalendarEvents($(el).val());
             }
