@@ -74,7 +74,7 @@ class CalendarsTable extends Table
             ->allowEmpty('icon');
 
         $validator
-            ->allowEmpty('calendar_source');
+            ->allowEmpty('source');
 
         return $validator;
     }
@@ -101,13 +101,14 @@ class CalendarsTable extends Table
     public function getCalendars($options = [])
     {
         $result = $conditions = [];
-        $table = TableRegistry::get('Qobo/Calendar.Calendars');
 
         if (!empty($options['id'])) {
             $conditions['id'] = $options['id'];
+        } elseif (!empty($options['conditions'])) {
+            $conditions = $options['conditions'];
         }
 
-        $query = $table->find()
+        $query = $this->find()
                 ->where($conditions)
                 ->order(['name' => 'ASC'])
                 ->all();
@@ -116,7 +117,7 @@ class CalendarsTable extends Table
         // loading types for calendars and events.
         $types = Configure::read('Calendar.Types');
 
-        //adding event_types attached for the calendars
+        //adding event_types & events attached for the calendars
         foreach ($result as $k => $calendar) {
             $result[$k]->event_types = [];
 
@@ -151,6 +152,334 @@ class CalendarsTable extends Table
             foreach ($config as $k => $val) {
                 $result[$val['value']] = $val['name'];
             }
+        }
+
+        return $result;
+    }
+
+    /**
+     * Synchronize calendars
+     *
+     * @param array $options passed from the outside.
+     *
+     * @return array $result of the synchronize method.
+     */
+    public function syncCalendars($options = [])
+    {
+        $result = $savedCalendars = $removed = [];
+
+        $event = new Event('Plugin.Calendars.Model.getCalendars', $this, [
+            'options' => $options,
+        ]);
+
+        EventManager::instance()->dispatch($event);
+
+        if (empty($event->result)) {
+            return $result;
+        }
+
+        $appCalendars = $event->result;
+
+        foreach ($appCalendars as $k => $calendarData) {
+            $calendar = !empty($calendarData['calendar']) ? $calendarData['calendar'] : [];
+
+            if (empty($calendar)) {
+                continue;
+            }
+
+            $diffCalendar = $this->_getItemDifferences(
+                $this,
+                $calendar,
+                [
+                    'range' => (!empty($options['period']) ? $options['period'] : []),
+                ]
+            );
+
+            $result['modified'][] = $this->saveItemDifferences($this, $diffCalendar);
+        }
+
+        $ignored = $this->_itemsToDelete($this, $result['modified']);
+
+        $result['removed'] = $this->saveItemDifferences($this, ['delete' => $ignored]);
+
+        return $result;
+    }
+
+    /**
+     * Synchronize calendar events
+     *
+     * @param \Model\Entity\Calendar $calendar instance from the db
+     * @param array $options with extra configs
+     *
+     * @return array $result with events responses.
+     */
+    public function syncCalendarEvents($calendar, $options = [])
+    {
+        $result = [];
+        $table = TableRegistry::get('Qobo/Calendar.CalendarEvents');
+
+        if (empty($calendar)) {
+            return $result;
+        }
+
+        $event = new Event('Plugin.Calendars.Model.getCalendarEvents', $this, [
+            'calendar' => $calendar,
+            'options' => $options,
+        ]);
+
+        EventManager::instance()->dispatch($event);
+
+        $calendarEvents = $event->result;
+
+        if (empty($calendarEvents)) {
+            return $result;
+        }
+
+        foreach ($calendarEvents as $k => $calendarInfo) {
+            if (empty($calendarInfo['events'])) {
+                continue;
+            }
+            foreach ($calendarInfo['events'] as $item) {
+                 $diff = $this->_getItemDifferences(
+                     $table,
+                     $item,
+                     [
+                        'range' => (!empty($options['period']) ? $options['period'] : []),
+                     ]
+                 );
+
+                $result['modified'][] = $this->saveItemDifferences($table, $diff, [
+                    'extra_fields' => [
+                        'calendar_id' => $calendarInfo['calendar']->id
+                    ],
+                ]);
+            }
+
+            $ignored = $this->_itemsToDelete($table, $result['modified']);
+            $result['removed'] = $this->saveItemDifferences($table, ['delete' => $ignored]);
+        }
+
+        return $result;
+    }
+
+    /**
+     * saveCalendarDifferences method
+     *
+     * Updating calendar DB with differences
+     *
+     * @param \Cake\ORM\Table $table of the instance
+     * @param array $diff prepopulated calendars
+     * @param array $options with extra configs if any.
+     *
+     * @return array $result with updated/deleted/added calendars.
+     */
+    public function saveItemDifferences($table, $diff = [], $options = [])
+    {
+        $result = [];
+
+        foreach ($diff as $actionName => $items) {
+            if (empty($items)) {
+                continue;
+            }
+
+            foreach ($items as $k => $item) {
+                $data = [];
+
+                if (empty($item)) {
+                    continue;
+                }
+
+                switch ($actionName) {
+                    case 'add':
+                        $entity = $table->newEntity();
+                        $data = $item;
+                        break;
+                    case 'update':
+                        $entity = $item['entity'];
+                        $data = $item['data'];
+                        break;
+                }
+
+                if (in_array($actionName, ['add', 'update']) && !empty($data)) {
+                    if (!empty($options['extra_fields'])) {
+                        $data = array_merge($data, $options['extra_fields']);
+                    }
+
+                    $entity = $table->patchEntity($entity, $data);
+                    $result = $table->save($entity);
+                }
+
+                if (in_array($actionName, ['delete']) && !empty($item)) {
+                    if ($table->delete($item)) {
+                        $result[] = $item;
+                    }
+                }
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * Collect calendars difference.
+     *
+     * @param \Cake\ORM\Table $table related instance.
+     * @param array $item to be checked for add/update (aka calendar or event).
+     * @param array $options with extra configs
+     *
+     * @return $calendarDiff containing the list of calendars to add/update/delete.
+     */
+    protected function _getItemDifferences($table, $item = null, $options = [])
+    {
+        $conditions = [];
+        $source = empty($options['source']) ? 'source' : $options['source'];
+        $sourceId = empty($options['source_id']) ? 'source_id' : $options['source_id'];
+
+        $diff = [
+            'add' => [],
+            'update' => [],
+            'delete' => [],
+        ];
+
+        if (empty($item)) {
+            return $diff;
+        }
+
+        if (is_null($item[$source])) {
+            $conditions[$source . ' IS'] = $item[$source];
+        } else {
+            $conditions[$source] = $item[$source];
+        }
+
+        $query = $table->find()
+                ->where($conditions)
+                ->all();
+
+        $dbItems = $query->toArray();
+
+        $toAdd = $this->_itemsToAdd($item, $dbItems, $sourceId);
+        if (!empty($toAdd)) {
+            $diff['add'][] = $toAdd;
+        }
+
+        $toUpdate = $this->_itemsToUpdate($item, $dbItems, $sourceId);
+        if (!empty($toUpdate)) {
+            $diff['update'][] = $toUpdate;
+        }
+
+        return $diff;
+    }
+
+    /**
+     * Check if calendar should be added
+     *
+     * @param array $item to inspect for adding
+     * @param array $dbItems to be compared with
+     * @param string $fieldToCheck lookup field name
+     *
+     * @return array $result with the comparison result.
+     */
+    protected function _itemsToAdd($item, $dbItems = [], $fieldToCheck = null)
+    {
+        $result = $item;
+
+        if (empty($dbItems)) {
+            return $result;
+        }
+
+        foreach ($dbItems as $k => $dbItem) {
+            if ($dbItem->$fieldToCheck == $item[$fieldToCheck]) {
+                $result = [];
+                break;
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * Check if the calendar should be updated
+     *
+     * @param array $item to be checked for update
+     * @param array $dbItems to be checked against
+     * @param string $fieldToCheck lookup field name
+     *
+     * @return array $result containing comparison result
+     */
+    protected function _itemsToUpdate($item, $dbItems = [], $fieldToCheck = null)
+    {
+        $found = null;
+        $result = [
+            'entity' => [],
+            'data' => []
+        ];
+
+        if (empty($dbItems)) {
+            return $result;
+        }
+
+        foreach ($dbItems as $dbItem) {
+            if ($dbItem->$fieldToCheck == $item[$fieldToCheck]) {
+                $found = $dbItem;
+            }
+        }
+
+        if (empty($found)) {
+            return $result;
+        }
+
+        $result['entity'] = $found;
+        $result['data'] = $item;
+
+        return $result;
+    }
+
+    /**
+     * Remove item from from the set
+     *
+     * @param ORM\Table $table instance of the target
+     * @param array $items containing current items
+     * @param array $options with extra config
+     *
+     * @return array $result containing the items that should be deleted.
+     */
+    protected function _itemsToDelete($table, $items, $options = [])
+    {
+        $result = $conditions = [];
+        $source = empty($options['source']) ? 'source' : $options['source'];
+        $sourceId = empty($options['source_id']) ? 'source_id' : $options['source_id'];
+
+        if (!empty($options['range'])) {
+            if (!empty($options['range']['start_date'])) {
+                $conditions['start_date >='] = $options['range']['start_date'];
+            }
+
+            if (!empty($options['range']['end_date'])) {
+                $conditions['end_date <='] = $options['range']['end_date'];
+            }
+        }
+
+        $query = $table->find()
+                    ->where($conditions)
+                    ->all();
+
+        $dbItems = $query->toArray();
+
+        if (empty($dbItems) || empty($items)) {
+            return $result;
+        }
+
+        foreach ($dbItems as $key => $dbItem) {
+            foreach ($items as $k => $item) {
+                if ($dbItem->$source == $item->$source
+                    && $dbItem->$sourceId == $item->$sourceId) {
+                    unset($dbItems[$key]);
+                }
+            }
+        }
+
+        if (!empty($dbItems)) {
+            $result = $dbItems;
         }
 
         return $result;

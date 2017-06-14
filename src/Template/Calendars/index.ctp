@@ -49,29 +49,43 @@ echo $this->Html->script(
                                 <div class="row">
                                     <div class="col-xs-8">
                                     <?php
-                                        $label = (!empty($calendar->icon) ? "<i class='fa fa-{$calendar->icon}'></i>&nbsp;&nbsp;" . $calendar->name : $calendar->name);
+                                        $label = (!empty($calendar['icon']) ? "<i class='fa fa-{$calendar['icon']}'></i>&nbsp;&nbsp;" . $calendar['name'] : $calendar['name']);
                                         echo $this->Form->input('Calendar._ids', [
                                             'id' => false,
                                             'type' => 'checkbox',
                                             'multiple' => true,
-                                            'value' => $calendar->id,
+                                            'value' => $calendar['id'],
                                             'class' => 'calendar-id',
                                             'hiddenField' => false,
                                             'label' => $label,
                                             'escape' => false,
-                                            'checked' => $calendar->active,
+                                            'checked' => $calendar['active'],
                                         ]);?>
                                     </div>
                                     <div class="col-xs-4">
                                         <div class="btn-group btn-group-xs pull-right">
                                             <?php
+                                                echo $this->Form->postLink(
+                                                    '<i class="fa fa-refresh"></i>',
+                                                    [
+                                                        'plugin' => 'Qobo/Calendar',
+                                                        'controller' => 'Calendars',
+                                                        'action' => 'synchronize',
+                                                        $calendar['id'],
+                                                    ],
+                                                    [
+                                                        'class' => 'btn btn-default',
+                                                        'escape' => false,
+                                                        'confirm' => __('Are you sure you want to synchronize calendar "{0}"?', $calendar['name']),
+                                                    ]
+                                                );
                                                 echo $this->Html->link(
                                                     '<i class="fa fa-eye"></i>',
                                                     [
                                                         'plugin' => 'Qobo/Calendar',
                                                         'controller' => 'Calendars',
                                                         'action' => 'view',
-                                                        $calendar->id,
+                                                        $calendar['id'],
                                                     ],
                                                     [
                                                         'class' => 'btn btn-default',
@@ -84,7 +98,7 @@ echo $this->Html->script(
                                                         'plugin' => 'Qobo/Calendar',
                                                         'controller' => 'Calendars',
                                                         'action' => 'edit',
-                                                        $calendar->id,
+                                                        $calendar['id'],
                                                     ],
                                                     [
                                                         'class' => 'btn btn-default',
@@ -97,12 +111,12 @@ echo $this->Html->script(
                                                         'plugin' => 'Qobo/Calendar',
                                                         'controller' => 'Calendars',
                                                         'action' => 'delete',
-                                                        $calendar->id,
+                                                        $calendar['id'],
                                                     ],
                                                     [
                                                         'class' => 'btn btn-default',
                                                         'escape' => false,
-                                                        'confirm' => __('Are you sure you want to delete calendar "{0}"?', $calendar->name),
+                                                        'confirm' => __('Are you sure you want to delete calendar "{0}"?', $calendar['name']),
                                                     ]
                                                 );?>
                                         </div>

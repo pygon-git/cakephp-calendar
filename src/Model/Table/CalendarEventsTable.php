@@ -62,7 +62,7 @@ class CalendarEventsTable extends Table
             ->allowEmpty('id', 'create');
 
         $validator
-            ->allowEmpty('event_source');
+            ->allowEmpty('source');
 
         $validator
             ->requirePresence('title', 'create')
@@ -104,25 +104,46 @@ class CalendarEventsTable extends Table
     /**
      * Get Events of specific calendar
      *
-     * @param Cake\Table\Entity $calendar record
+     * @param \Cake\ORM\Table $calendar record
      * @param array $options with filter params
      *
-     * @return array $result
+     * @return array $result of events (minimal structure)
      */
     public function getCalendarEvents($calendar, $options = [])
     {
-        $result = [];
+        $result = $conditions = [];
 
         if (!$calendar) {
             return $result;
         }
 
+        $conditions['calendar_id'] = $calendar->id;
+
+        if (!empty($options['period'])) {
+            $conditions['start_date >='] = $options['period']['start_date'];
+            $conditions['end_date <='] = $options['period']['end_date'];
+        }
+
         $resultSet = $this->find()
-                ->where(['calendar_id' => $calendar->id])
+                ->where($conditions)
                 ->toArray();
 
         if (!empty($resultSet)) {
-            $result = $resultSet;
+            foreach ($resultSet as $event) {
+                $result[] = [
+                    'id' => $event['id'],
+                    'title' => $event['title'],
+                    'content' => $event['content'],
+                    'start_date' => date('Y-m-d H:i:s', strtotime($event['start_date'])),
+                    'end_date' => date('Y-m-d H:i:s', strtotime($event['end_date'])),
+                    'color' => (empty($event['color']) ? $calendar->color : $event['color']),
+                    // NOTE: adding extra variable for lookup values, of the calendar.
+                    'source' => $event['source'],
+                    'source_id' => $event['source_id'],
+                    'calendar_id' => $calendar->id,
+                    'event_type' => (!empty($event['event_type']) ? $event['event_type'] : null),
+                ];
+            }
         }
 
         return $result;
@@ -131,7 +152,7 @@ class CalendarEventsTable extends Table
     /**
      * Get Calendar Event types based on configuration
      *
-     * @param Cake\Table\Entity $calendar record
+     * @param \Cake\ORM\Table $calendar record
      *
      * @return array $result containing event types for select2 dropdown
      */

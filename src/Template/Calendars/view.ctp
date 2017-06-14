@@ -64,7 +64,7 @@
                     <strong>Calendar Source ID:</strong>
                 </div>
                 <div class="col-xs-8 col-md-4">
-                    <?= $calendar->calendar_source_id; ?>
+                    <?= $calendar->source_id; ?>
                 </div>
                 <div class="col-xs-4 col-md-2 text-right">
                     <strong>Created:</strong>
@@ -88,7 +88,7 @@
                     <strong>Calendar Source:</strong>
                 </div>
                 <div class="col-xs-8 col-md-4">
-                    <?= $calendar->calendar_source; ?>
+                    <?= $calendar->source; ?>
                 </div>
                 <div class="col-xs-4 col-md-2 text-right">
                     <strong>Modified:</strong>
