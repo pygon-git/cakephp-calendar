@@ -58,6 +58,12 @@ Configure::write('App', [
 ]);
 Configure::write('debug', true);
 
+$config = Configure::read('Calendar.Types');
+
+if (empty($config)) {
+    Configure::load('calendar', 'default');
+}
+
 $TMP = new Folder(TMP);
 $TMP->create(TMP . 'cache/models', 0777);
 $TMP->create(TMP . 'cache/persistent', 0777);
