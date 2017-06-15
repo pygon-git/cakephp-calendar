@@ -187,12 +187,10 @@ class CalendarsTable extends Table
                 continue;
             }
 
+            // we don't pass period as it doesn't have time limits.
             $diffCalendar = $this->_getItemDifferences(
                 $this,
-                $calendar,
-                [
-                    'range' => (!empty($options['period']) ? $options['period'] : []),
-                ]
+                $calendar
             );
 
             $result['modified'][] = $this->saveItemDifferences($this, $diffCalendar);
@@ -243,9 +241,7 @@ class CalendarsTable extends Table
                  $diff = $this->_getItemDifferences(
                      $table,
                      $item,
-                     [
-                        'range' => (!empty($options['period']) ? $options['period'] : []),
-                     ]
+                     $options
                  );
 
                 $result['modified'][] = $this->saveItemDifferences($table, $diff, [
@@ -255,7 +251,11 @@ class CalendarsTable extends Table
                 ]);
             }
 
-            $ignored = $this->_itemsToDelete($table, $result['modified']);
+            $ignored = $this->_itemsToDelete($table, $result['modified'], [
+                'extra_fields' => [
+                    'calendar_id' => $calendarInfo['calendar']->id
+                ],
+            ]);
             $result['removed'] = $this->saveItemDifferences($table, ['delete' => $ignored]);
         }
 
@@ -351,10 +351,12 @@ class CalendarsTable extends Table
             $conditions[$source] = $item[$source];
         }
 
-        $query = $table->find()
-                ->where($conditions)
-                ->all();
+        $conditions[$sourceId] = $item[$sourceId];
 
+        $query = $table->find()
+                ->where($conditions);
+
+        $query->all();
         $dbItems = $query->toArray();
 
         $toAdd = $this->_itemsToAdd($item, $dbItems, $sourceId);
@@ -449,20 +451,24 @@ class CalendarsTable extends Table
         $source = empty($options['source']) ? 'source' : $options['source'];
         $sourceId = empty($options['source_id']) ? 'source_id' : $options['source_id'];
 
-        if (!empty($options['range'])) {
-            if (!empty($options['range']['start_date'])) {
-                $conditions['start_date >='] = $options['range']['start_date'];
+        if (!empty($options['period'])) {
+            if (!empty($options['period']['start_date'])) {
+                $conditions['start_date >='] = $options['period']['start_date'];
             }
 
-            if (!empty($options['range']['end_date'])) {
-                $conditions['end_date <='] = $options['range']['end_date'];
+            if (!empty($options['period']['end_date'])) {
+                $conditions['end_date <='] = $options['period']['end_date'];
             }
         }
 
-        $query = $table->find()
-                    ->where($conditions)
-                    ->all();
+        if (!empty($options['extra_fields']['calendar_id'])) {
+            $conditions['calendar_id'] = $options['extra_fields']['calendar_id'];
+        }
 
+        $query = $table->find()
+                    ->where($conditions);
+
+        $query->all();
         $dbItems = $query->toArray();
 
         if (empty($dbItems) || empty($items)) {
