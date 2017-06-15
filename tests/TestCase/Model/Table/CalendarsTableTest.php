@@ -126,7 +126,6 @@ class CalendarsTableTest extends TestCase
         $this->assertTrue(is_array($result));
         $this->assertEmpty($result);
 
-
         $dbItems = $this->Calendars->getCalendars();
         $result = $this->Calendars->itemsToDelete($this->Calendars, [$dbItems[0]], $options);
         $this->assertTrue(is_array($result));
