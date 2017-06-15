@@ -188,7 +188,7 @@ class CalendarsTable extends Table
             }
 
             // we don't pass period as it doesn't have time limits.
-            $diffCalendar = $this->_getItemDifferences(
+            $diffCalendar = $this->getItemDifferences(
                 $this,
                 $calendar
             );
@@ -196,7 +196,7 @@ class CalendarsTable extends Table
             $result['modified'][] = $this->saveItemDifferences($this, $diffCalendar);
         }
 
-        $ignored = $this->_itemsToDelete($this, $result['modified']);
+        $ignored = $this->itemsToDelete($this, $result['modified']);
 
         $result['removed'] = $this->saveItemDifferences($this, ['delete' => $ignored]);
 
@@ -238,7 +238,7 @@ class CalendarsTable extends Table
                 continue;
             }
             foreach ($calendarInfo['events'] as $item) {
-                 $diff = $this->_getItemDifferences(
+                 $diff = $this->getItemDifferences(
                      $table,
                      $item,
                      $options
@@ -251,7 +251,7 @@ class CalendarsTable extends Table
                 ]);
             }
 
-            $ignored = $this->_itemsToDelete($table, $result['modified'], [
+            $ignored = $this->itemsToDelete($table, $result['modified'], [
                 'extra_fields' => [
                     'calendar_id' => $calendarInfo['calendar']->id
                 ],
@@ -329,7 +329,7 @@ class CalendarsTable extends Table
      *
      * @return $calendarDiff containing the list of calendars to add/update/delete.
      */
-    protected function _getItemDifferences($table, $item = null, $options = [])
+    public function getItemDifferences($table, $item = null, $options = [])
     {
         $conditions = [];
         $source = empty($options['source']) ? 'source' : $options['source'];
@@ -359,12 +359,12 @@ class CalendarsTable extends Table
         $query->all();
         $dbItems = $query->toArray();
 
-        $toAdd = $this->_itemsToAdd($item, $dbItems, $sourceId);
+        $toAdd = $this->itemsToAdd($item, $dbItems, $sourceId);
         if (!empty($toAdd)) {
             $diff['add'][] = $toAdd;
         }
 
-        $toUpdate = $this->_itemsToUpdate($item, $dbItems, $sourceId);
+        $toUpdate = $this->itemsToUpdate($item, $dbItems, $sourceId);
         if (!empty($toUpdate)) {
             $diff['update'][] = $toUpdate;
         }
@@ -381,7 +381,7 @@ class CalendarsTable extends Table
      *
      * @return array $result with the comparison result.
      */
-    protected function _itemsToAdd($item, $dbItems = [], $fieldToCheck = null)
+    public function itemsToAdd($item, $dbItems = [], $fieldToCheck = null)
     {
         $result = $item;
 
@@ -408,7 +408,7 @@ class CalendarsTable extends Table
      *
      * @return array $result containing comparison result
      */
-    protected function _itemsToUpdate($item, $dbItems = [], $fieldToCheck = null)
+    public function itemsToUpdate($item, $dbItems = [], $fieldToCheck = null)
     {
         $found = null;
         $result = [
@@ -445,7 +445,7 @@ class CalendarsTable extends Table
      *
      * @return array $result containing the items that should be deleted.
      */
-    protected function _itemsToDelete($table, $items, $options = [])
+    public function itemsToDelete($table, $items, $options = [])
     {
         $result = $conditions = [];
         $source = empty($options['source']) ? 'source' : $options['source'];

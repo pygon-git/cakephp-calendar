@@ -52,33 +52,84 @@ class CalendarsTableTest extends TestCase
         parent::tearDown();
     }
 
-    /**
-     * Test initialize method
-     *
-     * @return void
-     */
-    public function testInitialize()
+    public function testGetCalendarTypes()
     {
-        $this->markTestIncomplete('Not implemented yet.');
+        $result = $this->Calendars->getCalendarTypes();
+        $this->assertTrue(is_array($result));
+
+        \Cake\Core\Configure::write('Calendar.Types', ['foo' => ['name' => 'bar', 'value' => 'bar']]);
+        $result = $this->Calendars->getCalendarTypes();
+        $this->assertEquals(['bar' => 'bar'], $result);
     }
 
-    /**
-     * Test validationDefault method
-     *
-     * @return void
-     */
-    public function testValidationDefault()
+    public function testGetCalendars()
     {
-        $this->markTestIncomplete('Not implemented yet.');
+        $result = $this->Calendars->getCalendars();
+        $this->assertTrue(!empty($result));
+
+        $result = $this->Calendars->getCalendars(['id' => '9390cbc1-dc1d-474a-a372-de92dce85aae']);
+        $this->assertNotEmpty($result);
+        $this->assertEquals($result[0]->id, '9390cbc1-dc1d-474a-a372-de92dce85aae');
+
+        $result = $this->Calendars->getCalendars(['conditions' => ['id' => '9390cbc1-dc1d-474a-a372-de92dce85aaa']]);
+        $this->assertNotEmpty($result);
+        $this->assertEquals($result[0]->id, '9390cbc1-dc1d-474a-a372-de92dce85aaa');
+
+        \Cake\Core\Configure::write('Calendar.Types', ['foo' => ['name' => 'bar', 'value' => 'bar']]);
+        $result = $this->Calendars->getCalendars(['conditions' => ['id' => '9390cbc1-dc1d-474a-a372-de92dce85aaa']]);
     }
 
-    /**
-     * Test buildRules method
-     *
-     * @return void
-     */
-    public function testBuildRules()
+    public function testItemsToAdd()
     {
-        $this->markTestIncomplete('Not implemented yet.');
+        $dbItems = $this->Calendars->getCalendars();
+        $item = $dbItems[0];
+
+        $result = $this->Calendars->itemsToAdd($item, $dbItems, 'source');
+        $this->assertTrue(is_array($result));
+
+        $result = $this->Calendars->itemsToAdd($item, [], 'source');
+        $this->assertEquals($result, $item);
+
+        $item->source = 'foobar';
+        $dbItems = $this->Calendars->getCalendars();
+
+        $result = $this->Calendars->itemsToAdd($item, $dbItems, 'source');
+        $this->assertNotEmpty($result);
+        $this->assertEquals($item->id, $result->id);
+    }
+
+    public function testItemsToUpdate()
+    {
+        $result = $this->Calendars->itemsToUpdate([]);
+        $this->assertEquals($result, ['entity' => [], 'data' => []]);
+
+        $dbItems = $this->Calendars->getCalendars();
+        $item = $dbItems[0];
+
+        $result = $this->Calendars->itemsToUpdate($item, $dbItems, 'source');
+        $this->assertNotEmpty($result['data']);
+        $this->assertNotEmpty($result['entity']);
+
+        $item->source = 'foobar';
+        $dbItems = $this->Calendars->getCalendars();
+        $result = $this->Calendars->itemsToUpdate($item, $dbItems, 'source');
+        $this->assertEquals($result['entity'], []);
+        $this->assertEquals($result['data'], []);
+    }
+
+    public function testItemsToDelete()
+    {
+        $items = [];
+        $options = [];
+
+        $result = $this->Calendars->itemsToDelete($this->Calendars, $items, $options);
+        $this->assertTrue(is_array($result));
+        $this->assertEmpty($result);
+
+
+        $dbItems = $this->Calendars->getCalendars();
+        $result = $this->Calendars->itemsToDelete($this->Calendars, [$dbItems[0]], $options);
+        $this->assertTrue(is_array($result));
+        $this->assertEquals($dbItems[1]->id, $result[1]->id);
     }
 }
