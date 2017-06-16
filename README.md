@@ -7,10 +7,14 @@
 [![License](https://poser.pugx.org/qobo/cakephp-calendar/license)](https://packagist.org/packages/qobo/cakephp-calendar)
 [![codecov](https://codecov.io/gh/QoboLtd/cakephp-calendar/branch/master/graph/badge.svg)](https://codecov.io/gh/QoboLtd/cakephp-calendar)
 
-CakePHP Plugin Template
+CakePHP-Calendar Plugin
 =======================
 
-Template for CakePHP 3 plugins.
+:skull: This plugin is currently under heavy development, so please pay attention to the versioning. :skull:
+
+The plugins is a hub-spot of native calendars, and external calendars that derive from different sources of the application.
+The data processed via CakePHP Events being broadcasted from the Models.
+
 
 Usage
 -----
