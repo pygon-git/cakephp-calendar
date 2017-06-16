@@ -59,5 +59,29 @@ class CalendarEventsTableTest extends TestCase
 
         $result = $this->CalendarEvents->getCalendarEvents($dbItems[0]);
         $this->assertTrue(is_array($result));
+        $this->assertNotEmpty($result);
+        $this->assertEquals($result[0]['color'], '#05497d');
+        $this->assertEquals($result[0]['id'], '489b726e-b785-469b-a203-0f12b07cc984');
+    }
+
+    public function testGetCalendarEventsWithPeriod()
+    {
+        $calendars = TableRegistry::get('Qobo/Calendar.Calendars');
+        $dbItems = $calendars->getCalendars();
+
+        $result = $this->CalendarEvents->getCalendarEvents($dbItems[0], [
+            'period' => [
+                'start_date' => '2017-06-16 09:00:00',
+                'end_date' => '2017-06-16 20:00:00',
+            ],
+        ]);
+
+        $this->assertNotEmpty($result);
+        $this->assertTrue(is_array($result));
+        $this->assertEquals($result[0]['id'], '489b726e-b785-469b-a203-0f12b07cc984');
+
+        $result = $this->CalendarEvents->getCalendarEvents(null);
+        $this->assertEquals($result, []);
+        $this->assertTrue(is_array($result));
     }
 }
