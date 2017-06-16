@@ -277,6 +277,10 @@ class CalendarsTable extends Table
     {
         $result = [];
 
+        if (empty($diff)) {
+            return $result;
+        }
+
         foreach ($diff as $actionName => $items) {
             if (empty($items)) {
                 continue;
