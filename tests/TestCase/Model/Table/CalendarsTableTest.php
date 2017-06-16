@@ -131,4 +131,33 @@ class CalendarsTableTest extends TestCase
         $this->assertTrue(is_array($result));
         $this->assertNotEmpty($result);
     }
+
+    public function testSyncCalendars()
+    {
+        $result = $this->Calendars->syncCalendars();
+        $this->assertTrue(is_array($result));
+    }
+
+    public function testSyncCalendarEvents()
+    {
+        $dbItems = $this->Calendars->getCalendars();
+        $result = $this->Calendars->syncCalendarEvents($dbItems[0]);
+        $this->assertTrue(is_array($result));
+
+        $result = $this->Calendars->syncCalendarEvents([]);
+        $this->assertEmpty($result);
+    }
+
+    public function testSaveItemDifferences()
+    {
+        $result = $this->Calendars->saveItemDifferences($this->Calendars);
+        $this->assertEmpty($result);
+    }
+
+    public function testGetItemDifferences()
+    {
+        $result = $this->Calendars->getItemDifferences($this->Calendars);
+        $this->assertTrue(is_array($result));
+        $this->assertEquals($result, ['add' => [], 'update' => [], 'delete' => []]);
+    }
 }
