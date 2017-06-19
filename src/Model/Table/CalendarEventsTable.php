@@ -119,8 +119,11 @@ class CalendarEventsTable extends Table
 
         $conditions['calendar_id'] = $calendar->id;
 
-        if (!empty($options['period'])) {
+        if (!empty($options['period']['start_date'])) {
             $conditions['start_date >='] = $options['period']['start_date'];
+        }
+
+        if (!empty($options['period']['end_date'])) {
             $conditions['end_date <='] = $options['period']['end_date'];
         }
 
