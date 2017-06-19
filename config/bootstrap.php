@@ -4,8 +4,7 @@ use Cake\Core\Configure;
 use Cake\Event\EventManager;
 use Qobo\Calendar\Events\GetCalendarsListener;
 
-$config = Configure::read('Calendar.Types');
-
+$config = Configure::read('Calendar');
 if (empty($config)) {
     Configure::load('Qobo/Calendar.calendar', 'default');
 }

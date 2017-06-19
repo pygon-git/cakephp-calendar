@@ -53,19 +53,29 @@ foreach ($icons as $k => $v) {
                     <?= $this->Form->control('source', ['label' => __('Source Name')]); ?>
                 </div>
                 <div class="col-xs-12 col-md-6">
+                    <?= $this->Form->input('templates', [
+                        'type' => 'select',
+                        'options' => $templates,
+                        'class' => 'select2',
+                        'empty' => true,
+                        'multiple' => 'multiple',
+                    ]);?>
+
                     <?= $this->Form->input('color', [
                         'type' => 'select',
                         'options' => $colors,
                         'class' => 'select2',
                         'empty' => true
                     ]) ?>
-
                     <?= $this->Form->input('icon', [
                         'type' => 'select',
                         'options' => $icons,
                         'class' => 'select2',
                         'empty' => true
                     ]) ?>
+
+                </div>
+                <div class="col-xs-12 col-md-6">
                     <?= $this->Form->control('source_id', ['type' => 'text', 'label' => __('Source ID')]);?>
 
                     <?= $this->Form->control('active');?>
