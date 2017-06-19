@@ -10,6 +10,11 @@ use Cake\ORM\TableRegistry;
 class SyncTask extends Shell
 {
 
+    /**
+     * Manage available options via Parser
+     *
+     * @return \Cake\Console\ConsoleOptionParser
+     */
     public function getOptionParser()
     {
         $parser = parent::getOptionParser();
@@ -29,7 +34,6 @@ class SyncTask extends Shell
 
         return $parser;
     }
-
 
     /**
      * main() method.
