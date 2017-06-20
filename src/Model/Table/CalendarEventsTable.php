@@ -159,15 +159,15 @@ class CalendarEventsTable extends Table
      *
      * @return array $result containing event types for select2 dropdown
      */
-    public function getEventTypes($calendar)
+    public function getEventTypes($calendar = null)
     {
         $result = [];
 
-        if (!$calendar || !isset($calendar->event_types)) {
+        if (!$calendar || !isset($calendar['calendar']['event_types'])) {
             return $result;
         }
 
-        foreach ($calendar->event_types as $k => $eventType) {
+        foreach ($calendar['calendar']['event_types'] as $k => $eventType) {
             array_push($result, [
                 'id' => $eventType['value'],
                 'text' => $eventType['name'],

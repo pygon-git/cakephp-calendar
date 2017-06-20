@@ -165,7 +165,7 @@ class CalendarEventsController extends AppController
         if ($this->request->is(['post', 'patch', 'put'])) {
             $data = $this->request->getData();
 
-            $event = new Event('Calendars.Model.getCalendars', $this, [
+            $event = new Event('Plugin.Calendars.Model.getCalendars', $this, [
                 'options' => $data,
             ]);
 

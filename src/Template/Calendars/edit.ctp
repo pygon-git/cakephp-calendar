@@ -52,14 +52,6 @@ foreach ($icons as $k => $v) {
                     ]) ?>
                 </div>
                 <div class="col-xs-12 col-md-6">
-                    <?= $this->Form->input('templates', [
-                        'type' => 'select',
-                        'options' => $templates,
-                        'class' => 'select2',
-                        'empty' => true,
-                        'multiple' => 'multiple',
-                    ]);?>
-
                     <?= $this->Form->input('color', [
                         'type' => 'select',
                         'options' => $colors,
@@ -74,7 +66,6 @@ foreach ($icons as $k => $v) {
                         'class' => 'select2',
                         'empty' => true
                     ]) ?>
-
 
                     <?= $this->Form->control('active');?>
                 </div>
