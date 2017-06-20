@@ -39,8 +39,6 @@ echo $this->Html->script(
                     <?php
                         echo $this->Form->control('title');
                         echo $this->Form->control('calendar_id', ['options' => $calendars]);
-                        echo $this->Form->control('source_id', ['label' => __('Source ID')]);
-                        echo $this->Form->control('source', ['label' => __('Source Name')]);
                     ?>
                 </div>
                 <div class="col-xs-12 col-md-6">

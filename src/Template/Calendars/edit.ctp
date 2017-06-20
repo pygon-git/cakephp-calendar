@@ -50,7 +50,6 @@ foreach ($icons as $k => $v) {
                         'class' => 'select2',
                         'empty' => true
                     ]) ?>
-                    <?= $this->Form->control('source', ['label' => __('Source Name')]); ?>
                 </div>
                 <div class="col-xs-12 col-md-6">
                     <?= $this->Form->input('templates', [
@@ -67,6 +66,8 @@ foreach ($icons as $k => $v) {
                         'class' => 'select2',
                         'empty' => true
                     ]) ?>
+                </div>
+                <div class="col-xs-12 col-md-6">
                     <?= $this->Form->input('icon', [
                         'type' => 'select',
                         'options' => $icons,
@@ -74,9 +75,6 @@ foreach ($icons as $k => $v) {
                         'empty' => true
                     ]) ?>
 
-                </div>
-                <div class="col-xs-12 col-md-6">
-                    <?= $this->Form->control('source_id', ['type' => 'text', 'label' => __('Source ID')]);?>
 
                     <?= $this->Form->control('active');?>
                 </div>

@@ -61,16 +61,10 @@
                     <?= $calendar->color; ?>
                 </div>
                 <div class="col-xs-4 col-md-2 text-right">
-                    <strong>Calendar Source ID:</strong>
-                </div>
-                <div class="col-xs-8 col-md-4">
-                    <?= $calendar->source_id; ?>
-                </div>
-                <div class="col-xs-4 col-md-2 text-right">
                     <strong>Created:</strong>
                 </div>
                 <div class="col-xs-8 col-md-4">
-                    <?= $calendar->created; ?>
+                    <?= $calendar->created->format('Y-m-d H:i'); ?>
                 </div>
                 <div class="col-xs-4 col-md-2 text-right">
                     <strong>Name:</strong>
@@ -84,19 +78,30 @@
                 <div class="col-xs-8 col-md-4">
                     <?= $calendar->icon; ?>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="box box-default">
+        <div class="box-header with-border">
+            <h3 class="box-title"><?= __('Source & Source ID Links');?></h3>
+        </div>
+        <div class="box-body">
+            <div class="row">
+                <div class="col-xs-4 col-md-2 text-right">
+                    <strong>Calendar Source ID:</strong>
+                </div>
+                <div class="col-xs-8 col-md-4">
+                    <?= $calendar->source_id; ?>
+                </div>
                 <div class="col-xs-4 col-md-2 text-right">
                     <strong>Calendar Source:</strong>
                 </div>
                 <div class="col-xs-8 col-md-4">
                     <?= $calendar->source; ?>
                 </div>
-                <div class="col-xs-4 col-md-2 text-right">
-                    <strong>Modified:</strong>
-                </div>
-                <div class="col-xs-8 col-md-4">
-                    <?= $calendar->modified; ?>
-                </div>
             </div>
         </div>
     </div>
+
 </section>

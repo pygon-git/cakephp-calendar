@@ -65,20 +65,6 @@ echo $this->Html->script(
                                     <div class="col-xs-4">
                                         <div class="btn-group btn-group-xs pull-right">
                                             <?php
-                                                echo $this->Form->postLink(
-                                                    '<i class="fa fa-refresh"></i>',
-                                                    [
-                                                        'plugin' => 'Qobo/Calendar',
-                                                        'controller' => 'Calendars',
-                                                        'action' => 'synchronize',
-                                                        $calendar['id'],
-                                                    ],
-                                                    [
-                                                        'class' => 'btn btn-default',
-                                                        'escape' => false,
-                                                        'confirm' => __('Are you sure you want to synchronize calendar "{0}"?', $calendar['name']),
-                                                    ]
-                                                );
                                                 echo $this->Html->link(
                                                     '<i class="fa fa-eye"></i>',
                                                     [
