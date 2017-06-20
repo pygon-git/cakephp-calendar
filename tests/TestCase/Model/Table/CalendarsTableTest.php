@@ -1,6 +1,7 @@
 <?php
 namespace Qobo\Calendar\Test\TestCase\Model\Table;
 
+use Cake\Core\Configure;
 use Cake\ORM\TableRegistry;
 use Cake\TestSuite\TestCase;
 use Qobo\Calendar\Model\Table\CalendarsTable;
@@ -57,7 +58,7 @@ class CalendarsTableTest extends TestCase
         $result = $this->Calendars->getCalendarTypes();
         $this->assertTrue(is_array($result));
 
-        \Cake\Core\Configure::write('Calendar.Types', ['foo' => ['name' => 'bar', 'value' => 'bar']]);
+        Configure::write('Calendar.Types', ['foo' => ['name' => 'bar', 'value' => 'bar']]);
         $result = $this->Calendars->getCalendarTypes();
         $this->assertEquals(['bar' => 'bar'], $result);
     }
@@ -75,7 +76,7 @@ class CalendarsTableTest extends TestCase
         $this->assertNotEmpty($result);
         $this->assertEquals($result[0]->id, '9390cbc1-dc1d-474a-a372-de92dce85aaa');
 
-        \Cake\Core\Configure::write('Calendar.Types', ['foo' => ['name' => 'bar', 'value' => 'bar']]);
+        Configure::write('Calendar.Types', ['foo' => ['name' => 'bar', 'value' => 'bar']]);
         $result = $this->Calendars->getCalendars(['conditions' => ['id' => '9390cbc1-dc1d-474a-a372-de92dce85aaa']]);
     }
 
@@ -159,5 +160,54 @@ class CalendarsTableTest extends TestCase
         $result = $this->Calendars->getItemDifferences($this->Calendars);
         $this->assertTrue(is_array($result));
         $this->assertEquals($result, ['add' => [], 'update' => [], 'delete' => []]);
+    }
+
+    public function testGetCalendarTemplatesFieldList()
+    {
+        $result = Configure::read('Calendar.Templates');
+        $this->assertNotEmpty($result);
+        $this->assertTrue(is_array($result));
+
+        $templates = $this->Calendars->getCalendarTemplatesFieldList();
+        $this->assertTrue(is_array($templates));
+        $this->assertEquals($templates, ['_default' => 'Default Template', 'calls' => 'Calls', 'meetings' => 'Meetings']);
+    }
+
+    public function testGetCalendarTemplatesFieldListEmpty()
+    {
+        Configure::delete('Calendar.Templates');
+        $result = Configure::read('Calendar.Templates');
+        $this->assertEmpty($result);
+
+        $result = $this->Calendars->getCalendarTemplatesFieldList();
+        $this->assertEquals($result, []);
+    }
+
+    public function testGetCalendarTemplatesField()
+    {
+        $result = $this->Calendars->getCalendarTemplatesField();
+        $this->assertTrue(is_array($result));
+        $this->assertNotEmpty($result);
+
+        $dummyObj = (object)[
+            'id' => 'foobar',
+            'templates' => json_encode([
+                '_default' => [
+                    'name' => 'Default Foo',
+                    'value' => '_default',
+                    'minDuration' => '100 years'
+                ]
+            ])
+        ];
+
+        $result = $this->Calendars->getCalendarTemplatesField($dummyObj);
+        $this->assertNotEmpty($result);
+        $this->assertEquals($result, ['_default']);
+    }
+
+    public function testSetCalendarTemplatesField()
+    {
+        $result = $this->Calendars->setCalendarTemplatesField();
+        $this->assertNotEmpty($result);
     }
 }
