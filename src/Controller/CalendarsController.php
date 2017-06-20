@@ -72,16 +72,11 @@ class CalendarsController extends AppController
      */
     public function add()
     {
-        $templates = $this->Calendars->getCalendarTemplatesFieldList();
-
         $calendar = $this->Calendars->newEntity();
 
         if ($this->request->is('post')) {
             $data = $this->request->getData();
 
-            $currentTemplates = $this->Calendars->setCalendarTemplatesField($data);
-
-            $data['templates'] = $currentTemplates;
             $calendar = $this->Calendars->patchEntity($calendar, $data);
 
             if ($this->Calendars->save($calendar)) {
@@ -92,7 +87,7 @@ class CalendarsController extends AppController
             $this->Flash->error(__('The calendar could not be saved. Please, try again.'));
         }
 
-        $this->set(compact('calendar', 'templates'));
+        $this->set(compact('calendar'));
         $this->set('_serialize', ['calendar']);
     }
 
@@ -105,21 +100,13 @@ class CalendarsController extends AppController
      */
     public function edit($id = null)
     {
-        $templates = $this->Calendars->getCalendarTemplatesFieldList();
-
         $calendar = $this->Calendars->get($id, [
             'contain' => []
         ]);
 
-        $currentTemplates = $this->Calendars->getCalendarTemplatesField($calendar);
-        $calendar->templates = $currentTemplates;
-
         if ($this->request->is(['patch', 'post', 'put'])) {
             $data = $this->request->getData();
 
-            $currentTemplates = $this->Calendars->setCalendarTemplatesField($data);
-
-            $data['templates'] = $currentTemplates;
             $calendar = $this->Calendars->patchEntity($calendar, $data);
 
             if ($this->Calendars->save($calendar)) {
@@ -130,7 +117,7 @@ class CalendarsController extends AppController
             $this->Flash->error(__('The calendar could not be saved. Please, try again.'));
         }
 
-        $this->set(compact('calendar', 'templates'));
+        $this->set(compact('calendar'));
         $this->set('_serialize', ['calendar']);
     }
 
