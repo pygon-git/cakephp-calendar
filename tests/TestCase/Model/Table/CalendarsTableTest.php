@@ -209,5 +209,10 @@ class CalendarsTableTest extends TestCase
     {
         $result = $this->Calendars->setCalendarTemplatesField();
         $this->assertNotEmpty($result);
+
+        $result = $this->Calendars->setCalendarTemplatesField(['templates' => ['_default', 'meetings']]);
+        $this->assertNotEmpty($result);
+        $result = json_decode($result, true);
+        $this->assertEquals(['_default', 'meetings'], array_keys($result));
     }
 }
