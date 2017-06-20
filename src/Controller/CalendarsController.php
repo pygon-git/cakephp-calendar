@@ -72,32 +72,16 @@ class CalendarsController extends AppController
      */
     public function add()
     {
-        $templatesConfig = Configure::read('Calendar.Templates');
-        $templates = [];
-
-        foreach ($templatesConfig as $k => $item) {
-            $templates[$item['value']] = $item['name'];
-        }
+        $templates = $this->Calendars->getCalendarTemplatesFieldList();
 
         $calendar = $this->Calendars->newEntity();
+
         if ($this->request->is('post')) {
             $data = $this->request->getData();
 
-            if (empty($data['templates'])) {
-                $data['templates'] = array_merge($data['templates'], ['_default' => $templatesConfig['_default']]);
-            } else {
-                $templateChoices = [];
-                foreach ($templatesConfig as $k => $template) {
-                    if (in_array($template['value'], array_values($data['templates']))) {
-                        $templateChoices[$template['value']] = $template;
-                    }
-                }
-                if (!empty($templateChoices)) {
-                    $data['templates'] = $templateChoices;
-                }
-            }
+            $currentTemplates = $this->Calendars->setCalendarTemplatesField($data);
 
-            $data['templates'] = json_encode($data['templates']);
+            $data['templates'] = $currentTemplates;
             $calendar = $this->Calendars->patchEntity($calendar, $data);
 
             if ($this->Calendars->save($calendar)) {
@@ -121,44 +105,21 @@ class CalendarsController extends AppController
      */
     public function edit($id = null)
     {
-        $templatesConfig = Configure::read('Calendar.Templates');
-        $templates = $currentTemplates = [];
-
-        foreach ($templatesConfig as $k => $item) {
-            $templates[$item['value']] = $item['name'];
-        }
+        $templates = $this->Calendars->getCalendarTemplatesFieldList();
 
         $calendar = $this->Calendars->get($id, [
             'contain' => []
         ]);
 
-        if (!empty($calendar->templates)) {
-            $currentTemplates = json_decode($calendar->templates, true);
-            $tmp = [];
-            foreach ($currentTemplates as $k => $template) {
-                $tmp[] = $template['value'];
-            }
-
-            $calendar->templates = $tmp;
-        }
+        $currentTemplates = $this->Calendars->getCalendarTemplatesField($calendar);
+        $calendar->templates = $currentTemplates;
 
         if ($this->request->is(['patch', 'post', 'put'])) {
             $data = $this->request->getData();
 
-            if (empty($data['templates'])) {
-                $data['templates'] = ['_default' => $templatesConfig['_default']];
-            } else {
-                $templateChoices = [];
-                foreach ($templatesConfig as $k => $template) {
-                    if (in_array($template['value'], array_values($data['templates']))) {
-                        $templateChoices[$template['value']] = $template;
-                    }
-                }
-                if (!empty($templateChoices)) {
-                    $data['templates'] = $templateChoices;
-                }
-            }
-            $data['templates'] = json_encode($data['templates']);
+            $currentTemplates = $this->Calendars->setCalendarTemplatesField($data);
+
+            $data['templates'] = $currentTemplates;
             $calendar = $this->Calendars->patchEntity($calendar, $data);
 
             if ($this->Calendars->save($calendar)) {
