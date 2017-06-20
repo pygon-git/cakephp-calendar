@@ -1,6 +1,7 @@
 <?php
 namespace Qobo\Calendar\Controller;
 
+use Cake\Core\Configure;
 use Cake\Event\Event;
 use Cake\Event\EventManager;
 use Cake\ORM\TableRegistry;
@@ -71,9 +72,18 @@ class CalendarsController extends AppController
      */
     public function add()
     {
+        $templates = $this->Calendars->getCalendarTemplatesFieldList();
+
         $calendar = $this->Calendars->newEntity();
+
         if ($this->request->is('post')) {
-            $calendar = $this->Calendars->patchEntity($calendar, $this->request->getData());
+            $data = $this->request->getData();
+
+            $currentTemplates = $this->Calendars->setCalendarTemplatesField($data);
+
+            $data['templates'] = $currentTemplates;
+            $calendar = $this->Calendars->patchEntity($calendar, $data);
+
             if ($this->Calendars->save($calendar)) {
                 $this->Flash->success(__('The calendar has been saved.'));
 
@@ -82,7 +92,7 @@ class CalendarsController extends AppController
             $this->Flash->error(__('The calendar could not be saved. Please, try again.'));
         }
 
-        $this->set(compact('calendar'));
+        $this->set(compact('calendar', 'templates'));
         $this->set('_serialize', ['calendar']);
     }
 
@@ -95,12 +105,23 @@ class CalendarsController extends AppController
      */
     public function edit($id = null)
     {
+        $templates = $this->Calendars->getCalendarTemplatesFieldList();
+
         $calendar = $this->Calendars->get($id, [
             'contain' => []
         ]);
 
+        $currentTemplates = $this->Calendars->getCalendarTemplatesField($calendar);
+        $calendar->templates = $currentTemplates;
+
         if ($this->request->is(['patch', 'post', 'put'])) {
-            $calendar = $this->Calendars->patchEntity($calendar, $this->request->getData());
+            $data = $this->request->getData();
+
+            $currentTemplates = $this->Calendars->setCalendarTemplatesField($data);
+
+            $data['templates'] = $currentTemplates;
+            $calendar = $this->Calendars->patchEntity($calendar, $data);
+
             if ($this->Calendars->save($calendar)) {
                 $this->Flash->success(__('The calendar has been saved.'));
 
@@ -109,7 +130,7 @@ class CalendarsController extends AppController
             $this->Flash->error(__('The calendar could not be saved. Please, try again.'));
         }
 
-        $this->set(compact('calendar'));
+        $this->set(compact('calendar', 'templates'));
         $this->set('_serialize', ['calendar']);
     }
 

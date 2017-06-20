@@ -36,5 +36,22 @@ return [
                 ],
             ],
         ],
-    ]
+        'Templates' => [
+            '_default' => [
+                'name' => 'Default Template',
+                'value' => '_default',
+                'minDuration' => '30 minutes',
+            ],
+            'calls' => [
+                'name' => 'Calls',
+                'value' => 'calls',
+                'minDuration' => '30 minutes',
+            ],
+            'meetings' => [
+                'name' => 'Meetings',
+                'value' => 'meetings',
+                'minDuration' => '1 hour',
+            ],
+        ],
+    ],
 ];

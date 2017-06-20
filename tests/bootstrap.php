@@ -58,7 +58,7 @@ Configure::write('App', [
 ]);
 Configure::write('debug', true);
 
-$config = Configure::read('Calendar.Types');
+$config = Configure::read('Calendar');
 
 if (empty($config)) {
     Configure::load('calendar', 'default');

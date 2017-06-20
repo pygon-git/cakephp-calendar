@@ -36,5 +36,37 @@ return [
                 ],
             ],
         ],
-    ]
+        'Templates' => [
+            '_default' => [
+                'name' => 'Default Template',
+                'value' => '_default',
+                'minDuration' => '30 minutes',
+            ],
+            'calls' => [
+                'name' => 'Calls',
+                'value' => 'calls',
+                'minDuration' => '30 minutes',
+            ],
+            'meetings' => [
+                'name' => 'Meetings',
+                'value' => 'meetings',
+                'minDuration' => '1 hour',
+            ],
+            'tasks' => [
+                'name' => 'Tasks',
+                'value' => 'tasks',
+                'minDuration' => '1 hour',
+            ],
+            'annual_leaves' => [
+                'name' => 'Annual Leaves',
+                'value' => 'annual_leaves',
+                'minDuration' => '1 day',
+            ],
+            'birthdays' => [
+                'name' => 'Birthday',
+                'value' => 'birthdays',
+                'minDuration' => '1 day',
+            ],
+        ],
+    ],
 ];
