@@ -77,9 +77,18 @@ class CalendarsController extends AppController
         if ($this->request->is('post')) {
             $data = $this->request->getData();
 
-            $calendar = $this->Calendars->patchEntity($calendar, $data);
+            if (empty($data['source'])) {
+                $data['source'] = 'Plugin__';
+            }
 
-            if ($this->Calendars->save($calendar)) {
+            $calendar = $this->Calendars->patchEntity($calendar, $data);
+            $saved = $this->Calendars->save($calendar);
+
+            if ($saved) {
+                if (empty($saved->source_id)) {
+                    $saved = $this->Calendars->patchEntity($saved, ['source_id' => $saved->id]);
+                    $saved = $this->Calendars->save($saved);
+                }
                 $this->Flash->success(__('The calendar has been saved.'));
 
                 return $this->redirect(['action' => 'index']);
@@ -106,6 +115,14 @@ class CalendarsController extends AppController
 
         if ($this->request->is(['patch', 'post', 'put'])) {
             $data = $this->request->getData();
+
+            if (empty($data['source'])) {
+                $data['source'] = 'Plugin__';
+            }
+
+            if (empty($data['source_id'])) {
+                $data['source_id'] = $calendar->id;
+            }
 
             $calendar = $this->Calendars->patchEntity($calendar, $data);
 
