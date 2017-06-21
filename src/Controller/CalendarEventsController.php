@@ -99,9 +99,11 @@ class CalendarEventsController extends AppController
             $entity = [
                 'id' => $saved->id,
                 'title' => $saved->title,
-                'start' => $saved->start_date,
-                'end' => $saved->end_date,
-                'color' => $calendar->color
+                'start_date' => $saved->start_date,
+                'end_date' => $saved->end_date,
+                'color' => $calendar->color,
+                'calendar_id' => $calendar->id,
+                'event_type' => $saved->event_type
             ];
 
             if ($saved) {
