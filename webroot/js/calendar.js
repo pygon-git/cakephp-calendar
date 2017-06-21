@@ -130,9 +130,11 @@ var calendar = calendar || {};
                         id: resp.event.entity.id,
                         title: resp.event.entity.title,
                         start: moment().format(resp.event.entity.start_date),
-                        color: resp.event.entity.color
+                        end: moment().format(resp.event.entity.end_date),
+                        color: resp.event.entity.color,
+                        calendar_id: resp.event.entity.calendar_id,
+                        event_type: resp.event.entity.elem_type
                     };
-
                     $(that.calendarContainer).fullCalendar('addEventSource', [event]);
                 }
 
