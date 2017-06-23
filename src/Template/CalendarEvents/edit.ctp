@@ -13,7 +13,7 @@ echo $this->Html->script(
         'AdminLTE./plugins/daterangepicker/moment.min',
         'AdminLTE./plugins/fullcalendar/fullcalendar.min.js',
         'AdminLTE./plugins/daterangepicker/daterangepicker',
-        'Qobo/Calendar.calendar',
+        'Qobo/Calendar.calendar.misc',
     ],
     ['block' => 'scriptBotton']
 );
