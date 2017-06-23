@@ -15,8 +15,15 @@ echo $this->Html->script(
         'AdminLTE./plugins/fullcalendar/fullcalendar.min.js',
         'AdminLTE./plugins/daterangepicker/daterangepicker',
         'AdminLTE./plugins/select2/select2.min',
-        'Qobo/Calendar.calendar',
+    ],
+    ['block' => 'scriptBotton']
+);
+
+echo $this->Html->script(
+    [
         'Qobo/Calendar.calendar.misc',
+        'https://unpkg.com/vue@2.3.4',
+        'Qobo/Calendar.calendar.js',
     ],
     ['block' => 'scriptBotton']
 );
@@ -35,7 +42,7 @@ echo $this->Html->script(
         </div>
     </div>
 </section>
-<section class="content">
+<section class="content" id="qobo-calendar-app">
     <div class="row">
        <div class="col-md-4">
             <div class='box'>
@@ -45,7 +52,7 @@ echo $this->Html->script(
                 <div class='box-body'>
                     <div class="row">
                         <div class="col-md-12">
-                            <?php foreach ($calendars as $calendar) : ?>
+                            <?php foreach ($calendars as $k => $calendar) : ?>
                                 <div class="row">
                                     <div class="col-xs-8">
                                     <?php
@@ -60,7 +67,8 @@ echo $this->Html->script(
                                             'label' => $label,
                                             'escape' => false,
                                             'checked' => $calendar['active'],
-                                        ]);?>
+                                        ]);
+                                        ?>
                                     </div>
                                     <div class="col-xs-4">
                                         <div class="btn-group btn-group-xs pull-right">
@@ -113,22 +121,14 @@ echo $this->Html->script(
                     </div>
                 </div>
             </div>
-<!--
-            <div class="box">
-                <div class="box-header with-border">
-                    <h3 class="box-title">Organizer</h3>
-                </div>
-                <div class='box-body'>
-
-                </div>
-            </div>
--->
         </div>
 
         <div class="col-md-8">
             <div class="box">
                 <div class='box-body'>
-                    <div id="qobrix-calendar"></div>
+                    <div id="qobrix-calendar">
+                        <calendar :editable="false"></calendar>
+                    </div>
                 </div>
             </div>
         </div>
