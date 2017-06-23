@@ -1,3 +1,4 @@
+// @codingStandardsIgnoreStart
 Vue.component('calendar', {
     template: '<div></div>',
 
@@ -6,7 +7,7 @@ Vue.component('calendar', {
             type: Boolean,
             required: false,
             default: false
-        },
+        }
     },
 
     data: function() {
@@ -127,15 +128,15 @@ Vue.component('calendar', {
             });
         },
         prepareEvent: function(entity) {
-          return {
-            id: entity.id,
-            title: entity.title,
-            start: moment().format(entity.start_date),
-            end: moment().format(entity.end_date),
-            color: entity.color,
-            calendar_id: entity.calendar_id,
-            event_type: entity.event_type
-          };
+            return {
+                id: entity.id,
+                title: entity.title,
+                start: moment().format(entity.start_date),
+                end: moment().format(entity.end_date),
+                color: entity.color,
+                calendar_id: entity.calendar_id,
+                event_type: entity.event_type
+            };
         },
         getEvents: function (calendarId) {
             var url = '/calendars/calendars/events';
@@ -152,17 +153,17 @@ Vue.component('calendar', {
                 url: url,
                 data: { 'calendarId': calendarId}
             }).then(function(result){
-              if (!result) {
-                return;
-              }
+                if (!result) {
+                    return;
+                  }
 
-              var events = [];
+                  var events = [];
 
-              result.forEach(function (elem, index) {
-                  events.push(self.prepareEvent(elem));
-              });
+                  result.forEach(function (elem, index) {
+                      events.push(self.prepareEvent(elem));
+                  });
 
-              self.cal.fullCalendar('addEventSource', events);
+                  self.cal.fullCalendar('addEventSource', events);
             });
         },
         removeEvents: function (calendarId) {
@@ -180,21 +181,19 @@ Vue.component('calendar', {
                 url: url,
                 data: {'calendarId': calendarId}
             }).then(function(result){
-              if (!result) {
-                return;
-              }
+                if (!result) {
+                    return;
+                  }
 
-              result.forEach(function (item) {
-                self.cal.fullCalendar('removeEvents', item.id);
-              });
+                  result.forEach(function (item) {
+                    self.cal.fullCalendar('removeEvents', item.id);
+                  });
             });
         }
     }
 });
 
-// @NOTE: we launch qobo calendar app
-// in more generic context, to allow
-// replacing calendar lists, and other stuff.
 var calendarApp = new Vue({
     el: '#qobo-calendar-app'
 });
+// @codingStandardsIgnoreEnd

@@ -28,10 +28,10 @@ $(document).ready(function () {
     $('.calendar-dyn-event-type').on('change', function (evt) {
         var eventData = null;
         var current = $(this).val();
-        if(!eventTypes.length) {
+        if (!eventTypes.length) {
             return;
         }
-        $.each(eventTypes, function(key, elem) {
+        $.each(eventTypes, function (key, elem) {
             if (elem.value == current) {
                 eventData = elem;
             }
@@ -74,7 +74,7 @@ $(document).ready(function () {
 
                 if (result) {
                     eventTypes = result;
-                    result.forEach(function(elem){
+                    result.forEach(function (elem) {
                         opts.push({id: elem.value, text: elem.name});
                     });
                 }
