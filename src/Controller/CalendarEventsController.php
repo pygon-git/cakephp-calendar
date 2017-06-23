@@ -181,6 +181,6 @@ class CalendarEventsController extends AppController
         }
 
         $this->set(compact('eventTypes'));
-        $this->set('_serialize', ['eventTypes']);
+        $this->set('_serialize', 'eventTypes');
     }
 }

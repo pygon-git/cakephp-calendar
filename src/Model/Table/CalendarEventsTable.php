@@ -168,10 +168,7 @@ class CalendarEventsTable extends Table
         }
 
         foreach ($calendar['calendar']['event_types'] as $k => $eventType) {
-            array_push($result, [
-                'id' => $eventType['value'],
-                'text' => $eventType['name'],
-            ]);
+            array_push($result, $eventType);
         }
 
         return $result;
