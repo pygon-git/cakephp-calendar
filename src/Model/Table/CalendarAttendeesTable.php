@@ -42,7 +42,7 @@ class CalendarAttendeesTable extends Table
         $this->addBehavior('Timestamp');
 
         $this->belongsToMany('CalendarEvents', [
-            'joinTable' =>  'events_attendees',
+            'joinTable' => 'events_attendees',
         ]);
     }
 
