@@ -48,7 +48,9 @@ class CalendarEventsTable extends Table
             'className' => 'Qobo/Calendar.Calendars'
         ]);
 
-        $this->belongsToMany('CalendarAttendees');
+        $this->belongsToMany('CalendarAttendees', [
+            'joinTable' => 'events_attendees',
+        ]);
     }
 
     /**
