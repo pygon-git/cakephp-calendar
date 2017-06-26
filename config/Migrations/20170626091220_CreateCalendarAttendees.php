@@ -19,8 +19,14 @@ class CreateCalendarAttendees extends AbstractMigration
             'null' => false,
         ]);
 
-        $table->addColumn('calendar_event_id', 'uuid', [
+        $table->addColumn('display_name', 'string', [
             'default' => null,
+            'null' => false,
+        ]);
+
+        $table->addColumn('contact_details', 'text', [
+            'default' => null,
+            'limit' => MysqlAdapter::TEXT_LONG,
             'null' => false,
         ]);
 
