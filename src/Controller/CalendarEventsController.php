@@ -87,11 +87,19 @@ class CalendarEventsController extends AppController
     public function add()
     {
         $result = [];
-        $calendarEvent = $this->CalendarEvents->newEntity();
+        $calendarEvent = $this->CalendarEvents->newEntity(null, [
+            'associated' => ['CalendarAttendees'],
+        ]);
         $this->Calendars = TableRegistry::get('Calendars');
 
         if ($this->request->is(['patch', 'post', 'put'])) {
-            $calendarEvent = $this->CalendarEvents->patchEntity($calendarEvent, $this->request->getData());
+            $calendarEvent = $this->CalendarEvents->patchEntity(
+                $calendarEvent,
+                $this->request->getData(),
+                [
+                    'associated' => ['CalendarAttendees'],
+                ]
+            );
 
             $calendar = $this->Calendars->get($calendarEvent->calendar_id);
 
