@@ -91,4 +91,39 @@ $(document).ready(function () {
             }
         });
     });
+
+    $('.event-add-row').on('click', function () {
+        var rowContainer = '.' + $(this).data('target');
+
+        var row = $(rowContainer).find('.row:first');
+        var clone = row.clone();
+
+        $(rowContainer).append(clone);
+
+        $(rowContainer).find('.row').each(function (key, row) {
+             $(row).find('input').each(function (k, elem) {
+                var fieldName = $(elem).attr('name');
+                var newFieldName = fieldName.replace(/^(\w+\[)\d+(\]\[\w+\])$/, "$1" + key + "$2");
+                $(elem).attr('name', newFieldName);
+             });
+        });
+    });
+
+    $('#calendar-modal-add-event').on('click', '.event-remove-row', function () {
+        var rowContainer = '.' + $(this).data('target');
+        var row = $(this).parent().parent().parent();
+
+        if ($(rowContainer).find('.row').length > 1) {
+            $(row).remove();
+        }
+
+        $(rowContainer).find('.row').each(function (key, row) {
+             $(row).find('input').each(function (k, elem) {
+                var fieldName = $(elem).attr('name');
+                var newFieldName = fieldName.replace(/^(\w+\[)\d+(\]\[\w+\])$/, "$1" + key + "$2");
+                $(elem).attr('name', newFieldName);
+             });
+        });
+
+    });
 });
