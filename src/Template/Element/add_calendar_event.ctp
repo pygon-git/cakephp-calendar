@@ -35,7 +35,7 @@ if (!empty($calendars)) {
                             <label>&nbsp;</label>
                             <a href="#" class="form-control btn btn-default event-add-row" data-target="attendees-container"><i class="fa fa-plus"></i> Add Attendee</a>
                         </div>
-                        <div class="attendees-container">
+                        <div class="attendees-container" id="rows-collection">
                             <div class="row">
                                 <div class="col-xs-5 col-md-4">
                                     <?= $this->Form->control('calendar_attendees.0.display_name', ['type' => 'text']);?>
