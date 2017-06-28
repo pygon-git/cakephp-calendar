@@ -28,7 +28,7 @@ class CalendarEventsController extends AppController
         $eventTypes = [];
 
         $calendarEvent = $this->CalendarEvents->get($id, [
-            'contain' => ['Calendars']
+            'contain' => ['Calendars', 'CalendarAttendees']
         ]);
 
         $calendars = $this->CalendarEvents->Calendars->find('list', ['limit' => 200]);
@@ -45,8 +45,8 @@ class CalendarEventsController extends AppController
         }
 
         if ($this->request->is(['patch', 'post', 'put'])) {
-            $calendarEvent = $this->CalendarEvents->patchEntity($calendarEvent, $this->request->getData());
-            if ($this->CalendarEvents->save($calendarEvent)) {
+            $calendarEvent = $this->CalendarEvents->patchEntity($calendarEvent, $this->request->getData(), ['associated' => ['CalendarAttendees']]);
+            if ($this->CalendarEvents->save($calendarEvent, ['associated' => ['CalendarAttendees']])) {
                 $this->Flash->success(__('The calendar event has been saved.'));
 
                 return $this->redirect(['plugin' => 'Qobo/Calendar', 'controller' => 'Calendars', 'action' => 'index']);
@@ -136,26 +136,11 @@ class CalendarEventsController extends AppController
      */
     public function view()
     {
+        $calEvent = [];
         $this->viewBuilder()->setLayout('Qobo/Calendar.ajax');
 
-        $calEvent = [];
-
         if ($this->request->is(['post', 'patch', 'put'])) {
-            $data = $this->request->getData();
-
-            $calEvent = $this->CalendarEvents->find()
-                    ->where(['id' => $data['id']])
-                    ->first();
-
-            $event = new Event('Calendars.Model.getCalendarEventInfo', $this, [
-                'options' => $data,
-            ]);
-
-            EventManager::instance()->dispatch($event);
-
-            if (!empty($event->result)) {
-                $calEvent = $event->result;
-            }
+            $calEvent = $this->CalendarEvents->getEventInfo($this->request->getData());
         }
 
         $this->set(compact('calEvent'));

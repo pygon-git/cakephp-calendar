@@ -177,4 +177,27 @@ class CalendarEventsTable extends Table
 
         return $result;
     }
+
+    /**
+     * Get Event info
+     *
+     * @param array $options containing event id
+     *
+     * @return array $result containing record data
+     */
+    public function getEventInfo($options = [])
+    {
+        $result = [];
+
+        if (empty($options)) {
+            return $result;
+        }
+
+        $result = $this->find()
+                ->where(['id' => $options['id']])
+                ->contain(['CalendarAttendees'])
+                ->first();
+
+        return $result;
+    }
 }

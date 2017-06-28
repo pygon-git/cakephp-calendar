@@ -109,7 +109,8 @@ $(document).ready(function () {
         });
     });
 
-    $('#calendar-modal-add-event').on('click', '.event-remove-row', function () {
+    $('#rows-collection').on('click', '.event-remove-row', function () {
+        console.log('clicked');
         var rowContainer = '.' + $(this).data('target');
         var row = $(this).parent().parent().parent();
 
