@@ -9,6 +9,14 @@ if (!empty($color)) {
     $title = '<div style="color: ' . $color . '">' . $title . '</div>';
 }
 
+$attendeesList = [];
+
+if (!empty($calEvent->calendar_attendees)) {
+    foreach ($calEvent->calendar_attendees as $attendee) {
+        $attendeesList[] = $attendee->display_name;
+    }
+}
+
 ?>
 <div class="modal-header">
     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
@@ -29,6 +37,13 @@ if (!empty($color)) {
             <?= $calEvent->start_date->format('Y-m-d H:i'); ?> &#8212; <?= $calEvent->end_date->format('Y-m-d H:i'); ?>
         </div>
     </div>
+    <?php if (!empty($calEvent->calendar_attendees)) : ?>
+        <div class="row">
+            <div class="col-xs-12">
+                <strong>Attendees:</strong> <?= implode(', ', $attendeesList);?>
+            </div>
+        </div>
+    <?php endif; ?>
 </div>
     <div class="modal-footer">
         <?php if (!isset($calEvent->dynamic_event) || $calEvent->dynamic_event == false) : ?>

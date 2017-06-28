@@ -136,26 +136,11 @@ class CalendarEventsController extends AppController
      */
     public function view()
     {
+        $calEvent = [];
         $this->viewBuilder()->setLayout('Qobo/Calendar.ajax');
 
-        $calEvent = [];
-
         if ($this->request->is(['post', 'patch', 'put'])) {
-            $data = $this->request->getData();
-
-            $calEvent = $this->CalendarEvents->find()
-                    ->where(['id' => $data['id']])
-                    ->first();
-
-            $event = new Event('Calendars.Model.getCalendarEventInfo', $this, [
-                'options' => $data,
-            ]);
-
-            EventManager::instance()->dispatch($event);
-
-            if (!empty($event->result)) {
-                $calEvent = $event->result;
-            }
+            $calEvent = $this->CalendarEvents->getEventInfo($this->request->getData());
         }
 
         $this->set(compact('calEvent'));

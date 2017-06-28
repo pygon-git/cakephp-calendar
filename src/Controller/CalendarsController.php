@@ -22,6 +22,7 @@ class CalendarsController extends AppController
      */
     public function beforeFilter(Event $event)
     {
+        parent::beforeFilter($event);
         $icons = Utility::getIcons();
         $colors = Utility::getColors();
 
