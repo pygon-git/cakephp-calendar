@@ -53,71 +53,36 @@ echo $this->Html->script(
                 <div class='box-body'>
                     <div class="row">
                         <div class="col-md-12">
-                            <?php foreach ($calendars as $k => $calendar) : ?>
-                                <div class="row">
-                                    <div class="col-xs-8">
-                                    <?php
-                                        $label = (!empty($calendar['icon']) ? "<i class='fa fa-{$calendar['icon']}'></i>&nbsp;&nbsp;" . $calendar['name'] : $calendar['name']);
-                                        echo $this->Form->input('Calendar._ids', [
-                                            'id' => false,
-                                            'type' => 'checkbox',
-                                            'multiple' => true,
-                                            'value' => $calendar['id'],
-                                            'class' => 'calendar-id',
-                                            'hiddenField' => false,
-                                            'label' => $label,
-                                            'escape' => false,
-                                            'checked' => $calendar['active'],
-                                        ]);
-                                        ?>
-                                    </div>
-                                    <div class="col-xs-4">
-                                        <div class="btn-group btn-group-xs pull-right">
-                                            <?php
-                                                echo $this->Html->link(
-                                                    '<i class="fa fa-eye"></i>',
-                                                    [
-                                                        'plugin' => 'Qobo/Calendar',
-                                                        'controller' => 'Calendars',
-                                                        'action' => 'view',
-                                                        $calendar['id'],
-                                                    ],
-                                                    [
-                                                        'class' => 'btn btn-default',
-                                                        'escape' => false
-                                                    ]
-                                                );
-                                                echo $this->Html->link(
-                                                    '<i class="fa fa-pencil"></i>',
-                                                    [
-                                                        'plugin' => 'Qobo/Calendar',
-                                                        'controller' => 'Calendars',
-                                                        'action' => 'edit',
-                                                        $calendar['id'],
-                                                    ],
-                                                    [
-                                                        'class' => 'btn btn-default',
-                                                        'escape' => false
-                                                    ]
-                                                );
-                                                echo $this->Form->postLink(
-                                                    '<i class="fa fa-trash"></i>',
-                                                    [
-                                                        'plugin' => 'Qobo/Calendar',
-                                                        'controller' => 'Calendars',
-                                                        'action' => 'delete',
-                                                        $calendar['id'],
-                                                    ],
-                                                    [
-                                                        'class' => 'btn btn-default',
-                                                        'escape' => false,
-                                                        'confirm' => __('Are you sure you want to delete calendar "{0}"?', $calendar['name']),
-                                                    ]
-                                                );?>
-                                        </div>
+                            <!-- loop through calendars -->
+                            <div class="row" v-for="item in calendars">
+                                <div class="col-xs-8">
+                                     <calendar-item
+                                        name="Calendar[_id]"
+                                        :label="item.name"
+                                        :icon="item.icon"
+                                        :value="item.id"
+                                        :item-active="item.active"
+                                        @toggle-calendar="updateCalendarIds">
+                                    </calendar-item>
+                                </div>
+                                <div class="col-xs-4">
+                                    <div class="btn-group btn-group-xs pull-right">
+                                        <calendar-link
+                                            item-url="<?= $this->Url->build(['plugin' => 'Qobo/Calendar', 'controller' => 'Calendars', 'action' => 'view']);?>"
+                                            :item-value="item.id"
+                                            item-icon="eye"
+                                            item-class="btn btn-default">
+                                        </calendar-link>
+                                        <calendar-link
+                                            item-url="<?= $this->Url->build(['plugin' => 'Qobo/Calendar', 'controller' => 'Calendars', 'action' => 'edit']);?>"
+                                            :item-value="item.id"
+                                            item-icon="pencil"
+                                            item-class="btn btn-default"
+                                        ></calendar-link>
                                     </div>
                                 </div>
-                            <?php endforeach; ?>
+                            </div>
+                            <!-- .loop through calendars -->
                         </div>
                     </div>
                 </div>
@@ -128,17 +93,21 @@ echo $this->Html->script(
             <div class="box">
                 <div class='box-body'>
                     <div id="qobrix-calendar">
-                        <calendar :editable="false"></calendar>
+                        <calendar :ids="ids" :events="events" :editable="editable" @event-info="getEventInfo" @add-event="addCalendarEvent"></calendar>
                     </div>
                 </div>
             </div>
         </div>
+        <div class="modal fade" id="calendar-modal-view-event" tabindex="-1" role="dialog" aria-labelledby="calendar-modal-label">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
 
+                </div> <!-- //modal-content -->
+            </div> <!-- // modal-dialog -->
+        </div>
         <?php
             //add event modal form
             echo $this->element('Qobo/Calendar.add_calendar_event', ['calendars' => $calendars]);
-            //view details dialog
-            echo $this->element('Qobo/Calendar.view_calendar_event');
         ?>
     </div> <!-- //end first row -->
 </section>

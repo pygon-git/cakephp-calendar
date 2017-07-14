@@ -112,15 +112,35 @@ Vue.component('calendar', {
         };
 
         this.calendarInstance.fullCalendar(args);
+
+        $('.calendar-form-add-event').on('submit', function () {
+            self.addEvent($(this).serialize());
+            return false;
+        });
     },
     methods: {
         eventClick: function(calendarEvent) {
-            console.log(calendarEvent);
             this.$emit('event-info', calendarEvent);
         },
         dayClick: function(date, event, view) {
-            //console.log([date, event, view]);
             this.$emit('add-event', date, event, view);
+        },
+        addEvent: function(data) {
+            var url = '/calendars/calendar-events/add';
+            var self = this;
+            self.cal = $(self.$el);
+
+            $.ajax({
+                method: 'POST',
+                dataType: 'json',
+                url: url,
+                data: data
+            }).then(function (resp) {
+                if (resp.event.entity !== undefined) {
+                    self.events.push(resp.event.entity);
+                }
+                $('#calendar-modal-add-event').modal('toggle');
+            });
         }
     }
 });
@@ -205,10 +225,27 @@ var calendarApp = new Vue({
             }
         },
         getEventInfo: function(calendarEvent) {
-            console.log('show-info');
+            var url = '/calendars/calendar-events/view';
+            var post = {
+                id: calendarEvent.id,
+                calendar_id: calendarEvent.calendar_id,
+                event_type: calendarEvent.event_type
+            };
+
+            $.ajax({
+                method: 'POST',
+                url: url,
+                data: post,
+            }).done(function (resp) {
+                if (resp) {
+                    $('#calendar-modal-view-event').find('.modal-content').empty();
+                    $('#calendar-modal-view-event').find('.modal-content').append(resp);
+                    $('#calendar-modal-view-event').modal('toggle');
+                }
+            });
         },
         addCalendarEvent: function(date, event, view) {
-            console.log('add event triggered');
+            $('#calendar-modal-add-event').modal('toggle');
         }
     }
 });
