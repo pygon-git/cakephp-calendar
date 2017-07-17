@@ -45,6 +45,7 @@ class CalendarsTable extends Table
 
         $this->addBehavior('Timestamp');
         $this->addBehavior('Muffin/Trash.Trash');
+        $this->addBehavior('AuditStash.AuditLog');
 
         $this->hasMany('CalendarEvents', [
             'foreignKey' => 'calendar_id',
