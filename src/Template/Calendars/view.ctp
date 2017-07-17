@@ -15,7 +15,18 @@
         <div class="col-xs-12 col-md-6">
             <div class="pull-right">
                 <div class="btn-group btn-group-sm" role="group">
-                <?php $url = [
+                <?php
+                $elementFound = $this->elementExists('CsvMigrations.Menu/view_top');
+
+                if ($elementFound) {
+                    echo $this->element('CsvMigrations.Menu/view_top', [
+                        'options' => [
+                            'entity' => $calendar,
+                            ],
+                        'displayField' => 'name',
+                    ]);
+                } else {
+                    $url = [
                         'plugin' => $this->request->plugin,
                         'controller' => $this->request->controller,
                         'action' => 'edit',
@@ -31,10 +42,10 @@
                         ),
                         'url' => $url
                     ];
-
                     foreach ($menu as $item) {
                         echo $item['html'];
                     }
+                }
                 ?>
                 </div>
             </div>

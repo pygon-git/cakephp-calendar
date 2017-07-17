@@ -41,6 +41,7 @@ class CalendarAttendeesTable extends Table
 
         $this->addBehavior('Timestamp');
         $this->addBehavior('Muffin/Trash.Trash');
+        $this->addBehavior('AuditStash.AuditLog');
 
         $this->belongsToMany('CalendarEvents', [
             'joinTable' => 'events_attendees',
