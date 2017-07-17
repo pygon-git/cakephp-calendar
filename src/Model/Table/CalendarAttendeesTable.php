@@ -40,9 +40,11 @@ class CalendarAttendeesTable extends Table
         $this->setPrimaryKey('id');
 
         $this->addBehavior('Timestamp');
+        $this->addBehavior('Muffin/Trash.Trash');
 
         $this->belongsToMany('CalendarEvents', [
             'joinTable' => 'events_attendees',
+            'foreignKey' => 'calendar_attendee_id'
         ]);
     }
 

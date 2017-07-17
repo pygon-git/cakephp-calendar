@@ -71,10 +71,13 @@ class SyncTask extends Shell
             foreach ($calendars as $k => $calendar) {
                 $resultEvents = $table->syncCalendarEvents($calendar, $options);
 
+                $resultAttendees = $table->syncEventsAttendees($calendar, $resultEvents);
+
                 $output[] = [
                     'action' => $actionName,
                     'calendar' => $calendar,
-                    'events' => $resultEvents
+                    'events' => $resultEvents,
+                    'attendees' => $resultAttendees,
                 ];
 
                 $progress->increment(100 / ++$calendarsProcessed);

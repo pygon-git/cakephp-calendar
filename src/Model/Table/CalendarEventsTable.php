@@ -50,6 +50,7 @@ class CalendarEventsTable extends Table
 
         $this->belongsToMany('CalendarAttendees', [
             'joinTable' => 'events_attendees',
+            'foreignKey' => 'calendar_event_id',
         ]);
     }
 

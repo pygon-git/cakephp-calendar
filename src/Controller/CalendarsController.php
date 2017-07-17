@@ -41,9 +41,11 @@ class CalendarsController extends AppController
     public function index()
     {
         $calendars = $this->Calendars->getCalendars();
-
         $this->set(compact('calendars'));
-        $this->set('_serialize', ['calendars']);
+
+        if ($this->request->is('ajax')) {
+            $this->set('_serialize', 'calendars');
+        }
     }
 
     /**

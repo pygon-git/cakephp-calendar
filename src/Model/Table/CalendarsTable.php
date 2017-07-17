@@ -166,7 +166,7 @@ class CalendarsTable extends Table
      */
     public function syncCalendars($options = [])
     {
-        $result = $savedCalendars = $removed = [];
+        $result = [];
 
         $event = new Event('Plugin.Calendars.Model.getCalendars', $this, [
             'options' => $options,
@@ -211,6 +211,60 @@ class CalendarsTable extends Table
      *
      * @return array $result with events responses.
      */
+    public function syncEventsAttendees($calendar, $data = [])
+    {
+        $result = [];
+        $table = TableRegistry::get('Qobo/Calendar.CalendarEvents');
+        $attendeeTable = TableRegistry::get('Qobo/Calendar.CalendarAttendees');
+
+        if (empty($data)) {
+            return $result;
+        }
+
+        foreach ($data['modified'] as $k => $item) {
+            if (empty($item['attendees'])) {
+                continue;
+            }
+
+            foreach ($item['attendees'] as $attendee) {
+                $diff = $this->getAttendeeDifferences(
+                    $attendeeTable,
+                    $attendee,
+                    [
+                        'source_id' => 'contact_details',
+                    ]
+                );
+                $savedAttendee = $this->saveAttendeeDifferences($attendeeTable, $diff, [
+                    'entity_options' => [
+                        'associated' => ['CalendarEvents'],
+                    ],
+                    'extra_fields' => [
+                        'calendar_events' => [
+                            [
+                                'id' => $item->id,
+                                '_joinData' => [
+                                    'response_status' => $attendee['response_status'],
+                                ]
+                            ]
+                        ],
+                    ],
+                ]);
+
+                $result['modified'][] = $savedAttendee;
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * Synchronize calendar events
+     *
+     * @param \Model\Entity\Calendar $calendar instance from the db
+     * @param array $options with extra configs
+     *
+     * @return array $result with events responses.
+     */
     public function syncCalendarEvents($calendar, $options = [])
     {
         $result = [];
@@ -228,7 +282,6 @@ class CalendarsTable extends Table
         EventManager::instance()->dispatch($event);
 
         $calendarEvents = $event->result;
-
         if (empty($calendarEvents)) {
             return $result;
         }
@@ -237,18 +290,21 @@ class CalendarsTable extends Table
             if (empty($calendarInfo['events'])) {
                 continue;
             }
-            foreach ($calendarInfo['events'] as $item) {
-                 $diff = $this->getItemDifferences(
-                     $table,
-                     $item,
-                     $options
-                 );
 
-                $result['modified'][] = $this->saveItemDifferences($table, $diff, [
+            foreach ($calendarInfo['events'] as $item) {
+                $diff = $this->getItemDifferences(
+                    $table,
+                    $item,
+                    $options
+                );
+
+                $savedDiff = $this->saveItemDifferences($table, $diff, [
                     'extra_fields' => [
                         'calendar_id' => $calendarInfo['calendar']->id
                     ],
                 ]);
+
+                $result['modified'][] = $savedDiff;
             }
 
             $ignored = $this->itemsToDelete($table, $result['modified'], [
@@ -276,6 +332,7 @@ class CalendarsTable extends Table
     public function saveItemDifferences($table, $diff = [], $options = [])
     {
         $result = [];
+        $entityOptions = [];
 
         if (empty($diff)) {
             return $result;
@@ -309,10 +366,80 @@ class CalendarsTable extends Table
                         $data = array_merge($data, $options['extra_fields']);
                     }
 
-                    $entity = $table->patchEntity($entity, $data);
+                    if (!empty($options['entity_options'])) {
+                        $entityOptions = array_merge($entityOptions, $options['entity_options']);
+                    }
+
+                    $entity = $table->patchEntity($entity, $data, $entityOptions);
                     $result = $table->save($entity);
                 }
 
+                if (in_array($actionName, ['delete']) && !empty($item)) {
+                    if ($table->delete($item)) {
+                        $result[] = $item;
+                    }
+                }
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * Save Attendee Differences
+     *
+     * Checkes whether attendee should be added/updated/removed
+     *
+     * @param ORM\Table $table instance
+     * @param array $diff containing the data
+     * @param array $options with extra settings/fields to save/modify
+     *
+     * @return array $result containing diff results
+     */
+    public function saveAttendeeDifferences($table, $diff = [], $options = [])
+    {
+        $result = [];
+        $entityOptions = [];
+
+        if (empty($diff)) {
+            return $result;
+        }
+
+        foreach ($diff as $actionName => $items) {
+            if (empty($items)) {
+                continue;
+            }
+
+            foreach ($items as $k => $item) {
+                $data = [];
+
+                if (empty($item)) {
+                    continue;
+                }
+
+                switch ($actionName) {
+                    case 'add':
+                        $entity = $table->newEntity();
+                        $data = $item;
+                        break;
+                    case 'update':
+                        $entity = $item['entity'];
+                        $data = $item['data'];
+                        break;
+                }
+
+                if (in_array($actionName, ['add', 'update']) && !empty($data)) {
+                    if (!empty($options['extra_fields'])) {
+                        $data = array_merge($data, $options['extra_fields']);
+                    }
+
+                    if (!empty($options['entity_options'])) {
+                        $entityOptions = array_merge($entityOptions, $options['entity_options']);
+                    }
+
+                    $entity = $table->patchEntity($entity, $data, $entityOptions);
+                    $savedAttendee = $table->save($entity);
+                }
                 if (in_array($actionName, ['delete']) && !empty($item)) {
                     if ($table->delete($item)) {
                         $result[] = $item;
@@ -353,6 +480,51 @@ class CalendarsTable extends Table
             $conditions[$source . ' IS'] = $item[$source];
         } else {
             $conditions[$source] = $item[$source];
+        }
+
+        $conditions[$sourceId] = $item[$sourceId];
+
+        $query = $table->find()
+                ->where($conditions);
+
+        $query->all();
+        $dbItems = $query->toArray();
+
+        $toAdd = $this->itemsToAdd($item, $dbItems, $sourceId);
+        if (!empty($toAdd)) {
+            $diff['add'][] = $toAdd;
+        }
+
+        $toUpdate = $this->itemsToUpdate($item, $dbItems, $sourceId);
+        if (!empty($toUpdate)) {
+            $diff['update'][] = $toUpdate;
+        }
+
+        return $diff;
+    }
+
+    /**
+     * Get Attendee difference
+     *
+     * @param ORM\Table $table instance of attendees
+     * @param array $item of the record
+     * @param array $options for extra fields/conditions
+     *
+     * @return array $diff with sorted differences for the item.
+     */
+    public function getAttendeeDifferences($table, $item = null, $options = [])
+    {
+        $conditions = [];
+        $sourceId = empty($options['source_id']) ? 'source_id' : $options['source_id'];
+
+        $diff = [
+            'add' => [],
+            'update' => [],
+            'delete' => [],
+        ];
+
+        if (empty($item)) {
+            return $diff;
         }
 
         $conditions[$sourceId] = $item[$sourceId];
@@ -484,6 +656,48 @@ class CalendarsTable extends Table
                 if ($dbItem->$source == $item->$source
                     && $dbItem->$sourceId == $item->$sourceId) {
                     unset($dbItems[$key]);
+                }
+            }
+        }
+
+        if (!empty($dbItems)) {
+            $result = $dbItems;
+        }
+
+        return $result;
+    }
+
+    /**
+     * Remove item from from the set
+     *
+     * @param ORM\Table $table instance of the target
+     * @param array $items containing current items
+     * @param array $options with extra config
+     *
+     * @return array $result containing the items that should be deleted.
+     */
+    public function attendeesToDelete($table, $items, $options = [])
+    {
+        $result = $conditions = [];
+        $sourceId = empty($options['source_id']) ? 'source_id' : $options['source_id'];
+
+        $query = $table->find();
+        $query->matching('CalendarEvents', function ($q) use ($options) {
+            return $q->where(['CalendarEvents.id' => $options['extra_fields']['calendar_event_id']]);
+        });
+
+        $query->all();
+        $dbItems = $query->toArray();
+        if (empty($dbItems) || empty($items)) {
+            return $result;
+        }
+
+        foreach ($dbItems as $key => $dbItem) {
+            foreach ($items as $k => $item) {
+                if ($dbItem->$sourceId == $item->$sourceId) {
+                    if (!isset($item->response_status) || 'declined' != $item->response_status) {
+                        unset($dbItems[$key]);
+                    }
                 }
             }
         }
