@@ -245,6 +245,24 @@ var calendarApp = new Vue({
             });
         },
         addCalendarEvent: function(date, event, view) {
+            // @NOTE: used for default values, if no config/calendar.php
+            // calendar/event types specified.
+            drp = $('.calendar-start_date').data('daterangepicker');
+            drp2 = $('.calendar-end_date').data('daterangepicker');
+
+            if ('month' === view.intervalUnit) {
+                date.add(9, 'hours');
+            }
+
+            drp.setStartDate(date);
+            drp.setEndDate(date);
+
+            var end = moment(date);
+            end.add(30, 'minutes');
+
+            drp2.setStartDate(end);
+            drp2.setEndDate(end);
+
             $('#calendar-modal-add-event').modal('toggle');
         }
     }
