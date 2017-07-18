@@ -12,7 +12,7 @@ CakePHP-Calendar Plugin
 
 CakePHP 3 plugin that uses FullCalendar JS (as part of AdminLTE) to manage calendar events and attendees.
 
-Some of the things that I'll be adding shortly:
+Some of the things that we'll be adding shortly:
 - [ ] Calendar Attendees search via auto-complete (using Select2 checkbox).
 - [ ] Recurring calendar events. 
 - [x] Prototyping calendar attendees.
