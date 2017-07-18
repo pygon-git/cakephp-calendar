@@ -41,7 +41,7 @@ echo $this->Html->script(
                     if ($this->elementExists('CsvMigrations.Menu/index_top')) {
                         echo $this->element('CsvMigrations.Menu/index_top', ['user' => null]);
                     } else {
-                        echo $this->Html->link( __('Add'), ['plugin' => 'Qobo/Calendar', 'controller' => 'Calendars', 'action' => 'add'], ['class' => 'btn btn-default']);
+                        echo $this->Html->link(__('Add'), ['plugin' => 'Qobo/Calendar', 'controller' => 'Calendars', 'action' => 'add'], ['class' => 'btn btn-default']);
                     }
                     ?>
                 </div>
