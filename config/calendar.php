@@ -10,17 +10,20 @@ return [
                     'calls' => [
                         'name' => 'Calls',
                         'value' => 'calls',
-                        'minDuration' => '30 minutes',
+                        'start_time' => '09:00',
+                        'end_time' => '10:00',
                     ],
                     'meetings' => [
                         'name' => 'Meetings',
                         'value' => 'meetings',
-                        'minDuration' => '1 hour',
+                        'start_time' => '14:00',
+                        'end_time' => '21:00'
                     ],
                     'tasks' => [
                         'name' => 'Tasks',
                         'value' => 'tasks',
-                        'minDuration' => '1 hour',
+                        'start_time' => '08:30',
+                        'end_time' => '12:30',
                     ],
                 ],
             ],
@@ -31,12 +34,14 @@ return [
                     'annual_leaves' => [
                         'name' => 'Annual Leaves',
                         'value' => 'annual_leaves',
-                        'minDuration' => '1 day',
+                        'start_time' => '09:00',
+                        'end_time' => '18:00',
                     ],
                     'birthdays' => [
                         'name' => 'Birthdays',
                         'value' => 'birthdays',
-                        'minDuration' => '1 day',
+                        'start_time' => '09:30',
+                        'end_time' => '12:30',
                     ],
                 ],
             ],
