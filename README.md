@@ -10,51 +10,78 @@
 CakePHP-Calendar Plugin
 =======================
 
-:skull: This plugin is currently under heavy development, so please pay attention to the versioning. :skull:
+CakePHP 3 plugin that uses FullCalendar JS (as part of AdminLTE) to manage calendar events and attendees.
 
-The plugins is a hub-spot of native calendars, and external calendars that derive from different sources of the application.
-The data processed via CakePHP Events being broadcasted from the Models.
+Some of the things that I'll be adding shortly:
+- [ ] Calendar Attendees search via auto-complete (using Select2 checkbox).
+- [ ] Recurring calendar events. 
+- [x] Prototyping calendar attendees.
+- [ ] Full re-write of jQuery to VueJS components.
+- [ ] FreeBusy Calendar implementation.
 
 
-Usage
------
+### Note
 
-Pull the template code into your plugin:
+The plugin is under development, so any **Bugs** and **pull requests** are more than welcomed.
 
-```
-cd my-plugin
-git pull https://github.com/QoboLtd/cakephp-plugin-template master
-```
+### Plugin installation
 
-Make sure your `composer.json` has something like this:
+``` composer require qobo/cakephp-calendar ```
 
-```
-"autoload": {
-    "psr-4": {
-        "Foobar\\": "src"
-    }
-},
-"autoload-dev": {
-    "psr-4": {
-        "Foobar\\Test\\": "tests",
-        "Cake\\Test\\": "./vendor/cakephp/cakephp/tests"
-    }
-}
+Don't forget to include it in the application. In `config/bootstrap.php`:
+
+```php
+# Optionally adding AdminLTE and Qobo Utils that are partially used inside.
+Plugin::load('AdminLTE', ['bootstrap' => true, 'routes' => true]);
+Plugin::load('Qobo/Utils');
+Plugin::load('Qobo/Calendar', ['bootstrap' => true, 'routes' => true]);
 ```
 
-If you do change your `composer.json` file, don't forget to run
-either `composer update` or at least `composer dump-autoload`.
+### Database Schema
 
-Change the following:
+Add missing database tables that will hold calendars/events/attendees in your app.
 
-1. Uncomment the `$pluginName` line in `tests/bootstrap.php` and change `Foobar` to the name of your plugin.
-2. Change the `Foobar` namespace to your plugin's in the following files:
-  1. `tests/config/routes.php`
-  2. `tests/App/Controller/AppController.php`
-  3. `tests/App/Controller/UsersController.php`
-  4. `tests/Fixture/UsersFixture.php`
-3. Put your tests into `tests/TestCase`.
-4. Put your fixtures into `tests/Fixture`.
-5. Run `vendor/bin/phpunit`
+```./bin/cake migrations migrate --plugin Qobo/Calendar``` 
 
-If you know of any better way to do this please open an issue on GitHub or, better even, send a pull request.
+
+### JavaScript and Styling.
+
+The plugin heavily rely on AdminLTE, Bootstrap for styling, so you should make some adjustments in `src/Template/Calendars/index.ctp` in order to get it running.
+
+```php
+<?php
+// 'scriptBotton' is an AdminLTE typo that I kept ;(
+
+echo $this->Html->css(
+    [
+        'AdminLTE./plugins/fullcalendar/fullcalendar.min.css',
+        'AdminLTE./plugins/daterangepicker/daterangepicker-bs3',
+        'AdminLTE./plugins/select2/select2.min',
+        'Qobo/Utils.select2-bootstrap.min',
+        'Qobo/Utils.select2-style',
+    ]
+);
+
+echo $this->Html->script(
+    [
+        'AdminLTE./plugins/jQuery/jQuery-2.1.4.min', // in case you didn't include it in the layout
+        'AdminLTE./bootstrap/js/bootstrap',          // should be include in your layout.
+        'AdminLTE./plugins/daterangepicker/moment.min',
+        'AdminLTE./plugins/fullcalendar/fullcalendar.min.js',
+        'AdminLTE./plugins/daterangepicker/daterangepicker',
+        'AdminLTE./plugins/select2/select2.min',
+    ],
+    ['block' => 'scriptBotton']
+);
+
+echo $this->Html->script(
+    [
+        'Qobo/Calendar.calendar.misc',
+        'Qobo/Calendar.vue.min',
+        'Qobo/Calendar.calendar.js',
+    ],
+    ['block' => 'scriptBotton']
+);
+?>
+```
+JavaScript files should go to your footer, so you can use native cake `fetch('scriptBottom')` and replace `scriptBotton` with `scriptBottom` in the index template (assuming that you have `$this->fetch('scriptBottom');` in your layout footer.
