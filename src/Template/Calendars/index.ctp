@@ -39,7 +39,8 @@ echo $this->Html->script(
                 <div class="btn-group btn-group-sm" role="group">
                     <?php
                     if ($this->elementExists('CsvMigrations.Menu/index_top')) {
-                        echo $this->element('CsvMigrations.Menu/index_top', ['user' => null]);
+                        $user = (!isset($user)) ? [] : $user;
+                        echo $this->element('CsvMigrations.Menu/index_top', ['user' => $user]);
                     } else {
                         echo $this->Html->link(__('Add'), ['plugin' => 'Qobo/Calendar', 'controller' => 'Calendars', 'action' => 'add'], ['class' => 'btn btn-default']);
                     }
