@@ -151,6 +151,8 @@ class CalendarEventsTable extends Table
                     'source_id' => $event['source_id'],
                     'calendar_id' => $calendar->id,
                     'event_type' => (!empty($event['event_type']) ? $event['event_type'] : null),
+                    'is_recurring' => $event['is_recurring'],
+                    'recurrence' => json_decode($event['recurrence'], true),
                 ];
             }
         }
