@@ -51,7 +51,7 @@ Vue.component('calendar-item', {
 
 Vue.component('calendar', {
     template: '<div></div>',
-    props: ['ids', 'events', 'editable'],
+    props: ['ids', 'events', 'editable', 'start', 'end', 'timezone'],
     data: function() {
         return {
             calendarInstance: null,
@@ -89,7 +89,6 @@ Vue.component('calendar', {
     mounted: function() {
         var self = this;
         self.calendarInstance = $(self.$el);
-
         var args = {
             header: {
                 left: 'prev,next today',
@@ -102,12 +101,16 @@ Vue.component('calendar', {
                 week: 'week',
                 day: 'day'
             },
+            defaultDate: moment(this.start),
             editable: this.editable,
             dayClick: function(date, jsEvent, view) {
                 self.dayClick(date, event, view);
             },
             eventClick: function(event) {
                 self.eventClick(event);
+            },
+            viewRender: function(view, element) {
+                self.$emit('interval-update', view.start.format('YYYY-MM-DD'), view.end.format('YYYY-MM-DD'));
             }
         };
 
@@ -152,11 +155,38 @@ var calendarApp = new Vue({
         events: [],
         calendars: [],
         editable: false,
+        start: null,
+        end: null,
+        timezone: null,
+    },
+    computed: {
+        isIntervalChanged: function() {
+            return [this.start, this.end].join('');
+        }
+    },
+    watch: {
+        isIntervalChanged: function() {
+            var self = this;
+            if (this.ids.length) {
+                self.events = [];
+                this.ids.forEach( function(calendarId, key) {
+                    self.getEvents(calendarId);
+                });
+            }
+        },
     },
     beforeMount: function() {
+        this.start = this.$el.attributes.start.value;
+        this.end = this.$el.attributes.end.value;
+        this.timezone = this.$el.attributes.timezone.value;
+
         this.getCalendars();
     },
     methods: {
+        updateStartEnd: function (start, end) {
+            this.start = start;
+            this.end = end;
+        },
         getCalendars: function() {
             var self = this;
             $.ajax({
@@ -175,12 +205,18 @@ var calendarApp = new Vue({
         getEvents: function(id) {
             var self = this;
             var url = '/calendars/calendars/events'; //: string
-
             $.ajax({
                 method: 'POST',
                 dataType: 'json',
                 url: url,
-                data: { 'calendarId': id}
+                data: {
+                    'calendarId': id,
+                    'period': {
+                        'start_date': this.start,
+                        'end_date': this.end,
+                    },
+                    'timezone': this.timezone,
+                }
             }).then(function(resp){
                 if (!resp) {
                     return;

@@ -174,9 +174,10 @@ class CalendarsController extends AppController
         $eventsTable = TableRegistry::get('Qobo/Calendar.CalendarEvents');
 
         $data = $this->request->getData();
-
         if (!empty($data['calendarId'])) {
-            $calendars = $this->Calendars->getCalendars(['id' => $data['calendarId']]);
+            $data['id'] = $data['calendarId'];
+
+            $calendars = $this->Calendars->getCalendars($data);
 
             if (!empty($calendars)) {
                 $calendar = $calendars[0];
