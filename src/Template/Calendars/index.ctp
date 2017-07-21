@@ -22,12 +22,16 @@ echo $this->Html->script(
 echo $this->Html->script(
     [
         'Qobo/Calendar.calendar.misc',
-        //'https://unpkg.com/vue@2.3.4',
-        'Qobo/Calendar.vue.min',
+        'https://unpkg.com/vue@2.3.4',
+        //'Qobo/Calendar.vue.min',
         'Qobo/Calendar.calendar.js',
     ],
     ['block' => 'scriptBotton']
 );
+
+$start = date('Y-m-01');
+$end = date('Y-m-t');
+$timezone = date_default_timezone_get();
 ?>
 <section class="content-header">
     <div class="row">
@@ -50,7 +54,7 @@ echo $this->Html->script(
         </div>
     </div>
 </section>
-<section class="content" id="qobo-calendar-app">
+<section class="content" id="qobo-calendar-app" start="<?= $start;?>" end="<?= $end;?>" timezone="<?= $timezone; ?>">
     <div class="row">
        <div class="col-md-4">
             <div class='box'>
@@ -100,7 +104,7 @@ echo $this->Html->script(
             <div class="box">
                 <div class='box-body'>
                     <div id="qobrix-calendar">
-                        <calendar :ids="ids" :events="events" :editable="editable" @event-info="getEventInfo" @add-event="addCalendarEvent"></calendar>
+                        <calendar :ids="ids" :start="start" :timezone="timezone" :end="end" :events="events" :editable="editable" @interval-update="updateStartEnd" @event-info="getEventInfo" @add-event="addCalendarEvent"></calendar>
                     </div>
                 </div>
             </div>
