@@ -183,7 +183,7 @@ class CalendarsController extends AppController
                 $calendar = $calendars[0];
             }
 
-            $events = $eventsTable->getCalendarEvents($calendar, $data);
+            $events = $eventsTable->getEvents($calendar, $data);
         }
 
         $this->set(compact('events'));

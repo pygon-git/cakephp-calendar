@@ -46,33 +46,6 @@ if (!empty($calEvent->calendar_attendees)) {
     <?php endif; ?>
 </div>
     <div class="modal-footer">
-        <?php if (!isset($calEvent->dynamic_event) || $calEvent->dynamic_event == false) : ?>
-        <?= $this->Html->link(
-            __('Edit'),
-            [
-                'plugin' => 'Qobo/Calendar',
-                'controller' => 'calendarEvents',
-                'action' => 'edit',
-                $calEvent->id
-            ],
-            [
-                'class' => 'btn btn-success'
-            ]
-        );?>
-        <?= $this->Form->postLink(
-            __('Delete'),
-            [
-                'plugin' => 'Qobo/Calendar',
-                'controller' => 'CalendarEvents',
-                'action' => 'delete',
-                $calEvent->id
-            ],
-            [
-                'confirm' => __('Are you sure you want to delete event {0}?', $calEvent->id),
-                'class' => 'btn btn-danger',
-            ]
-        );?>
-        <?php endif; ?>
         <?= $this->Form->button(__('Close'), ['data-dismiss' => 'modal', 'class' => 'btn btn-success']);?>
     </div> <!-- //modal-footer -->
 </div>
