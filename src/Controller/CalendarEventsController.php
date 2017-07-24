@@ -140,7 +140,15 @@ class CalendarEventsController extends AppController
         $this->viewBuilder()->setLayout('Qobo/Calendar.ajax');
 
         if ($this->request->is(['post', 'patch', 'put'])) {
-            $calEvent = $this->CalendarEvents->getEventInfo($this->request->getData());
+            $data = $this->request->getData();
+
+            if (preg_match('/\_\_/', $data['id'])) {
+                $parts = explode('__', $data['id']);
+                $data['id'] = $parts[0];
+                $data['timestamp'] = $parts[1];
+            }
+
+            $calEvent = $this->CalendarEvents->getEventInfo($data);
         }
 
         $this->set(compact('calEvent'));
