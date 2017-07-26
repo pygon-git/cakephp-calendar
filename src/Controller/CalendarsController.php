@@ -79,28 +79,19 @@ class CalendarsController extends AppController
 
         if ($this->request->is('post')) {
             $data = $this->request->getData();
-
-            if (empty($data['source'])) {
-                $data['source'] = 'Plugin__';
-            }
-
             $calendar = $this->Calendars->patchEntity($calendar, $data);
-            $saved = $this->Calendars->save($calendar);
 
-            if ($saved) {
-                if (empty($saved->source_id)) {
-                    $saved = $this->Calendars->patchEntity($saved, ['source_id' => $saved->id]);
-                    $saved = $this->Calendars->save($saved);
-                }
+            if ($this->Calendars->save($calendar)) {
                 $this->Flash->success(__('The calendar has been saved.'));
 
                 return $this->redirect(['action' => 'index']);
             }
+
             $this->Flash->error(__('The calendar could not be saved. Please, try again.'));
         }
 
         $this->set(compact('calendar'));
-        $this->set('_serialize', ['calendar']);
+        $this->set('_serialize', 'calendar');
     }
 
     /**
