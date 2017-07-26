@@ -2,6 +2,7 @@
 namespace Qobo\Calendar\Model\Table;
 
 use Cake\Core\Configure;
+use Cake\Datasource\EntityInterface;
 use Cake\Event\Event;
 use Cake\Event\EventManager;
 use Cake\ORM\Query;
@@ -9,6 +10,7 @@ use Cake\ORM\RulesChecker;
 use Cake\ORM\Table;
 use Cake\ORM\TableRegistry;
 use Cake\Validation\Validator;
+use \ArrayObject;
 
 /**
  * Calendars Model
@@ -90,6 +92,41 @@ class CalendarsTable extends Table
     public function buildRules(RulesChecker $rules)
     {
         return $rules;
+    }
+
+    /**
+     * beforeSave method
+     *
+     * @param \Cake\Event\Event $event passed through the callback
+     * @param \Cake\Datasource\EntityInterface $entity about to be saved
+     * @param \ArrayObject $options to be passed
+     *
+     * @return void
+     */
+    public function beforeSave(Event $event, EntityInterface $entity, ArrayObject $options)
+    {
+        if (empty($entity->source)) {
+            $entity->source = 'Plugin__';
+        }
+    }
+
+    /**
+     * afterSave method
+     *
+     * In case we don't get the source_id let the calendar point to itself
+     *
+     * @param \Cake\Event\Event $event passed
+     * @param \Cake\Datasource\EntityInterface $entity of saved record
+     * @param \ArrayObject $options passed
+     *
+     * @return void
+     */
+    public function afterSave(Event $event, EntityInterface $entity, ArrayObject $options)
+    {
+        if (empty($entity->source_id)) {
+            $entity->source_id = $entity->id;
+            $this->save($entity);
+        }
     }
 
     /**
@@ -208,7 +245,7 @@ class CalendarsTable extends Table
      * Synchronize calendar events
      *
      * @param \Model\Entity\Calendar $calendar instance from the db
-     * @param array $options with extra configs
+     * @param array $data with extra configs
      *
      * @return array $result with events responses.
      */
