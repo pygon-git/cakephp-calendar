@@ -85,6 +85,23 @@ class SyncTask extends Shell
             }
         }
 
+        //sync all the attendees from users.
+        $usersTable = TableRegistry::get('Users');
+        $users = $usersTable->find()->all();
+        $attendeesTable = TableRegistry::get('Qobo/Calendar.CalendarAttendees');
+        foreach ($users as $user) {
+            $existing = $attendeesTable->exists(['contact_details' => $user->email]);
+
+            if (!$existing) {
+                $entity = $attendeesTable->newEntity();
+
+                $entity->display_name = $user->name;
+                $entity->contact_details = $user->email;
+
+                $saved = $attendeesTable->save($entity);
+            }
+        }
+
         $this->out(null);
         $this->out('<success>Synchronization complete!</success>');
 

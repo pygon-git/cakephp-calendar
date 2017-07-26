@@ -74,7 +74,7 @@ class CalendarEventsTable extends Table
 
         $validator
             ->requirePresence('title', 'create')
-            ->notEmpty('title');
+            ->allowEmpty('title');
 
         $validator
             ->requirePresence('content', 'create')
@@ -193,6 +193,7 @@ class CalendarEventsTable extends Table
 
         $resultSet = $this->find()
                 ->where($conditions)
+                ->contain(['CalendarAttendees'])
                 ->toArray();
 
         if (empty($resultSet)) {
@@ -200,9 +201,16 @@ class CalendarEventsTable extends Table
         }
 
         foreach ($resultSet as $k => $event) {
+            $extra = [];
+            if (!empty($event['calendar_attendees'])) {
+                foreach ($event['calendar_attendees'] as $att) {
+                    $extra[] = $att->display_name;
+                }
+            }
+
             $eventItem = [
                 'id' => $event['id'],
-                'title' => $event['title'],
+                'title' => $event['title'] . ' - ' . implode("\n", $extra),
                 'content' => $event['content'],
                 'start_date' => date('Y-m-d H:i:s', strtotime($event['start_date'])),
                 'end_date' => date('Y-m-d H:i:s', strtotime($event['end_date'])),

@@ -8,7 +8,7 @@ if (!empty($calendars)) {
 ?>
 <div class="modal fade" id="calendar-modal-add-event" tabindex="-1" role="dialog" aria-labelledby="calendar-modal-label">
     <?= $this->Form->create('CalendarEvents', ['url' => false, 'class' => 'calendar-form-add-event']);?>
-    <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
@@ -16,40 +16,25 @@ if (!empty($calendars)) {
             </div> <!-- //modal-header -->
             <div class="modal-body">
                 <div class="row">
-                    <div class="col-xs-12 col-md-6">
+                    <div class="col-xs-12 col-md-12">
                         <?= $this->Form->control('CalendarEvents.calendar_id', ['type' => 'select', 'class' => 'calendar-dyn-calendar-type', 'options' => $calendarOptions, 'empty' => 'Choose Calendar']);?>
                         <?= $this->Form->control('CalendarEvents.event_type', ['type' => 'select', 'class' => 'calendar-dyn-event-type', 'options' => [], 'empty' => 'Choose Event Type']);?>
                         <div class="row">
-                            <div class="col-xs-12 col-md-6">
+                            <div class="col-xs-12 col-md-12">
                                 <?= $this->Form->control('CalendarEvents.start_date', ['type' => 'text', 'class' => 'calendar-datetimepicker calendar-start_date']);?>
                             </div>
-                            <div class="col-xs-12 col-md-6">
+                            <div class="col-xs-12 col-md-12">
                                 <?= $this->Form->control('CalendarEvents.end_date', ['type' => 'text', 'class' => 'calendar-datetimepicker calendar-end_date']);?>
                             </div>
-                        </div>
-                        <?= $this->Form->control('CalendarEvents.title', ['type' => 'text']);?>
-                        <?= $this->Form->control('CalendarEvents.content', ['type' => 'textarea']);?>
-                    </div>
-                    <div class="col-xs-12 col-md-6">
-                        <div class="form-group">
-                            <label>&nbsp;</label>
-                            <a href="#" class="form-control btn btn-default event-add-row" data-target="attendees-container"><i class="fa fa-plus"></i> Add Attendee</a>
-                        </div>
-                        <div class="attendees-container" id="rows-collection">
-                            <div class="row">
-                                <div class="col-xs-5 col-md-4">
-                                    <?= $this->Form->control('calendar_attendees.0.display_name', ['type' => 'text']);?>
-                                </div>
-                                <div class="col-xs-5 col-md-6">
-                                    <?= $this->Form->control('calendar_attendees.0.contact_details', ['type' => 'text']);?>
-                                </div>
-                                <div class="col-xs-2 col-md-2">
-                                    <div class="form-group">
-                                        <label> &nbsp;</label>
-                                        <a href="#" class="btn btn-default form-control event-remove-row" data-target="attendees-container"><i class="fa fa-minus"></i></a>
-                                    </div>
-                                </div>
+                            <div class="col-xs-12 col-md-12">
+                                <?= $this->Form->control('CalendarEvents.calendar_attendees._ids', ['type' => 'select', 'multiple' => 'multiple', 'class' => 'calendar-dyn-attendees']);?>
                             </div>
+                        </div>
+                        <div class="calendar-title">
+                            <?= $this->Form->control('CalendarEvents.title', ['type' => 'text']);?>
+                        </div>
+                        <div class="calendar-content">
+                            <?= $this->Form->control('CalendarEvents.content', ['type' => 'textarea']);?>
                         </div>
                     </div>
                 </div>

@@ -19,23 +19,67 @@ $(document).ready(function () {
         placeholder: '-- Please choose --'
     });
 
+    $('.calendar-dyn-attendees').select2({
+        theme: 'bootstrap',
+        width: '100%',
+        multiple: true,
+        placeholder: '-- Please choose --',
+        allowClear: true,
+        minimumInputLength: 3,
+        ajax: {
+            url: '/calendars/calendar-attendees/lookup',
+            dataType: 'json',
+            method: 'get',
+            cache: false, // @TODO: change to true
+            contentType: 'application/json',
+            accepts: {
+                json: 'application/json',
+            },
+            delay: 300,
+            data: function (params) {
+                return {
+                    term: params.term,
+                    calendar_id: $('.calendar-dyn-calendar-type').val(),
+                    event_type: $('.calendar-dyn-event-type').val()
+                };
+            },
+            processResults: function (data, params) {
+                return {
+                    results: data
+                };
+            }
+        }
+    });
+
     var eventTypeSelect = $('.calendar-dyn-event-type').select2({
         theme: 'bootstrap',
         width: '100%',
-        placeholder: '-- Please choose --'
+        placeholder: '-- Please choose --',
     });
 
     $('.calendar-dyn-event-type').on('change', function (evt) {
         var eventData = null;
         var current = $(this).val();
+
         if (!eventTypes.length) {
             return;
         }
+
         $.each(eventTypes, function (key, elem) {
             if (elem.value == current) {
                 eventData = elem;
             }
         });
+
+        if (eventData) {
+            if (eventData.exclude_fields.length) {
+                eventData.exclude_fields.forEach(function (field_class, key) {
+                    $('#calendar-modal-add-event').find('.' + field_class).hide();
+                });
+            }
+        } else {
+            $('#calendar-modal-add-event').find('div:hidden').show();
+        }
 
         if (eventData) {
             startPicker = $('.calendar-start_date').data('daterangepicker');
@@ -56,11 +100,19 @@ $(document).ready(function () {
                 hhmm = eventData.end_time.split(':');
                 momentEnd.set('hour', hhmm[0]);
                 momentEnd.set('minute', hhmm[1]);
+                if (parseInt(momentEnd.format('H')) < parseInt(momentStart.format('H'))) {
+                    momentEnd.add(1, 'days');
+                } else {
+                    momentEnd.date(momentStart.format('D'));
+                    startPicker.setStartDate(momentStart);
+                    startPicker.setEndDate(momentStart);
+                }
                 endPicker.setStartDate(momentEnd);
                 endPicker.setEndDate(momentEnd);
             }
         }
     });
+
 
     $('.calendar-dyn-calendar-type').on('change', function (evt) {
         calendarId = $(this).val();
@@ -79,6 +131,7 @@ $(document).ready(function () {
                     });
                 }
 
+                $('#calendar-modal-add-event').find('div:hidden').show();
                 eventTypeSelect.select2().empty();
 
                 eventTypeSelect.select2({
@@ -88,6 +141,8 @@ $(document).ready(function () {
                     data: opts
                 });
 
+                //@NOTE: triggering change to update start/end intervals
+                eventTypeSelect.trigger('change');
             }
         });
     });
@@ -110,7 +165,6 @@ $(document).ready(function () {
     });
 
     $('#rows-collection').on('click', '.event-remove-row', function () {
-        console.log('clicked');
         var rowContainer = '.' + $(this).data('target');
         var row = $(this).parent().parent().parent();
 
