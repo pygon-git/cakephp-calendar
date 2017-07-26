@@ -56,6 +56,13 @@ $(document).ready(function () {
                 hhmm = eventData.end_time.split(':');
                 momentEnd.set('hour', hhmm[0]);
                 momentEnd.set('minute', hhmm[1]);
+                if (parseInt(momentEnd.format('H')) < parseInt(momentStart.format('H'))) {
+                    momentEnd.add(1, 'days');
+                } else {
+                    momentEnd.date(momentStart.format('D'));
+                    startPicker.setStartDate(momentStart);
+                    startPicker.setEndDate(momentStart);
+                }
                 endPicker.setStartDate(momentEnd);
                 endPicker.setEndDate(momentEnd);
             }
