@@ -19,23 +19,43 @@ $(document).ready(function () {
         placeholder: '-- Please choose --'
     });
 
+    $('.calendar-dyn-attendees').select2({
+        theme: 'bootstrap',
+        width: '100%',
+        multiple: true,
+        allowClear: true,
+        placeholder: '-- Please choose --',
+    });
+
     var eventTypeSelect = $('.calendar-dyn-event-type').select2({
         theme: 'bootstrap',
         width: '100%',
-        placeholder: '-- Please choose --'
+        placeholder: '-- Please choose --',
     });
 
     $('.calendar-dyn-event-type').on('change', function (evt) {
         var eventData = null;
         var current = $(this).val();
+
         if (!eventTypes.length) {
             return;
         }
+
         $.each(eventTypes, function (key, elem) {
             if (elem.value == current) {
                 eventData = elem;
             }
         });
+
+        if (eventData.exclude_fields) {
+            if (eventData.exclude_fields.length) {
+                eventData.exclude_fields.forEach( function(field_class, key) {
+                    $('#calendar-modal-add-event').find('.' + field_class).hide();
+                });
+            }
+        } else {
+            $('#calendar-modal-add-event').find('div:hidden').show();
+        }
 
         if (eventData) {
             startPicker = $('.calendar-start_date').data('daterangepicker');
@@ -69,6 +89,7 @@ $(document).ready(function () {
         }
     });
 
+
     $('.calendar-dyn-calendar-type').on('change', function (evt) {
         calendarId = $(this).val();
         $.ajax({
@@ -86,6 +107,7 @@ $(document).ready(function () {
                     });
                 }
 
+                $('#calendar-modal-add-event').find('div:hidden').show();
                 eventTypeSelect.select2().empty();
 
                 eventTypeSelect.select2({
@@ -95,6 +117,8 @@ $(document).ready(function () {
                     data: opts
                 });
 
+                //@NOTE: triggering change to update start/end intervals
+                eventTypeSelect.trigger('change');
             }
         });
     });
