@@ -23,8 +23,32 @@ $(document).ready(function () {
         theme: 'bootstrap',
         width: '100%',
         multiple: true,
-        allowClear: true,
         placeholder: '-- Please choose --',
+        allowClear: true,
+        minimumInputLength: 3,
+        ajax: {
+            url: '/calendars/calendar-attendees/lookup',
+            dataType: 'json',
+            method: 'get',
+            cache: false, // @TODO: change to true
+            contentType: 'application/json',
+            accepts: {
+                json: 'application/json',
+            },
+            delay: 300,
+            data: function (params) {
+                return {
+                    term: params.term,
+                    calendar_id: $('.calendar-dyn-calendar-type').val(),
+                    event_type: $('.calendar-dyn-event-type').val()
+                };
+            },
+            processResults: function (data, params) {
+                return {
+                    results: data
+                };
+            }
+        }
     });
 
     var eventTypeSelect = $('.calendar-dyn-event-type').select2({
@@ -47,9 +71,9 @@ $(document).ready(function () {
             }
         });
 
-        if (eventData.exclude_fields) {
+        if (eventData) {
             if (eventData.exclude_fields.length) {
-                eventData.exclude_fields.forEach( function(field_class, key) {
+                eventData.exclude_fields.forEach(function (field_class, key) {
                     $('#calendar-modal-add-event').find('.' + field_class).hide();
                 });
             }
@@ -141,7 +165,6 @@ $(document).ready(function () {
     });
 
     $('#rows-collection').on('click', '.event-remove-row', function () {
-        console.log('clicked');
         var rowContainer = '.' + $(this).data('target');
         var row = $(this).parent().parent().parent();
 

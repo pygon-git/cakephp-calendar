@@ -23,12 +23,14 @@ if (!empty($calEvent->calendar_attendees)) {
     <h4 class="modal-title" id="calendar-modal-label"><?= $title;?></h4>
 </div>
 <div class="modal-body">
+    <?php if (!empty($calEvent->content)) : ?>
     <div class="row">
         <div class="col-xs-12">
             <?= $calEvent->content;?>
         </div>
     </div>
     <hr/>
+    <?php endif; ?>
     <div class="row">
         <div class="col-xs-12">
             <strong>When:</strong>
@@ -40,7 +42,12 @@ if (!empty($calEvent->calendar_attendees)) {
     <?php if (!empty($calEvent->calendar_attendees)) : ?>
         <div class="row">
             <div class="col-xs-12">
-                <strong>Attendees:</strong> <?= implode(', ', $attendeesList);?>
+                <strong>Attendees:</strong>
+                <ul>
+                    <?php foreach ($calEvent->calendar_attendees as $att) : ?>
+                        <li><?= $att->display_name;?> <?= $att->contact_details;?></li>
+                    <?php endforeach; ?>
+                </ul>
             </div>
         </div>
     <?php endif; ?>

@@ -299,6 +299,9 @@ var calendarApp = new Vue({
             drp2.setStartDate(end);
             drp2.setEndDate(end);
 
+            $('#calendar-modal-add-event').find('.calendar-dyn-attendees').select2('val', '');
+            $('#calendar-modal-add-event').find('.calendar-dyn-event-type').select2('val','');
+
             $('#calendar-modal-add-event').modal('toggle');
         }
     }

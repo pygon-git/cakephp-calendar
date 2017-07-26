@@ -27,7 +27,7 @@ if (!empty($calendars)) {
                                 <?= $this->Form->control('CalendarEvents.end_date', ['type' => 'text', 'class' => 'calendar-datetimepicker calendar-end_date']);?>
                             </div>
                             <div class="col-xs-12 col-md-12">
-                                <?= $this->Form->control('CalendarAttendees.contact_details', ['type' => 'select', 'multiple' => 'multiple', 'class' => 'calendar-dyn-attendees']);?>
+                                <?= $this->Form->control('CalendarEvents.calendar_attendees._ids', ['type' => 'select', 'multiple' => 'multiple', 'class' => 'calendar-dyn-attendees']);?>
                             </div>
                         </div>
                         <div class="calendar-title">

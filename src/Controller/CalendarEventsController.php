@@ -5,6 +5,7 @@ use Cake\Core\Configure;
 use Cake\Event\Event;
 use Cake\Event\EventManager;
 use Cake\ORM\TableRegistry;
+use Cake\Utility\Inflector;
 use Qobo\Calendar\Controller\AppController;
 
 /**
@@ -93,17 +94,23 @@ class CalendarEventsController extends AppController
         $this->Calendars = TableRegistry::get('Calendars');
 
         if ($this->request->is(['patch', 'post', 'put'])) {
+            $data = $this->request->getData();
+            $calendar = $this->Calendars->get($data['CalendarEvents']['calendar_id']);
+
+            if (empty($data['CalendarEvents']['title'])) {
+                $data['CalendarEvents']['title'] = $calendar->name . ' - ' . Inflector::humanize($data['CalendarEvents']['event_type']);
+            }
+
             $calendarEvent = $this->CalendarEvents->patchEntity(
                 $calendarEvent,
-                $this->request->getData(),
+                $data,
                 [
                     'associated' => ['CalendarAttendees'],
                 ]
             );
 
-            $calendar = $this->Calendars->get($calendarEvent->calendar_id);
-
             $saved = $this->CalendarEvents->save($calendarEvent);
+
             $entity = [
                 'id' => $saved->id,
                 'title' => $saved->title,
