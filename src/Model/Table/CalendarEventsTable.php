@@ -74,7 +74,7 @@ class CalendarEventsTable extends Table
 
         $validator
             ->requirePresence('title', 'create')
-            ->notEmpty('title');
+            ->allowEmpty('title');
 
         $validator
             ->requirePresence('content', 'create')
