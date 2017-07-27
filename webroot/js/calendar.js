@@ -101,6 +101,7 @@ Vue.component('calendar', {
                 week: 'week',
                 day: 'day'
             },
+            firstDay: 1,
             defaultDate: moment(this.start),
             editable: this.editable,
             dayClick: function(date, jsEvent, view) {
