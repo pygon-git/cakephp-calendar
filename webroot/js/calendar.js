@@ -272,6 +272,7 @@ Vue.component('calendar-modal', {
             recurringEnd: 'infinity',
             recurringOccurence: null,
             recurringEndDate: null,
+            recurringEndObject: null,
             recurringRule: null,
             weekDays: [],
             isRecurring: 0,
@@ -319,13 +320,13 @@ Vue.component('calendar-modal', {
     },
     watch: {
         frequencyInterval: function() {
-            console.log(this.frequencyInterval);
             this.getRecurringRule();
         },
         weekDaysChanged: function() {
             this.getRecurringRule();
         },
         recurringEnd: function() {
+            var self = this;
             if (this.recurringEnd === 'date' ) {
 				$('.calendar-datetimepicker').daterangepicker({
 					singleDatePicker: true,
@@ -336,6 +337,12 @@ Vue.component('calendar-modal', {
 					timePickerIncrement: 5,
 					format: "YYYY-MM-DD HH:mm",
 				});
+
+                $('.calendar-datetimepicker').on('apply.daterangepicker', function(ev, picker) {
+                    self.recurringEndObject = picker.startDate;
+                    self.recurringEndDate = picker.startDate.format('YYYY-MM-DD HH:mm');
+                    self.getRecurringRule();
+                });
             }
         },
         calendarId: function() {
@@ -392,6 +399,14 @@ Vue.component('calendar-modal', {
 
             if (this.frequencyInterval) {
                 opts.interval = this.frequencyInterval;
+            }
+
+            if (this.recurringOccurence) {
+                opts.count = this.recurringOccurence;
+            }
+
+            if (this.recurringEndObject) {
+                opts.until = this.recurringEndObject.toDate();
             }
 
             var rrule = new RRule(opts);
