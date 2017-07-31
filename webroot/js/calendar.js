@@ -196,15 +196,24 @@ Vue.component('calendar-modal', {
                         <div class="col-xs-12 col-md-12" v-if="isRecurring">
                             <div class="form-group">
                             <label>Frequency:</label>
-                            <v-select v-model="frequency" :options="frequencies" class=""></v-select>
+                            <select v-model="frequency" class="form-control">
+                                <option v-for="item in frequencies" :value="item.value">
+                                    {{item.label}}
+                                </option>
+                            </select>
                             </div>
                         </div>
-                        <div class="col-xs-12 col-md-12" v-if="isDaily">
+                        <div class="col-xs-12 col-md-12" v-if="isWeekly || isYearly || isDaily">
                             <div class="form-group">
-                                <label>Interval: </label>
-                                <v-select v-model="frequencyInterval" :options="frequencyIntervals" class=""></v-select>
+                                <label>Interval:</label>
+                                <select v-model="frequencyInterval" class="form-control">
+                                    <option v-for="item in frequencyIntervals" :value="item.value">
+                                        {{item.label}}
+                                    </option>
+                                </select>
                             </div>
                         </div>
+
                         <div class="col-xs-12 col-md-12" v-if="isWeekly">
                             <div class="form-group">
                                 <label><input v-model="weekDays" type="checkbox" value="MO"/>MO</label>
@@ -214,18 +223,6 @@ Vue.component('calendar-modal', {
                                 <label><input v-model="weekDays" type="checkbox" value="FR"/>FR</label>
                                 <label><input v-model="weekDays" type="checkbox" value="SA"/>SA</label>
                                 <label><input v-model="weekDays" type="checkbox" value="SU"/>SU</label>
-                            </div>
-                        </div>
-                        <div class="col-xs-12 col-md-12" v-if="isWeekly">
-                            <div class="form-group">
-                                <label>Intervals: </label>
-                                <v-select v-model="frequencyInterval" :options="frequencyIntervals"></v-select>
-                            </div>
-                        </div>
-                        <div class="col-xs-12 col-md-12" v-if="isYearly">
-                            <div class="form-group">
-                                <label>Intervals:</label>
-                                <v-select v-model="frequencyInterval" :options="frequencyIntervals"></v-select>
                             </div>
                         </div>
                         <div class="col-xs-12 col-md-12" v-if="isRecurring">
@@ -288,41 +285,33 @@ Vue.component('calendar-modal', {
     },
     computed: {
         isDaily: function() {
-            if (this.frequency) {
-				if (this.frequency.value == 3 && this.isRecurring) {
-                    this.getRecurringRule();
-                    return true;
-                }
-			}
+            if (this.frequency === 3 && this.isRecurring) {
+                this.getRecurringRule();
+                return true;
+            }
 
 			return false;
         },
         isMonthly: function() {
-            if (this.frequency) {
-				if (this.frequency.value == 1 && this.isRecurring) {
-                    this.getRecurringRule();
-                    return true;
-                }
+            if (this.frequency === 1 && this.isRecurring) {
+                this.getRecurringRule();
+                return true;
             }
 
             return false;
         },
         isWeekly: function() {
-            if (this.frequency) {
-				if (this.frequency.value == 2 && this.isRecurring) {
-                    this.getRecurringRule();
-                    return true;
-                }
+            if (this.frequency === 2 && this.isRecurring) {
+                this.getRecurringRule();
+                return true;
             }
 
             return false;
         },
         isYearly: function() {
-            if (this.frequency) {
-            	if (this.frequency.value == 0 && this.isRecurring) {
-                    this.getRecurringRule();
-                    return true;
-                }
+            if (this.frequency === 0 && this.isRecurring) {
+                this.getRecurringRule();
+                return true;
             }
 
             return false;
@@ -330,6 +319,7 @@ Vue.component('calendar-modal', {
     },
     watch: {
         frequencyInterval: function() {
+            console.log(this.frequencyInterval);
             this.getRecurringRule();
         },
         weekDaysChanged: function() {
@@ -390,7 +380,7 @@ Vue.component('calendar-modal', {
             }
 
             var byweekdays = [];
-            var opts = { freq: this.frequency.value };
+            var opts = { freq: this.frequency };
 
             if (this.weekDays.length) {
                 this.weekDays.forEach( (day, k) => {
@@ -401,7 +391,7 @@ Vue.component('calendar-modal', {
             }
 
             if (this.frequencyInterval) {
-                opts.interval = this.frequencyInterval.value;
+                opts.interval = this.frequencyInterval;
             }
 
             var rrule = new RRule(opts);
