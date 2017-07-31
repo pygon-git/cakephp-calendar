@@ -207,13 +207,13 @@ Vue.component('calendar-modal', {
                         </div>
                         <div class="col-xs-12 col-md-12" v-if="isWeekly">
                             <div class="form-group">
-                                <label><input type="checkbox" value="MO"/>MO</label>
-                                <label><input type="checkbox" value="TU"/>TU</label>
-                                <label><input type="checkbox" value="WE"/>WE</label>
-                                <label><input type="checkbox" value="TH"/>TH</label>
-                                <label><input type="checkbox" value="FR"/>FR</label>
-                                <label><input type="checkbox" value="SA"/>SA</label>
-                                <label><input type="checkbox" value="SU"/>SU</label>
+                                <label><input v-model="weekDays" type="checkbox" value="MO"/>MO</label>
+                                <label><input v-model="weekDays" type="checkbox" value="TU"/>TU</label>
+                                <label><input v-model="weekDays" type="checkbox" value="WE"/>WE</label>
+                                <label><input v-model="weekDays" type="checkbox" value="TH"/>TH</label>
+                                <label><input v-model="weekDays" type="checkbox" value="FR"/>FR</label>
+                                <label><input v-model="weekDays" type="checkbox" value="SA"/>SA</label>
+                                <label><input v-model="weekDays" type="checkbox" value="SU"/>SU</label>
                             </div>
                         </div>
                         <div class="col-xs-12 col-md-12" v-if="isWeekly">
@@ -276,7 +276,7 @@ Vue.component('calendar-modal', {
             recurringOccurence: null,
             recurringEndDate: null,
             recurringRule: null,
-            isAllDay: 0,
+            weekDays: [],
             isRecurring: 0,
         };
     },
@@ -329,6 +329,12 @@ Vue.component('calendar-modal', {
         }
     },
     watch: {
+        frequencyInterval: function() {
+            this.getRecurringRule();
+        },
+        weekDaysChanged: function() {
+            this.getRecurringRule();
+        },
         recurringEnd: function() {
             if (this.recurringEnd === 'date' ) {
 				$('.calendar-datetimepicker').daterangepicker({
@@ -379,10 +385,26 @@ Vue.component('calendar-modal', {
     },
     methods: {
         getRecurringRule: function () {
-            var rrule = new RRule({
-                freq: this.frequency.value
-            });
+            if (!this.isRecurring) {
+                return null;
+            }
 
+            var byweekdays = [];
+            var opts = { freq: this.frequency.value };
+
+            if (this.weekDays.length) {
+                this.weekDays.forEach( (day, k) => {
+                    byweekdays.push(RRule[day]);
+                });
+
+                opts.byweekday = byweekdays;
+            }
+
+            if (this.frequencyInterval) {
+                opts.interval = this.frequencyInterval.value;
+            }
+
+            var rrule = new RRule(opts);
             this.recurringRule = rrule.toText();
         }
     },
