@@ -5,7 +5,7 @@ echo $this->Html->css(
         'AdminLTE./plugins/daterangepicker/daterangepicker-bs3',
         'AdminLTE./plugins/select2/select2.min',
         'Qobo/Utils.select2-bootstrap.min',
-        'Qobo/Utils.select2-style',
+        'Qobo/Calendar.select2-style',
     ]
 );
 
@@ -22,6 +22,8 @@ echo $this->Html->script(
 echo $this->Html->script(
     [
         'Qobo/Calendar.calendar.misc',
+        'Qobo/Calendar.nlp',
+        'Qobo/Calendar.rrule',
         'https://unpkg.com/vue@2.3.4',
         'https://unpkg.com/vue-select@2.2.0',
         //'Qobo/Calendar.vue.min',
@@ -125,7 +127,7 @@ $timezone = date_default_timezone_get();
                         <h4 class="modal-title" id="calendar-modal-label">Add Event</h4>
                     </div>
                     <div class="modal-body">
-                        <calendar-modal :calendars-list="calendars" :timezone="timezone" :start="start" :end="end"></calendar-modal>
+                        <calendar-modal :calendars-list="calendarsList" :timezone="timezone" :start="start" :end="end"></calendar-modal>
                     </div>
                 </div>
             </div>

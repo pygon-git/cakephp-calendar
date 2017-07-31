@@ -187,12 +187,6 @@ Vue.component('calendar-modal', {
                             <div class="row">
                                 <div class="col-sm-6">
                                     <div class="form-group text">
-                                        <label>All Day</label>
-                                        <input type="checkbox" name="CalendarEvents[all_day]" v-model="isAllDay"/>
-                                    </div>
-                                </div>
-                                <div class="col-sm-6">
-                                    <div class="form-group text">
                                         <label>Repeats:</label>
                                         <input type="checkbox" name="CalendarEvents[is_recurring]" v-model="isRecurring"/>
                                     </div>
@@ -273,15 +267,15 @@ Vue.component('calendar-modal', {
             frequencyInterval: null,
             frequencyIntervals: [],
             frequencies: [
-                { value: 'DAILY', label: 'Daily', },
-                { value: 'WEEKLY', label: 'Weekly' },
-                { value: 'MONTHLY', label: 'Monthly' },
-                { value: 'YEARLY', label: 'Yearly' },
+                { value: 3, label: 'Daily', },
+                { value: 2, label: 'Weekly' },
+                { value: 1, label: 'Monthly' },
+                { value: 0, label: 'Yearly' },
             ],
             recurringEnd: 'infinity',
             recurringOccurence: null,
             recurringEndDate: null,
-            //recurringRule: null,
+            recurringRule: null,
             isAllDay: 0,
             isRecurring: 0,
         };
@@ -295,40 +289,44 @@ Vue.component('calendar-modal', {
     computed: {
         isDaily: function() {
             if (this.frequency) {
-				return (this.frequency.value == 'DAILY' && this.isRecurring) ? true : false;
+				if (this.frequency.value == 3 && this.isRecurring) {
+                    this.getRecurringRule();
+                    return true;
+                }
 			}
 
 			return false;
         },
         isMonthly: function() {
             if (this.frequency) {
-				return (this.frequency.value == 'MONTHLY' && this.isRecurring) ? true : false;
+				if (this.frequency.value == 1 && this.isRecurring) {
+                    this.getRecurringRule();
+                    return true;
+                }
             }
 
             return false;
         },
         isWeekly: function() {
             if (this.frequency) {
-				return (this.frequency.value == 'WEEKLY' && this.isRecurring) ? true : false;
+				if (this.frequency.value == 2 && this.isRecurring) {
+                    this.getRecurringRule();
+                    return true;
+                }
             }
 
             return false;
         },
         isYearly: function() {
             if (this.frequency) {
-            	return (this.frequency.value == 'YEARLY' && this.isRecurring) ? true : false;
+            	if (this.frequency.value == 0 && this.isRecurring) {
+                    this.getRecurringRule();
+                    return true;
+                }
             }
 
             return false;
-        },
-        recurringRule: function() {
-            var rrule = new RRule({
-                freq: RRule.WEEKLY
-            });
-            console.log(rrule);
-            console.log(rrule.toString());
-            return 'foobar';
-        },
+        }
     },
     watch: {
         recurringEnd: function() {
@@ -379,6 +377,15 @@ Vue.component('calendar-modal', {
 			}
 		},
     },
+    methods: {
+        getRecurringRule: function () {
+            var rrule = new RRule({
+                freq: this.frequency.value
+            });
+
+            this.recurringRule = rrule.toText();
+        }
+    },
 });
 
 
@@ -397,7 +404,7 @@ var calendarApp = new Vue({
     computed: {
         isIntervalChanged: function() {
             return [this.start, this.end].join('');
-        }
+        },
     },
     watch: {
         calendars: function() {
