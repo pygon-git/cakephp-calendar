@@ -1,5 +1,5 @@
 // @codingStandardsIgnoreStart
-//{{{
+
 Vue.component('icon-component', {
     template: `<i class="fa" v-bind:class="getIcon(name)">&nbsp;</i>`,
     props: ['name'],
@@ -47,7 +47,7 @@ Vue.component('calendar-item', {
         }
     }
 });
-//}}}
+
 
 Vue.component('calendar', {
     template: '<div></div>',
@@ -149,12 +149,238 @@ Vue.component('calendar', {
     }
 });
 
+Vue.component('v-select', VueSelect.VueSelect);
+
+Vue.component('calendar-modal', {
+    template: `<div class="row">
+                <div class="col-xs-12 col-md-12">
+                    <div class="form-group">
+                        <v-select v-model="calendarId" :options="calendarsList" placeholder="-- Please choose Calendar --"></v-select>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-md-12">
+                    <div class="form-group">
+                        <v-select v-model="eventType" :options="eventTypesList" placeholder="-- Please choose Event Type --"></v-select>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-md-12">
+                    <div class="row">
+                        <div class="col-xs-12 col-md-6">
+                            <div class="form-group text">
+                            <label>Start Date:</label>
+                            <input type="text" name="CalendarEvents[start_date]" class="calendar-datetimepicker form-control"/>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-md-6">
+                            <div class="form-group text">
+                            <label>End Date:</label>
+                            <input type="text" name="CalendarEvents[end_date]" class="calendar-datetimepicker form-control"/>
+                            </div>
+                        </div>
+						<div class="col-xs-12 col-md-12">
+							<div class="form-group text">
+								<label> Attendees: </label>
+								<v-select v-model="attendeesList" :options="attendees" multiple></v-select>
+							</div>
+						</div>
+                        <div class="col-xs-12 col-md-12">
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <div class="form-group text">
+                                        <label>All Day</label>
+                                        <input type="checkbox" name="CalendarEvents[all_day]" v-model="isAllDay"/>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="form-group text">
+                                        <label>Repeats:</label>
+                                        <input type="checkbox" name="CalendarEvents[is_recurring]" v-model="isRecurring"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-md-12" v-if="isRecurring">
+                            <div class="form-group">
+                            <label>Frequency:</label>
+                            <v-select v-model="frequency" :options="frequencies" class=""></v-select>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-md-12" v-if="isDaily">
+                            <div class="form-group">
+                                <label>Interval: </label>
+                                <v-select v-model="frequencyInterval" :options="frequencyIntervals" class=""></v-select>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-md-12" v-if="isWeekly">
+                            <div class="form-group">
+                                <label><input type="checkbox" value="MO"/>MO</label>
+                                <label><input type="checkbox" value="TU"/>TU</label>
+                                <label><input type="checkbox" value="WE"/>WE</label>
+                                <label><input type="checkbox" value="TH"/>TH</label>
+                                <label><input type="checkbox" value="FR"/>FR</label>
+                                <label><input type="checkbox" value="SA"/>SA</label>
+                                <label><input type="checkbox" value="SU"/>SU</label>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-md-12" v-if="isWeekly">
+                            <div class="form-group">
+                                <label>Intervals: </label>
+                                <v-select v-model="frequencyInterval" :options="frequencyIntervals"></v-select>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-md-12" v-if="isYearly">
+                            <div class="form-group">
+                                <label>Intervals:</label>
+                                <v-select v-model="frequencyInterval" :options="frequencyIntervals"></v-select>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-md-12" v-if="isRecurring">
+                            <div class="form-group">
+                                <span><strong>Ends:</strong></span>
+                                <div class='form-group radio'>
+                                    <label><input type="radio" v-model="recurringEnd" value="infinity"/>Never</label>
+                                </div>
+                                <div class='form-group radio'>
+                                    <label>
+                                        <input type="radio" v-model="recurringEnd" value="occurrence"/>
+                                        After <input type="text" v-model="recurringOccurence" :disabled="recurringEnd !== 'occurrence'"/> occurrences.
+                                    </label>
+                                </div>
+                                <div class='form-group radio'>
+                                    <label>
+                                        <input type="radio" v-model="recurringEnd" value="date">
+                                        On: <input type="text" v-model="recurringEndDate" :disabled="recurringEnd !== 'date'" class="calendar-datetimepicker"/>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-md-12" v-if="isRecurring">
+                            Recurring Event: {{recurringRule}}
+                        </div>
+                    </div>
+                </div>
+            </div>`,
+    props: ['calendarsList', 'timezone', 'start', 'end'],
+    data: function() {
+        return {
+            attendees: [],
+			attendeesList: [],
+			calendarId: null,
+            eventType: null,
+            frequency: null,
+            frequencyInterval: null,
+            frequencyIntervals: [],
+            recurringRule: null,
+            recurringEnd: 'infinity',
+            recurringOccurence: null,
+            recurringEndDate: null,
+            eventTypes: [],
+			eventTypesList: [],
+            isRecurring: 0,
+            isAllDay: 0,
+            frequencies: [
+                { value: 'DAILY', label: 'Daily', },
+                { value: 'WEEKLY', label: 'Weekly' },
+                { value: 'MONTHLY', label: 'Monthly' },
+                { value: 'YEARLY', label: 'Yearly' },
+            ],
+        };
+    },
+    beforeMount: function() {
+        this.frequencyIntervals = [];
+        for(var i = 1; i <= 30; i++) {
+            this.frequencyIntervals.push({ value: i, label: i.toString() });
+        }
+    },
+    computed: {
+        isDaily: function() {
+            if (this.frequency) {
+				return (this.frequency.value == 'DAILY' && this.isRecurring) ? true : false;
+			}
+
+			return false;
+        },
+        isMonthly: function() {
+            if (this.frequency) {
+				return (this.frequency.value == 'MONTHLY' && this.isRecurring) ? true : false;
+            }
+
+            return false;
+        },
+        isWeekly: function() {
+            if (this.frequency) {
+				return (this.frequency.value == 'WEEKLY' && this.isRecurring) ? true : false;
+            }
+
+            return false;
+        },
+        isYearly: function() {
+            if (this.frequency) {
+            	return (this.frequency.value == 'YEARLY' && this.isRecurring) ? true : false;
+            }
+
+            return false;
+        }
+    },
+    watch: {
+        recurringEnd: function() {
+            if (this.recurringEnd === 'date' ) {
+				$('.calendar-datetimepicker').daterangepicker({
+					singleDatePicker: true,
+					showDropdowns: true,
+					timePicker: true,
+					drops: "down",
+					timePicker12Hour: false,
+					timePickerIncrement: 5,
+					format: "YYYY-MM-DD HH:mm",
+				});
+            }
+        },
+        calendarId: function() {
+            var self = this;
+			this.eventTypes = [];
+			this.eventTypesList = [];
+
+            if (this.calendarId.value) {
+                $.ajax({
+                    url: '/calendars/calendar-events/get-event-types',
+                    data: { id: this.calendarId.value },
+                    dataType: 'json',
+                    method: 'post',
+                }).done(function(types) {
+                    if (types.length) {
+                        self.eventTypes = [];
+                        types.forEach( (elem, key) => {
+                            self.eventTypes.push(elem);
+                        });
+                    }
+                });
+            }
+        },
+		eventTypes: function() {
+			var self = this;
+			self.eventTypesList = [];
+			self.eventType = null;
+
+			if (this.eventTypes.length) {
+				this.eventTypes.forEach( (item, key) => {
+					self.eventTypesList.push({value: item.value, label: item.name});
+				});
+
+				this.eventType = self.eventTypesList[0];
+			}
+		},
+    },
+});
+
+
 var calendarApp = new Vue({
     el: '#qobo-calendar-app',
     data: {
         ids: [],
         events: [],
         calendars: [],
+        calendarsList: [],
         editable: false,
         start: null,
         end: null,
@@ -166,6 +392,15 @@ var calendarApp = new Vue({
         }
     },
     watch: {
+        calendars: function() {
+            var self = this;
+            this.calendarsList = [];
+            if (this.calendars) {
+               this.calendars.forEach((elem, key) => {
+                    self.calendarsList.push( { value: elem.id, label: elem.name } );
+               });
+            }
+        },
         isIntervalChanged: function() {
             var self = this;
             if (this.ids.length) {
@@ -284,6 +519,7 @@ var calendarApp = new Vue({
         addCalendarEvent: function(date, event, view) {
             // @NOTE: used for default values, if no config/calendar.php
             // calendar/event types specified.
+            /*
             drp = $('.calendar-start_date').data('daterangepicker');
             drp2 = $('.calendar-end_date').data('daterangepicker');
 
@@ -302,7 +538,7 @@ var calendarApp = new Vue({
 
             $('#calendar-modal-add-event').find('.calendar-dyn-attendees').select2('val', '');
             $('#calendar-modal-add-event').find('.calendar-dyn-event-type').select2('val','');
-
+            */
             $('#calendar-modal-add-event').modal('toggle');
         }
     }
