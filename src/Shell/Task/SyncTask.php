@@ -90,6 +90,10 @@ class SyncTask extends Shell
         $users = $usersTable->find()->all();
         $attendeesTable = TableRegistry::get('Qobo/Calendar.CalendarAttendees');
         foreach ($users as $user) {
+            if (empty($user->email)) {
+                continue;
+            }
+
             $existing = $attendeesTable->exists(['contact_details' => $user->email]);
 
             if (!$existing) {
