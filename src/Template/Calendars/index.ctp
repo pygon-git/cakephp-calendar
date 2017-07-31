@@ -22,8 +22,9 @@ echo $this->Html->script(
 echo $this->Html->script(
     [
         'Qobo/Calendar.calendar.misc',
-        //'https://unpkg.com/vue@2.3.4',
-        'Qobo/Calendar.vue.min',
+        'https://unpkg.com/vue@2.3.4',
+        'https://unpkg.com/vue-select@2.2.0',
+        //'Qobo/Calendar.vue.min',
         'Qobo/Calendar.calendar.js',
     ],
     ['block' => 'scriptBotton']
@@ -116,9 +117,22 @@ $timezone = date_default_timezone_get();
                 </div> <!-- //modal-content -->
             </div> <!-- // modal-dialog -->
         </div>
+        <div class="modal fade" id="calendar-modal-add-event" tabindex="-1" role="dialog" aria-labelledby="calendar-modal-label">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title" id="calendar-modal-label">Add Event</h4>
+                    </div>
+                    <div class="modal-body">
+                        <calendar-modal :calendars-list="calendars" :timezone="timezone" :start="start" :end="end"></calendar-modal>
+                    </div>
+                </div>
+            </div>
+        </div>
         <?php
             //add event modal form
-            echo $this->element('Qobo/Calendar.add_calendar_event', ['calendars' => $calendars]);
+            //echo $this->element('Qobo/Calendar.add_calendar_event', ['calendars' => $calendars]);
         ?>
     </div> <!-- //end first row -->
 </section>
