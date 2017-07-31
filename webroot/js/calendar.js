@@ -168,13 +168,13 @@ Vue.component('calendar-modal', {
                         <div class="col-xs-12 col-md-6">
                             <div class="form-group text">
                             <label>Start Date:</label>
-                            <input type="text" name="CalendarEvents[start_date]" class="calendar-datetimepicker form-control"/>
+                            <input type="text" name="CalendarEvents[start_date]" v-model="start" class="calendar-datetimepicker form-control"/>
                             </div>
                         </div>
                         <div class="col-xs-12 col-md-6">
                             <div class="form-group text">
                             <label>End Date:</label>
-                            <input type="text" name="CalendarEvents[end_date]" class="calendar-datetimepicker form-control"/>
+                            <input type="text" name="CalendarEvents[end_date]" v-model="end" class="calendar-datetimepicker form-control"/>
                             </div>
                         </div>
 						<div class="col-xs-12 col-md-12">
@@ -278,12 +278,23 @@ Vue.component('calendar-modal', {
 			eventTypesList: [],
             isRecurring: 0,
             isAllDay: 0,
+            eventTypes: [],
+			eventTypesList: [],
+            frequency: null,
+            frequencyInterval: null,
+            frequencyIntervals: [],
             frequencies: [
                 { value: 'DAILY', label: 'Daily', },
                 { value: 'WEEKLY', label: 'Weekly' },
                 { value: 'MONTHLY', label: 'Monthly' },
                 { value: 'YEARLY', label: 'Yearly' },
             ],
+            recurringEnd: 'infinity',
+            recurringOccurence: null,
+            recurringEndDate: null,
+            //recurringRule: null,
+            isAllDay: 0,
+            isRecurring: 0,
         };
     },
     beforeMount: function() {
@@ -320,7 +331,15 @@ Vue.component('calendar-modal', {
             }
 
             return false;
-        }
+        },
+        recurringRule: function() {
+            var rrule = new RRule({
+                freq: RRule.WEEKLY
+            });
+            console.log(rrule);
+            console.log(rrule.toString());
+            return 'foobar';
+        },
     },
     watch: {
         recurringEnd: function() {
