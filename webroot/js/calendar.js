@@ -168,13 +168,13 @@ Vue.component('calendar-modal', {
                         <div class="col-xs-12 col-md-6">
                             <div class="form-group text">
                             <label>Start Date:</label>
-                            <input type="text" name="CalendarEvents[start_date]" v-model="start" class="calendar-datetimepicker form-control"/>
+                                <input type="text" name="CalendarEvents[start_date]" v-model="start" class="calendar-start-datetimepicker form-control"/>
                             </div>
                         </div>
                         <div class="col-xs-12 col-md-6">
                             <div class="form-group text">
                             <label>End Date:</label>
-                            <input type="text" name="CalendarEvents[end_date]" v-model="end" class="calendar-datetimepicker form-control"/>
+                            <input type="text" name="CalendarEvents[end_date]" v-model="end" class="calendar-end-datetimepicker form-control"/>
                             </div>
                         </div>
 						<div class="col-xs-12 col-md-12">
@@ -251,7 +251,7 @@ Vue.component('calendar-modal', {
                     </div>
                 </div>
             </div>`,
-    props: ['calendarsList', 'timezone', 'start', 'end'],
+    props: ['calendarsList', 'timezone', 'start', 'end', 'eventDate'],
     data: function() {
         return {
             attendees: [],
@@ -276,6 +276,18 @@ Vue.component('calendar-modal', {
             recurringRule: null,
             weekDays: [],
             isRecurring: 0,
+            pickerOptions: {
+                singleDatePicker: true,
+                showDropdowns: true,
+                timePicker: true,
+                drops: "down",
+                timePicker12Hour: false,
+                timePickerIncrement: 5,
+                format: "YYYY-MM-DD HH:mm",
+            },
+            startDatePicker: null,
+            endDatePicker: null,
+            untilDatePicker: null,
         };
     },
     beforeMount: function() {
@@ -283,6 +295,13 @@ Vue.component('calendar-modal', {
         for(var i = 1; i <= 30; i++) {
             this.frequencyIntervals.push({ value: i, label: i.toString() });
         }
+    },
+    mounted: function() {
+        $('.calendar-start-datetimepicker').daterangepicker(this.pickerOptions);
+        $('.calendar-end-datetimepicker').daterangepicker(this.pickerOptions);
+
+        this.startDatePicker = $('.calendar-start-datetimepicker').data('daterangepicker');
+        this.endDatePicker = $('.calendar-end-datetimepicker').data('daterangepicker');
     },
     computed: {
         isDaily: function() {
@@ -319,6 +338,21 @@ Vue.component('calendar-modal', {
         }
     },
     watch: {
+        eventDate: function() {
+            if (this.eventDate) {
+                var start = moment(this.eventDate);
+                var end = moment(this.eventDate);
+
+                start.set({'hour': 9});
+                end.set({'hour': 9, 'minute': 30});
+
+                this.startDatePicker.setStartDate(start);
+                this.startDatePicker.setEndDate(start);
+
+                this.endDatePicker.setStartDate(end);
+                this.endDatePicker.setEndDate(end);
+            }
+        },
         frequencyInterval: function() {
             this.getRecurringRule();
         },
@@ -328,16 +362,10 @@ Vue.component('calendar-modal', {
         recurringEnd: function() {
             var self = this;
             if (this.recurringEnd === 'date' ) {
-				$('.calendar-datetimepicker').daterangepicker({
-					singleDatePicker: true,
-					showDropdowns: true,
-					timePicker: true,
-					drops: "down",
-					timePicker12Hour: false,
-					timePickerIncrement: 5,
-					format: "YYYY-MM-DD HH:mm",
-				});
+                var opts = this.pickerOptions;
+                opts.drops = 'up';
 
+                $('.calendar-datetimepicker').daterangepicker(opts);
                 $('.calendar-datetimepicker').on('apply.daterangepicker', function(ev, picker) {
                     self.recurringEndObject = picker.startDate;
                     self.recurringEndDate = picker.startDate.format('YYYY-MM-DD HH:mm');
@@ -427,6 +455,7 @@ var calendarApp = new Vue({
         start: null,
         end: null,
         timezone: null,
+        eventDate: null,
     },
     computed: {
         isIntervalChanged: function() {
@@ -559,6 +588,7 @@ var calendarApp = new Vue({
             });
         },
         addCalendarEvent: function(date, event, view) {
+            this.eventDate = date;
             // @NOTE: used for default values, if no config/calendar.php
             // calendar/event types specified.
             /*

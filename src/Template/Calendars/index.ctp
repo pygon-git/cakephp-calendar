@@ -127,7 +127,7 @@ $timezone = date_default_timezone_get();
                         <h4 class="modal-title" id="calendar-modal-label">Add Event</h4>
                     </div>
                     <div class="modal-body">
-                        <calendar-modal :calendars-list="calendarsList" :timezone="timezone" :start="start" :end="end"></calendar-modal>
+                        <calendar-modal :calendars-list="calendarsList" :timezone="timezone" :start="start" :end="end" :event-date="eventDate"></calendar-modal>
                     </div>
                 </div>
             </div>
