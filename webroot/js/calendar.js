@@ -151,6 +151,119 @@ Vue.component('calendar', {
 
 Vue.component('v-select', VueSelect.VueSelect);
 
+Vue.component('input-datepicker', {
+    template: `
+        <div class="form-group text">
+            <label>{{label}}</label>
+            <input type="text" :disabled="disabled" :name="name" v-model="value" :class="className" class="form-control"/>
+        </div>`,
+    props: ['name', 'className', 'label', 'disabled', 'lookupField'],
+    mounted: function() {
+        var self = this;
+        self.instance = $(self.$el).find('input').daterangepicker(this.pickerOptions).data('daterangepicker');
+
+        $(self.$el).find('input').on('apply.daterangepicker', function(ev, picker) {
+            self.value = picker.startDate.format(self.pickerOptions.format);
+        });
+    },
+    data: function() {
+        return {
+            instance: null,
+            value: null,
+            pickerOptions: {
+                singleDatePicker: true,
+                showDropdowns: true,
+                timePicker: true,
+                drops: "down",
+                timePicker12Hour: false,
+                timePickerIncrement: 5,
+                format: "YYYY-MM-DD HH:mm",
+            },
+        };
+    },
+});
+
+Vue.component('input-select', {
+    template: `<div class="form-group">
+        <label>{{label}}</label>
+        <select v-model="value" class="form-control" :name="name">
+            <option v-for="item in options" :value="item.value">{{item.label}}</option>
+        </select>
+    </div>`,
+    props: ['options', 'name', 'label'],
+    data: function() {
+        return {
+            value: null,
+        };
+    },
+    watch: {
+        value: function() {
+            console.log( this.value );
+        }
+    }
+});
+
+Vue.component('input-checkboxes', {
+    template: `
+         <div class="form-group">
+            <label v-for="item in options">
+                <input type="checkbox" v-model="values" :value="item.value"/>{{item.label}}
+            </label>
+        </div>`,
+    data: function() {
+        return {
+            options: [
+                {label: 'MO', value: 'MO'},
+                {label: 'TU', value: 'TU'},
+                {label: 'WE', value: 'WE'},
+                {label: 'TH', value: 'TH'},
+                {label: 'FR', value: 'FR'},
+                {label: 'SA', value: 'SA'},
+                {label: 'SU', value: 'SU'}
+            ],
+            values: [],
+        };
+    },
+    watch: {
+        values: function() {
+            console.log(this.values);
+        },
+    }
+});
+
+Vue.component('calendar-recurring-until', {
+    template:
+    `<div class="form-group">
+        <span><strong>Ends:</strong></span>
+        <div class='form-group radio'>
+            <label><input type="radio" v-model="recurringEnd" value="infinity"/>Never</label>
+        </div>
+        <div class='form-group radio'>
+            <label>
+                <input type="radio" v-model="recurringEnd" value="occurrence"/>
+                After <input type="text" v-model="recurringOccurence" :disabled="recurringEnd !== 'occurrence'"/> occurrences.
+            </label>
+        </div>
+        <div class='form-group radio'>
+            <label>
+                <input type="radio" v-model="recurringEnd" value="date">
+                On: <input-datepicker name="CalendarEvents[until]" :disabled="recurringEnd !== 'date'" class-name="calendar-until-datetimepicker"></input-datepicker>
+            </label>
+        </div>
+    </div>`,
+    data: function() {
+        return {
+            recurringEnd: 'infinity',
+            recurringOccurence: null,
+        };
+    },
+    watch: {
+        recurringEnd: function() {
+            console.log(this.recurringEnd);
+        }
+    }
+});
+
 Vue.component('calendar-modal', {
     template: `<div class="row">
                 <div class="col-xs-12 col-md-12">
@@ -166,16 +279,10 @@ Vue.component('calendar-modal', {
                 <div class="col-xs-12 col-md-12">
                     <div class="row">
                         <div class="col-xs-12 col-md-6">
-                            <div class="form-group text">
-                            <label>Start Date:</label>
-                                <input type="text" name="CalendarEvents[start_date]" v-model="startField" class="calendar-start-datetimepicker form-control"/>
-                            </div>
+                            <input-datepicker name="CalendarEvents[start_date]" label="Start Date:" lookup-field="start_time" class-name="calendar-start-datetimepicker"></input-datepicker>
                         </div>
                         <div class="col-xs-12 col-md-6">
-                            <div class="form-group text">
-                            <label>End Date:</label>
-                            <input type="text" name="CalendarEvents[end_date]" v-model="endField" class="calendar-end-datetimepicker form-control"/>
-                            </div>
+                            <input-datepicker name="CalendarEvents[end_date]" label="End Date:" lookup-field="end_time" class-name="calendar-end-datetimepicker"></input-datepicker>
                         </div>
 						<div class="col-xs-12 col-md-12">
 							<div class="form-group text">
@@ -194,56 +301,17 @@ Vue.component('calendar-modal', {
                             </div>
                         </div>
                         <div class="col-xs-12 col-md-12" v-if="isRecurring">
-                            <div class="form-group">
-                            <label>Frequency:</label>
-                            <select v-model="frequency" class="form-control">
-                                <option v-for="item in frequencies" :value="item.value">
-                                    {{item.label}}
-                                </option>
-                            </select>
-                            </div>
+                            <input-select name="CalendarEvents[frequency]" :options="frequencies" label="Frequency:"></input-select>
                         </div>
                         <div class="col-xs-12 col-md-12" v-if="isWeekly || isYearly || isDaily">
-                            <div class="form-group">
-                                <label>Interval:</label>
-                                <select v-model="frequencyInterval" class="form-control">
-                                    <option v-for="item in frequencyIntervals" :value="item.value">
-                                        {{item.label}}
-                                    </option>
-                                </select>
-                            </div>
+                            <input-select name="CalendarEvents[intervals]" :options="frequencyIntervals" label="Interval:"></input-select>
                         </div>
 
                         <div class="col-xs-12 col-md-12" v-if="isWeekly">
-                            <div class="form-group">
-                                <label><input v-model="weekDays" type="checkbox" value="MO"/>MO</label>
-                                <label><input v-model="weekDays" type="checkbox" value="TU"/>TU</label>
-                                <label><input v-model="weekDays" type="checkbox" value="WE"/>WE</label>
-                                <label><input v-model="weekDays" type="checkbox" value="TH"/>TH</label>
-                                <label><input v-model="weekDays" type="checkbox" value="FR"/>FR</label>
-                                <label><input v-model="weekDays" type="checkbox" value="SA"/>SA</label>
-                                <label><input v-model="weekDays" type="checkbox" value="SU"/>SU</label>
-                            </div>
+                            <input-checkboxes></input-checkboxes>
                         </div>
                         <div class="col-xs-12 col-md-12" v-if="isRecurring">
-                            <div class="form-group">
-                                <span><strong>Ends:</strong></span>
-                                <div class='form-group radio'>
-                                    <label><input type="radio" v-model="recurringEnd" value="infinity"/>Never</label>
-                                </div>
-                                <div class='form-group radio'>
-                                    <label>
-                                        <input type="radio" v-model="recurringEnd" value="occurrence"/>
-                                        After <input type="text" v-model="recurringOccurence" :disabled="recurringEnd !== 'occurrence'"/> occurrences.
-                                    </label>
-                                </div>
-                                <div class='form-group radio'>
-                                    <label>
-                                        <input type="radio" v-model="recurringEnd" value="date">
-                                        On: <input type="text" v-model="recurringEndDate" :disabled="recurringEnd !== 'date'" class="calendar-until-datetimepicker"/>
-                                    </label>
-                                </div>
-                            </div>
+                            <calendar-recurring-until></calendar-recurring-until>
                         </div>
                         <div class="col-xs-12 col-md-12" v-if="isRecurring">
                             Recurring Event: {{recurringRule}}
@@ -251,17 +319,15 @@ Vue.component('calendar-modal', {
                     </div>
                 </div>
             </div>`,
-    props: ['calendarsList', 'timezone', 'clickedDate'],
+    props: ['calendarsList', 'timezone', 'eventClick'],
     data: function() {
         return {
+			calendarId: null,
             attendees: [],
 			attendeesList: [],
-			calendarId: null,
             eventType: null,
             eventTypes: [],
 			eventTypesList: [],
-            frequency: null,
-            frequencyInterval: null,
             frequencyIntervals: [],
             frequencies: [
                 { value: 3, label: 'Daily', },
@@ -269,26 +335,9 @@ Vue.component('calendar-modal', {
                 { value: 1, label: 'Monthly' },
                 { value: 0, label: 'Yearly' },
             ],
-            recurringEnd: 'infinity',
-            recurringOccurence: null,
-            recurringEndDate: null,
-            recurringEndObject: null,
             recurringRule: null,
             weekDays: [],
             isRecurring: 0,
-            pickerOptions: {
-                singleDatePicker: true,
-                showDropdowns: true,
-                timePicker: true,
-                drops: "down",
-                timePicker12Hour: false,
-                timePickerIncrement: 5,
-                format: "YYYY-MM-DD HH:mm",
-            },
-            startDatePicker: null,
-            endDatePicker: null,
-            startField: null,
-            endField: null,
         };
     },
     beforeMount: function() {
@@ -298,11 +347,14 @@ Vue.component('calendar-modal', {
         }
     },
     mounted: function() {
+    /*
         $('.calendar-start-datetimepicker').daterangepicker(this.pickerOptions);
         $('.calendar-end-datetimepicker').daterangepicker(this.pickerOptions);
 
         this.startDatePicker = $('.calendar-start-datetimepicker').data('daterangepicker');
         this.endDatePicker = $('.calendar-end-datetimepicker').data('daterangepicker');
+
+    */
     },
     computed: {
         isDaily: function() {
@@ -339,12 +391,6 @@ Vue.component('calendar-modal', {
         },
     },
     watch: {
-        clickedDate: function() {
-            if (!this.eventType) {
-                console.log('empty event type');
-                this.setDefaultDates();
-            }
-        },
         eventType: function() {
             this.setEventTypeDates();
         },
@@ -359,69 +405,6 @@ Vue.component('calendar-modal', {
         },
     },
     methods: {
-        setDefaultDates: function() {
-            if (!this.startField && this.clickedDate) {
-                var start = moment(this.clickedDate);
-                start.set({'hour': 9});
-                this.startDatePicker.setStartDate(start);
-                this.startDatePicker.setEndDate(start);
-
-                this.startField = start.format('YYYY-MM-DD HH:mm');
-            }
-
-            if (!this.endField && this.clickedDate) {
-                var end = moment(this.clickedDate);
-                end.set({'hour': 9, 'minute': 30});
-
-                this.endDatePicker.setStartDate(end);
-                this.endDatePicker.setEndDate(end);
-
-                this.endField = end.format('YYYY-MM-DD HH:mm');
-            }
-        },
-        setEventTypeDates: function() {
-            var self = this;
-            var event = null;
-            this.eventTypes.forEach((elem, key) => {
-                if (elem.value == self.eventType.value) {
-                    event = elem;
-                }
-            });
-
-            if (!event) {
-                return;
-            }
-
-            momentStart = this.startDatePicker.startDate;
-            momentEnd = this.endDatePicker.startDate;
-
-            if (event.start_time) {
-                hhmm = event.start_time.split(':');
-                momentStart.set('hour', hhmm[0]);
-                momentStart.set('minute', hhmm[1]);
-                this.startDatePicker.setStartDate(momentStart);
-                this.startDatePicker.setEndDate(momentStart);
-                this.startField = momentStart.format('YYYY-MM-DD HH:mm');
-            }
-
-            if (event.end_time) {
-                hhmm = event.end_time.split(':');
-                momentEnd.set('hour', hhmm[0]);
-                momentEnd.set('minute', hhmm[1]);
-                if (parseInt(momentEnd.format('H')) < parseInt(momentStart.format('H'))) {
-                    momentEnd.add(1, 'days');
-                } else {
-                    momentEnd.date(momentStart.format('D'));
-                    this.startDatePicker.setStartDate(momentStart);
-                    this.startDatePicker.setEndDate(momentStart);
-                    this.startField = momentStart.format('YYYY-MM-DD HH:mm');
-                    this.endField = momentEnd.format('YYYY-MM-DD HH:mm');
-                }
-                this.endDatePicker.setStartDate(momentEnd);
-                this.endDatePicker.setEndDate(momentEnd);
-                this.endField = momentEnd.format('YYYY-MM-DD HH:mm');
-            }
-        },
         getEventTypes: function() {
             var self = this;
 			this.eventTypes = [];
@@ -489,7 +472,7 @@ var calendarApp = new Vue({
         start: null,
         end: null,
         timezone: null,
-        clickedDate: null,
+        eventClick: null,
     },
     computed: {
         isIntervalChanged: function() {
@@ -622,7 +605,7 @@ var calendarApp = new Vue({
             });
         },
         addCalendarEvent: function(date, event, view) {
-            this.clickedDate = date;
+            this.eventClick = date;
             $('#calendar-modal-add-event').modal('toggle');
         }
     }
