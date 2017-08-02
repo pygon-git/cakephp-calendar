@@ -207,7 +207,7 @@ Vue.component('calendar-recurring-until', {
         <div class='form-group radio'>
             <label>
                 <input type="radio" v-model="rtype" value="occurrence"/>
-                After <input type="text" v-model="value" :disabled="rtype !== 'occurrence'"/> occurrences.
+                After <input type="text" v-model="valueOcc" :disabled="rtype !== 'occurrence'"/> occurrences.
             </label>
         </div>
         <div class='form-group radio'>
@@ -225,12 +225,13 @@ Vue.component('calendar-recurring-until', {
     data: function() {
         return {
             rtype: null,
-            value: null,
+            valueDate: null,
+            valueOcc: null,
         };
     },
     computed: {
         isUntilChanged: function() {
-            return [this.rtype,this.value].join('');
+            return [this.rtype,this.valueOcc, this.valueDate].join('');
         },
         isTypeChanged: function() {
             return this.rtype;
@@ -238,15 +239,24 @@ Vue.component('calendar-recurring-until', {
     },
     watch: {
         isUntilChanged: function() {
-            this.$emit('data-changed', this.rtype, this.value);
+            var value = null;
+            if (this.rtype == 'date') {
+                value = this.valueDate;
+            }
+
+            if (this.rtype == 'occurrence') {
+                value = this.valueOcc;
+            }
+
+            this.$emit('data-changed', this.rtype, value);
         },
         isTypeChanged: function() {
-            this.value = null;
+            this.valueOcc = null;
         },
     },
     methods: {
         setUntilDate: function(val) {
-            this.value = val;
+            this.valueDate = val;
         },
     },
 });
@@ -574,13 +584,21 @@ Vue.component('calendar-modal', {
         },
         getFrequency:function(val) {
             this.frequency = val;
+            if (!val) {
+                this.getRecurringRule();
+            }
         },
         getInterval:function(val) {
             this.interval = val;
+            if (!val) {
+                this.getRecurringRule();
+            }
         },
         getWeekDays: function(val) {
             this.weekDays = val;
-            console.log(this.weekDays);
+            if (!val) {
+                this.getRecurringRule();
+            }
         },
         setDateRange: function(startDate, endDate) {
             this.startDate = startDate;
@@ -626,16 +644,16 @@ Vue.component('calendar-modal', {
                 opts.byweekday = byweekdays;
             }
 
-            if (this.frequencyInterval) {
-                opts.interval = this.frequencyInterval;
+            if (this.interval) {
+                opts.interval = this.interval;
             }
 
-            if (this.recurringOccurence) {
-                opts.count = this.recurringOccurence;
+            if (this.untilOption == 'occurrence') {
+                opts.count = this.untilValue;
             }
 
-            if (this.recurringEndObject) {
-                opts.until = this.recurringEndObject.toDate();
+            if (this.untilOption == 'date' && this.untilValue) {
+                opts.until = moment(this.untilValue).toDate();
             }
 
             var rrule = new RRule(opts);
