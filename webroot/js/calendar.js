@@ -2,7 +2,7 @@
 // loading v-select plugin for Select2 functionality.
 Vue.component('v-select', VueSelect.VueSelect);
 
-Vue.component('icon-component', {//{{{
+Vue.component('icon-component', {
     template: `<i class="fa" v-bind:class="getIcon(name)">&nbsp;</i>`,
     props: ['name'],
     methods: {
@@ -49,7 +49,6 @@ Vue.component('calendar-item', {
         }
     }
 });
-//}}}
 
 Vue.component('calendar', {
     template: '<div></div>',
@@ -170,7 +169,7 @@ Vue.component('input-select', {
     }
 });
 
-Vue.component('input-checkboxes', {//{{{
+Vue.component('input-checkboxes', {
     template: `
          <div class="form-group">
             <label v-for="item in options">
@@ -197,7 +196,6 @@ Vue.component('input-checkboxes', {//{{{
         },
     }
 });
-//}}}
 
 Vue.component('calendar-recurring-until', {
     template:
@@ -253,7 +251,6 @@ Vue.component('calendar-recurring-until', {
     },
 });
 
-//{{{ input-datepicker-range
 Vue.component('input-datepicker-range', {
     template: `<div><div class="col-xs-12 col-md-6">
         <input-datepicker
@@ -333,9 +330,8 @@ Vue.component('input-datepicker-range', {
             this.endMoment = moment(momentObj);
         },
     }
-});//}}}
+});
 
-//{{{
 Vue.component('input-datepicker', {
     template: `
         <div class="form-group text">
@@ -379,7 +375,6 @@ Vue.component('input-datepicker', {
         };
     },
 });
-//}}}
 
 
 Vue.component('calendar-modal', {
