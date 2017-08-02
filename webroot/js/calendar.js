@@ -165,12 +165,12 @@ Vue.component('input-select', {
     },
     watch: {
         value: function() {
-            console.log( this.value );
+            this.$emit('changed', this.value);
         }
     }
 });
 
-Vue.component('input-checkboxes', {
+Vue.component('input-checkboxes', {//{{{
     template: `
          <div class="form-group">
             <label v-for="item in options">
@@ -193,44 +193,67 @@ Vue.component('input-checkboxes', {
     },
     watch: {
         values: function() {
-            console.log(this.values);
+            this.$emit('changed', this.values);
         },
     }
 });
+//}}}
 
 Vue.component('calendar-recurring-until', {
     template:
     `<div class="form-group">
         <span><strong>Ends:</strong></span>
         <div class='form-group radio'>
-            <label><input type="radio" v-model="recurringEnd" value="infinity"/>Never</label>
+            <label><input type="radio" v-model="rtype" value="infinity"/>Never</label>
         </div>
         <div class='form-group radio'>
             <label>
-                <input type="radio" v-model="recurringEnd" value="occurrence"/>
-                After <input type="text" v-model="recurringOccurence" :disabled="recurringEnd !== 'occurrence'"/> occurrences.
+                <input type="radio" v-model="rtype" value="occurrence"/>
+                After <input type="text" v-model="value" :disabled="rtype !== 'occurrence'"/> occurrences.
             </label>
         </div>
         <div class='form-group radio'>
             <label>
-                <input type="radio" v-model="recurringEnd" value="date">
-                On: <input-datepicker name="CalendarEvents[until]" :disabled="recurringEnd !== 'date'" class-name="calendar-until-datetimepicker"></input-datepicker>
+                <input type="radio" v-model="rtype" value="date">
+                On: <input-datepicker
+                        name="CalendarEvents[until]"
+                        :disabled="rtype !== 'date'"
+                        class-name="calendar-until-datetimepicker"
+                        @date-changed="setUntilDate">
+                    </input-datepicker>
             </label>
         </div>
     </div>`,
     data: function() {
         return {
-            recurringEnd: 'infinity',
-            recurringOccurence: null,
+            rtype: null,
+            value: null,
         };
     },
+    computed: {
+        isUntilChanged: function() {
+            return [this.rtype,this.value].join('');
+        },
+        isTypeChanged: function() {
+            return this.rtype;
+        },
+    },
     watch: {
-        recurringEnd: function() {
-            console.log(this.recurringEnd);
-        }
-    }
+        isUntilChanged: function() {
+            this.$emit('data-changed', this.rtype, this.value);
+        },
+        isTypeChanged: function() {
+            this.value = null;
+        },
+    },
+    methods: {
+        setUntilDate: function(val) {
+            this.value = val;
+        },
+    },
 });
 
+//{{{ input-datepicker-range
 Vue.component('input-datepicker-range', {
     template: `<div><div class="col-xs-12 col-md-6">
         <input-datepicker
@@ -310,8 +333,9 @@ Vue.component('input-datepicker-range', {
             this.endMoment = moment(momentObj);
         },
     }
-});
+});//}}}
 
+//{{{
 Vue.component('input-datepicker', {
     template: `
         <div class="form-group text">
@@ -355,7 +379,7 @@ Vue.component('input-datepicker', {
         };
     },
 });
-
+//}}}
 
 
 Vue.component('calendar-modal', {
@@ -417,17 +441,17 @@ Vue.component('calendar-modal', {
                             </div>
                         </div>
                         <div class="col-xs-12 col-md-12" v-if="isRecurring">
-                            <input-select name="CalendarEvents[frequency]" :options="frequencies" label="Frequency:"></input-select>
+                            <input-select name="CalendarEvents[frequency]" :options="frequencies" label="Frequency:" @changed="getFrequency"></input-select>
                         </div>
                         <div class="col-xs-12 col-md-12" v-if="isWeekly || isYearly || isDaily">
-                            <input-select name="CalendarEvents[intervals]" :options="frequencyIntervals" label="Interval:"></input-select>
+                            <input-select name="CalendarEvents[intervals]" :options="frequencyIntervals" label="Interval:" @changed="getInterval"></input-select>
                         </div>
 
                         <div class="col-xs-12 col-md-12" v-if="isWeekly">
-                            <input-checkboxes></input-checkboxes>
+                            <input-checkboxes @changed="getWeekDays"></input-checkboxes>
                         </div>
                         <div class="col-xs-12 col-md-12" v-if="isRecurring">
-                            <calendar-recurring-until></calendar-recurring-until>
+                            <calendar-recurring-until @data-changed="getUntil"></calendar-recurring-until>
                         </div>
                         <div class="col-xs-12 col-md-12" v-if="isRecurring">
                             Recurring Event: {{recurringRule}}
@@ -442,15 +466,19 @@ Vue.component('calendar-modal', {
     props: ['calendarsList', 'timezone', 'eventClick'],
     data: function() {
         return {
-            startDate: null,
-            endDate: null,
 			calendarId: null,
+            startDate: null,
+            endDate:null,
             attendees: [],
 			attendeesList: [],
             eventType: null,
             eventTypeConfig: null,
             eventTypes: [],
 			eventTypesList: [],
+
+            isRecurring: 0,
+            frequency: null,
+            interval: null,
             frequencyIntervals: [],
             frequencies: [
                 { value: 3, label: 'Daily', },
@@ -460,7 +488,8 @@ Vue.component('calendar-modal', {
             ],
             recurringRule: null,
             weekDays: [],
-            isRecurring: 0,
+            untilOption: null,
+            untilValue: null,
         };
     },
     beforeMount: function() {
@@ -514,12 +543,6 @@ Vue.component('calendar-modal', {
                 });
             }
         },
-        frequencyInterval: function() {
-            this.getRecurringRule();
-        },
-        weekDaysChanged: function() {
-            this.getRecurringRule();
-        },
         calendarId: function() {
             this.getEventTypes();
         },
@@ -549,6 +572,20 @@ Vue.component('calendar-modal', {
                     loading(false);
                 });
             }
+        },
+        getUntil: function(rtype, value) {
+            this.untilOption = rtype;
+            this.untilValue = value;
+        },
+        getFrequency:function(val) {
+            this.frequency = val;
+        },
+        getInterval:function(val) {
+            this.interval = val;
+        },
+        getWeekDays: function(val) {
+            this.weekDays = val;
+            console.log(this.weekDays);
         },
         setDateRange: function(startDate, endDate) {
             this.startDate = startDate;
