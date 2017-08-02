@@ -207,16 +207,21 @@ Vue.component('calendar-recurring-until', {
         <div class='form-group radio'>
             <label>
                 <input type="radio" v-model="rtype" value="occurrence"/>
-                After <input type="text" v-model="valueOcc" :disabled="rtype !== 'occurrence'"/> occurrences.
+                After # of occurrences:
+                <div class="form-group text">
+                    <input class="form-control" type="text" v-model="valueOcc" :disabled="rtype !== 'occurrence'"/>
+                </div>
             </label>
         </div>
         <div class='form-group radio'>
             <label>
                 <input type="radio" v-model="rtype" value="date">
-                On: <input-datepicker
+                Until Date:
+                <input-datepicker
                         name="CalendarEvents[until]"
                         :disabled="rtype !== 'date'"
                         class-name="calendar-until-datetimepicker"
+                        format="YYYY-MM-DD"
                         @date-changed="setUntilDate">
                     </input-datepicker>
             </label>
@@ -269,6 +274,7 @@ Vue.component('input-datepicker-range', {
             :label="startLabel"
             :is-start="true"
             :class-name="startClass"
+            format="YYYY-MM-DD HH:mm"
             @date-changed="setStartDate">
         </input-datepicker>
     </div>
@@ -279,6 +285,7 @@ Vue.component('input-datepicker-range', {
             :is-start="false"
             :label="endLabel"
             :class-name="endClass"
+            format="YYYY-MM-DD HH:mm"
             @date-changed="setEndDate">
         </input-datepicker>
     </div></div>`,
@@ -345,10 +352,17 @@ Vue.component('input-datepicker-range', {
 Vue.component('input-datepicker', {
     template: `
         <div class="form-group text">
-            <label>{{label}}</label>
+            <label v-if="label">{{label}}</label>
             <input type="text" :disabled="disabled" :name="name" :value="value" :class="className" class="form-control"/>
         </div>`,
-    props: ['name', 'className', 'label', 'disabled', 'isStart', 'dateMoment'],
+    props: ['name', 'className', 'label', 'disabled', 'isStart', 'dateMoment','format'],
+    beforeMount: function() {
+        if (this.format) {
+            this.pickerOptions.format = this.format;
+        } else {
+            this.pickerOptions.format = 'YYYY-MM-DD HH:mm';
+        }
+    },
     mounted: function() {
         var self = this;
         self.instance = $(self.$el).find('input').daterangepicker(this.pickerOptions).data('daterangepicker');
@@ -380,7 +394,6 @@ Vue.component('input-datepicker', {
                 drops: "down",
                 timePicker12Hour: false,
                 timePickerIncrement: 5,
-                format: "YYYY-MM-DD HH:mm",
             },
         };
     },
@@ -459,7 +472,7 @@ Vue.component('calendar-modal', {
                             <calendar-recurring-until @data-changed="getUntil"></calendar-recurring-until>
                         </div>
                         <div class="col-xs-12 col-md-12" v-if="isRecurring">
-                            Recurring Event: {{recurringRule}}
+                            Recurring Event: {{rruleResult}}
                         </div>
                     </div>
                 </div>
@@ -491,10 +504,11 @@ Vue.component('calendar-modal', {
                 { value: 1, label: 'Monthly' },
                 { value: 0, label: 'Yearly' },
             ],
-            recurringRule: null,
             weekDays: [],
             untilOption: null,
             untilValue: null,
+            rruleResult: null,
+            rrule: null,
         };
     },
     beforeMount: function() {
@@ -648,7 +662,7 @@ Vue.component('calendar-modal', {
                 opts.interval = this.interval;
             }
 
-            if (this.untilOption == 'occurrence') {
+            if (this.untilOption == 'occurrence' && this.untilValue) {
                 opts.count = this.untilValue;
             }
 
@@ -656,8 +670,10 @@ Vue.component('calendar-modal', {
                 opts.until = moment(this.untilValue).toDate();
             }
 
-            var rrule = new RRule(opts);
-            this.recurringRule = rrule.toText();
+            var rule = new RRule(opts);
+
+            this.rruleResult = rule.toText();
+            this.rrule = rule.toString();
         }
     },
 });
