@@ -112,29 +112,19 @@ $timezone = date_default_timezone_get();
                 </div>
             </div>
         </div>
+        <calendar-modal
+            :calendars-list="calendarsList"
+            :timezone="timezone"
+            :start="start"
+            :end="end"
+            :event-click="eventClick">
+        </calendar-modal>
+
         <div class="modal fade" id="calendar-modal-view-event" tabindex="-1" role="dialog" aria-labelledby="calendar-modal-label">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
-
                 </div> <!-- //modal-content -->
             </div> <!-- // modal-dialog -->
         </div>
-        <div class="modal fade" id="calendar-modal-add-event" tabindex="-1" role="dialog" aria-labelledby="calendar-modal-label">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                        <h4 class="modal-title" id="calendar-modal-label">Add Event</h4>
-                    </div>
-                    <div class="modal-body">
-                        <calendar-modal :calendars-list="calendarsList" :timezone="timezone" :start="start" :end="end" :event-click="eventClick"></calendar-modal>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <?php
-            //add event modal form
-            //echo $this->element('Qobo/Calendar.add_calendar_event', ['calendars' => $calendars]);
-        ?>
     </div> <!-- //end first row -->
 </section>

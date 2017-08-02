@@ -150,63 +150,6 @@ Vue.component('calendar', {
         }
     }
 });
-
-Vue.component('input-datepicker', {
-    template: `
-        <div class="form-group text">
-            <label>{{label}}</label>
-            <input type="text" :disabled="disabled" :name="name" v-model="value" :class="className" class="form-control"/>
-        </div>`,
-    props: ['name', 'className', 'label', 'disabled', 'lookupField', 'configs', 'eventClick'],
-    mounted: function() {
-        var self = this;
-        self.instance = $(self.$el).find('input').daterangepicker(this.pickerOptions).data('daterangepicker');
-        $(self.$el).find('input').on('apply.daterangepicker', function(ev, picker) {
-            self.momentObject = picker.startDate;
-            self.value = picker.startDate.format(self.pickerOptions.format);
-            self.$emit('date-changed', self.value, self.momentObject)
-        });
-    },
-    data: function() {
-        return {
-            instance: null,
-            value: null,
-            momentObject: null,
-            pickerOptions: {
-                singleDatePicker: true,
-                showDropdowns: true,
-                timePicker: true,
-                drops: "down",
-                timePicker12Hour: false,
-                timePickerIncrement: 5,
-                format: "YYYY-MM-DD HH:mm",
-            },
-        };
-    },
-    watch: {
-        eventClick: function() {
-            this.momentObject = this.eventClick;
-            this.value = this.eventClick.format('YYYY-MM-DD HH:mm');
-        },
-
-        configs: function() {
-            if (this.configs[this.lookupField]) {
-
-                var time = this.configs[this.lookupField].split(':');
-                this.momentObject.set({'hour': time[0], 'minute' : time[1]});
-            }
-            this.momentObject.set({
-                'year': this.eventClick.format('YYYY'),
-                'month': this.eventClick.format('MM'),
-                'date': this.eventClick.format('DD'),
-            });
-
-            this.instance.setStartDate(this.momentObject);
-            this.instance.setEndDate(this.momentObject);
-        }
-    },
-});
-
 Vue.component('input-select', {
     template: `<div class="form-group">
         <label>{{label}}</label>
@@ -288,8 +231,144 @@ Vue.component('calendar-recurring-until', {
     }
 });
 
+Vue.component('input-datepicker-range', {
+    template: `<div><div class="col-xs-12 col-md-6">
+        <input-datepicker
+            v-bind:date-moment="startMoment"
+            :name="startName"
+            :label="startLabel"
+            :is-start="true"
+            :class-name="startClass"
+            @date-changed="setStartDate">
+        </input-datepicker>
+    </div>
+    <div class="col-xs-12 col-md-6">
+        <input-datepicker
+            :date-moment="endMoment"
+            :name="endName"
+            :is-start="false"
+            :label="endLabel"
+            :class-name="endClass"
+            @date-changed="setEndDate">
+        </input-datepicker>
+    </div></div>`,
+    props: ['startName', 'endName', 'startLabel', 'endLabel', 'startClass', 'endClass', 'configs', 'eventClick'],
+    data: function() {
+        return {
+            startDate: null,
+            startMoment: null,
+            endDate: null,
+            endMoment: null,
+            format: 'YYYY-MM-DD HH:mm',
+        };
+    },
+    computed: {
+        /* using compute var to avoid multiple event calls for start/end changes. */
+        intervalChanged: function() {
+            return [this.startDate, this.endDate].join('');
+        },
+    },
+    watch: {
+        configs: function() {
+            var st = [];
+            var en = [];
+            if (!this.configs) {
+                return;
+            }
+            if (this.configs.hasOwnProperty('start_time')) {
+                st = this.configs.start_time.split(':');
+                var newStart = moment(this.startMoment).set({'hour': st[0], 'minute' : st[1]});
+
+                this.setStartDate(newStart.format(this.format), newStart);
+            }
+
+            if (this.configs.hasOwnProperty('end_time')) {
+                en = this.configs.end_time.split(':');
+                var newEnd = moment(this.endMoment).set({'hour': en[0], 'minute' : en[1]});
+
+                this.setEndDate(newEnd.format(this.format), newEnd);
+            }
+        },
+        eventClick: function() {
+            this.startMoment = moment(this.eventClick);
+            this.endMoment = moment(this.eventClick);
+
+            this.startDate = this.startMoment.format(this.format);
+            this.endDate = this.endMoment.format(this.format);
+        },
+        intervalChanged: function() {
+            this.$emit('date-updated', this.startDate, this.endDate);
+        }
+    },
+    methods: {
+        setStartDate: function(val, momentObj) {
+            this.startDate = val;
+            this.startMoment = moment(momentObj);
+        },
+        setEndDate: function(val, momentObj) {
+            this.endDate = val;
+            this.endMoment = moment(momentObj);
+        },
+    }
+});
+
+Vue.component('input-datepicker', {
+    template: `
+        <div class="form-group text">
+            <label>{{label}}</label>
+            <input type="text" :disabled="disabled" :name="name" :value="value" :class="className" class="form-control"/>
+        </div>`,
+    props: ['name', 'className', 'label', 'disabled', 'isStart', 'dateMoment'],
+    mounted: function() {
+        var self = this;
+        self.instance = $(self.$el).find('input').daterangepicker(this.pickerOptions).data('daterangepicker');
+
+        $(self.$el).find('input').on('apply.daterangepicker', function(ev, picker) {
+            self.momentObject = moment(picker.startDate);
+            self.value = picker.startDate.format(self.pickerOptions.format);
+
+            self.$emit('date-changed', self.value, self.momentObject)
+        });
+    },
+    watch: {
+        dateMoment: function() {
+            this.momentObject = moment(this.dateMoment);
+            this.instance.setStartDate(this.momentObject);
+            this.instance.setEndDate(this.momentObject);
+            this.value = this.momentObject.format(this.pickerOptions.format);
+        },
+    },
+    data: function() {
+        return {
+            instance: null,
+            value: null,
+            momentObject: null,
+            pickerOptions: {
+                singleDatePicker: true,
+                showDropdowns: true,
+                timePicker: true,
+                drops: "down",
+                timePicker12Hour: false,
+                timePickerIncrement: 5,
+                format: "YYYY-MM-DD HH:mm",
+            },
+        };
+    },
+});
+
+
+
 Vue.component('calendar-modal', {
-    template: `<div class="row">
+    template: `<div class="modal fade" id="calendar-modal-add-event" tabindex="-1" role="dialog" aria-labelledby="calendar-modal-label">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title" id="calendar-modal-label">Add Event</h4>
+                    </div>
+                    <div class="modal-body">
+
+                <div class="row">
                 <div class="col-xs-12 col-md-12">
                     <div class="form-group">
                         <v-select v-model="calendarId" :options="calendarsList" placeholder="-- Please choose Calendar --"></v-select>
@@ -302,32 +381,29 @@ Vue.component('calendar-modal', {
                 </div>
                 <div class="col-xs-12 col-md-12">
                     <div class="row">
-                        <div class="col-xs-12 col-md-6">
-                            <input-datepicker
-                                name="CalendarEvents[start_date]"
-                                label="Start Date:"
-                                lookup-field="start_time"
-                                :event-click="eventClick"
-                                :configs="eventTypeConfig"
-                                class-name="calendar-start-datetimepicker"
-                                @date-changed="setStartDate">
-                            </input-datepicker>
-                        </div>
-                        <div class="col-xs-12 col-md-6">
-                            <input-datepicker
-                                name="CalendarEvents[end_date]"
-                                label="End Date:"
-                                lookup-field="end_time"
-                                :event-click="eventClick"
-                                :configs="eventTypeConfig"
-                                class-name="calendar-end-datetimepicker"
-                                @date-changed="setEndDate">
-                            </input-datepicker>
-                        </div>
-						<div class="col-xs-12 col-md-12">
+
+                        <input-datepicker-range
+                            start-name="CalendarEvents[start_date]"
+                            end-name="CalendarEvents[end_date]"
+                            start-label="Start Date:"
+                            end-label="End Date:"
+                            :configs="eventTypeConfig"
+                            start-class="calendar-start-datetimepicker"
+                            end-class="calendar-end-datetimepicker"
+                            :event-click="eventClick"
+                            @date-updated="setDateRange">
+                        </input-datepicker-range>
+
+                        <div class="col-xs-12 col-md-12">
 							<div class="form-group text">
 								<label> Attendees: </label>
-								<v-select v-model="attendeesList" :options="attendees" multiple></v-select>
+								<v-select
+                                    v-model="attendeesList"
+                                    :debounce="400"
+                                    :on-search="searchAttendees"
+                                    :options="attendees"
+                                    multiple>
+                                </v-select>
 							</div>
 						</div>
                         <div class="col-xs-12 col-md-12">
@@ -358,10 +434,16 @@ Vue.component('calendar-modal', {
                         </div>
                     </div>
                 </div>
-            </div>`,
+            </div>
+                        </div>
+                </div>
+            </div>
+        </div>`,
     props: ['calendarsList', 'timezone', 'eventClick'],
     data: function() {
         return {
+            startDate: null,
+            endDate: null,
 			calendarId: null,
             attendees: [],
 			attendeesList: [],
@@ -443,11 +525,34 @@ Vue.component('calendar-modal', {
         },
     },
     methods: {
-        setStartDate:function(value, momentObject) {
-            console.log(value);
+        searchAttendees: function(search, loading) {
+            var self = this;
+
+            if (search.length > 2) {
+                loading(true);
+                $.ajax({
+                    url: '/calendars/calendar-attendees/lookup',
+                    dataType: 'json',
+                    method: 'get',
+                    contentType: 'application/json',
+                    accepts: {
+                        json: 'application/json',
+                    },
+                    data: { term: search, calendarId: this.calendarId },
+                }).then((resp) => {
+                    if (resp.length) {
+                        self.attendees = [];
+                        resp.forEach((elem, key) => {
+                            self.attendees.push({label: elem.text, value: elem.id});
+                        });
+                    }
+                    loading(false);
+                });
+            }
         },
-        setEndDate:function(value, momentObject) {
-            console.log(value);
+        setDateRange: function(startDate, endDate) {
+            this.startDate = startDate;
+            this.endDate = endDate;
         },
         getEventTypes: function() {
             var self = this;
