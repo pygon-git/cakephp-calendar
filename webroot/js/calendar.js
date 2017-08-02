@@ -565,6 +565,12 @@ Vue.component('calendar-modal', {
         calendarId: function() {
             this.getEventTypes();
         },
+        isRecurring: function() {
+            if (!this.isRecurring) {
+                this.rrule = null;
+                this.rruleResult = null;
+            }
+        },
     },
     methods: {
         searchAttendees: function(search, loading) {
