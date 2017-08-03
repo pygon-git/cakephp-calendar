@@ -6,7 +6,7 @@ Vue.component('icon-component', {
     template: `<i class="fa" v-bind:class="getIcon(name)">&nbsp;</i>`,
     props: ['name'],
     methods: {
-        getIcon: function (name) {
+        getIcon(name) {
             return (name) ? 'fa-' + name : '';
         }
     }
@@ -17,7 +17,7 @@ Vue.component('calendar-link', {
                 </a>`,
     props: ['itemIcon', 'itemValue', 'itemUrl', 'itemClass', 'itemDelete', 'itemConfirmMsg'],
     methods: {
-        getUrl: function (url, id) {
+        getUrl(url, id) {
             return (id) ? url + '/' + id : url;
         }
     }
@@ -36,7 +36,7 @@ Vue.component('calendar-item', {
     beforeMount: function() {
         this.toggle = this.itemActive;
     },
-    data: function() {
+    data() {
         return {
             toggle: null,
             itemClass: 'calendar-id',
@@ -53,11 +53,11 @@ Vue.component('calendar-item', {
 Vue.component('calendar', {
     template: '<div></div>',
     props: ['ids', 'events', 'editable', 'start', 'end', 'timezone'],
-    data: function() {
+    data() {
         return {
             calendarInstance: null,
-            // prepared FullCalendar events based on the db entities.
-            calendarEvents: []
+            calendarEvents: [],
+            format: 'YYYY-MM-DD',
         };
     },
     watch: {
@@ -87,7 +87,7 @@ Vue.component('calendar', {
             this.calendarInstance.fullCalendar('addEventSource', this.calendarEvents);
         }
     },
-    mounted: function() {
+    mounted() {
         var self = this;
         self.calendarInstance = $(self.$el);
         var args = {
@@ -105,28 +105,21 @@ Vue.component('calendar', {
             firstDay: 1,
             defaultDate: moment(this.start),
             editable: this.editable,
-            dayClick: function(date, jsEvent, view) {
-                self.dayClick(date, event, view);
+            dayClick(date, jsEvent, view) {
+                self.$emit('modal-add-event', date, jsEvent, view);
             },
-            eventClick: function(event) {
-                self.eventClick(event);
+            eventClick(event) {
+                self.$emit('event-info', event);
             },
-            viewRender: function(view, element) {
-                self.$emit('interval-update', view.start.format('YYYY-MM-DD'), view.end.format('YYYY-MM-DD'));
+            viewRender(view, element) {
+                self.$emit('interval-update', view.start.format(this.format), view.end.format(this.format));
             }
         };
 
         this.calendarInstance.fullCalendar(args);
     },
-    methods: {
-        eventClick: function(calendarEvent) {
-            this.$emit('event-info', calendarEvent);
-        },
-        dayClick: function(date, event, view) {
-            this.$emit('modal-add-event', date, event, view);
-        }
-    }
 });
+
 Vue.component('input-select', {
     template: `<div class="form-group">
         <label>{{label}}</label>
