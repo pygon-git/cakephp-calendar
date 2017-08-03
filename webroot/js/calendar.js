@@ -409,75 +409,76 @@ Vue.component('calendar-modal', {
                         <h4 class="modal-title" id="calendar-modal-label">Add Event</h4>
                     </div>
                     <div class="modal-body">
-
-                <div class="row">
-                <div class="col-xs-12 col-md-12">
-                    <div class="form-group">
-                        <v-select v-model="calendarId" :options="calendarsList" placeholder="-- Please choose Calendar --"></v-select>
-                    </div>
-                </div>
-                <div class="col-xs-12 col-md-12">
-                    <div class="form-group">
-                        <v-select v-model="eventType" :options="eventTypesList" placeholder="-- Please choose Event Type --"></v-select>
-                    </div>
-                </div>
-                <div class="col-xs-12 col-md-12">
-                    <div class="row">
-
-                        <input-datepicker-range
-                            start-name="CalendarEvents[start_date]"
-                            end-name="CalendarEvents[end_date]"
-                            start-label="Start Date:"
-                            end-label="End Date:"
-                            :configs="eventTypeConfig"
-                            start-class="calendar-start-datetimepicker"
-                            end-class="calendar-end-datetimepicker"
-                            :event-click="eventClick"
-                            @date-updated="setDateRange">
-                        </input-datepicker-range>
-
-                        <div class="col-xs-12 col-md-12">
-							<div class="form-group text">
-								<label> Attendees: </label>
-								<v-select
-                                    v-model="attendeesList"
-                                    :debounce="400"
-                                    :on-search="searchAttendees"
-                                    :options="attendees"
-                                    multiple>
-                                </v-select>
-							</div>
-						</div>
-                        <div class="col-xs-12 col-md-12">
-                            <div class="row">
-                                <div class="col-sm-6">
-                                    <div class="form-group text">
-                                        <label>Repeats:</label>
-                                        <input type="checkbox" name="CalendarEvents[is_recurring]" v-model="isRecurring"/>
-                                    </div>
+                        <div class="row">
+                            <div class="col-xs-12 col-md-12">
+                                <div class="form-group">
+                                    <v-select v-model="calendarId" :options="calendarsList" placeholder="-- Please choose Calendar --"></v-select>
                                 </div>
                             </div>
-                        </div>
-                        <div class="col-xs-12 col-md-12" v-if="isRecurring">
-                            <input-select name="CalendarEvents[frequency]" :options="frequencies" label="Frequency:" @changed="getFrequency"></input-select>
-                        </div>
-                        <div class="col-xs-12 col-md-12" v-if="isWeekly || isYearly || isDaily">
-                            <input-select name="CalendarEvents[intervals]" :options="frequencyIntervals" label="Interval:" @changed="getInterval"></input-select>
-                        </div>
+                            <div class="col-xs-12 col-md-12">
+                                <div class="form-group">
+                                    <v-select v-model="eventType" :options="eventTypesList" placeholder="-- Please choose Event Type --"></v-select>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-md-12">
+                                <div class="row">
+                                    <input-datepicker-range
+                                        start-name="CalendarEvents[start_date]"
+                                        end-name="CalendarEvents[end_date]"
+                                        start-label="Start Date:"
+                                        end-label="End Date:"
+                                        :configs="eventTypeConfig"
+                                        start-class="calendar-start-datetimepicker"
+                                        end-class="calendar-end-datetimepicker"
+                                        :event-click="eventClick"
+                                        @date-updated="setDateRange">
+                                    </input-datepicker-range>
+                                    <div class="col-xs-12 col-md-12">
+                                        <div class="form-group text">
+                                            <label> Attendees: </label>
+                                            <v-select
+                                                v-model="attendeesList"
+                                                :debounce="400"
+                                                :on-search="searchAttendees"
+                                                :options="attendees"
+                                                multiple>
+                                            </v-select>
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-12 col-md-12">
+                                        <div class="row">
+                                            <div class="col-sm-6">
+                                                <div class="form-group text">
+                                                    <label>Repeats:</label>
+                                                    <input type="checkbox" name="CalendarEvents[is_recurring]" v-model="isRecurring"/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-12 col-md-12" v-if="isRecurring">
+                                        <input-select name="CalendarEvents[frequency]" :options="frequencies" label="Frequency:" @changed="getFrequency"></input-select>
+                                    </div>
+                                    <div class="col-xs-12 col-md-12" v-if="isWeekly || isYearly || isDaily">
+                                        <input-select name="CalendarEvents[intervals]" :options="frequencyIntervals" label="Interval:" @changed="getInterval"></input-select>
+                                    </div>
 
-                        <div class="col-xs-12 col-md-12" v-if="isWeekly">
-                            <input-checkboxes @changed="getWeekDays"></input-checkboxes>
-                        </div>
-                        <div class="col-xs-12 col-md-12" v-if="isRecurring">
-                            <calendar-recurring-until @data-changed="getUntil"></calendar-recurring-until>
-                        </div>
-                        <div class="col-xs-12 col-md-12" v-if="isRecurring">
-                            Recurring Event: {{rruleResult}}
+                                    <div class="col-xs-12 col-md-12" v-if="isWeekly">
+                                        <input-checkboxes @changed="getWeekDays"></input-checkboxes>
+                                    </div>
+                                    <div class="col-xs-12 col-md-12" v-if="isRecurring">
+                                        <calendar-recurring-until @data-changed="getUntil"></calendar-recurring-until>
+                                    </div>
+                                    <div class="col-xs-12 col-md-12" v-if="isRecurring">
+                                        Recurring Event: {{rruleResult}}
+                                    </div>
+                                </div> <!-- .row -->
+                            </div>
                         </div>
                     </div>
-                </div>
-            </div>
-                        </div>
+                    <div class="modal-footer">
+                        <button v-on:click="submitEvent" class="btn btn-default">Save</button>
+                        <button v-on:click="dismissModal" class="btn btn-default">Close</button>
+                    </div>
                 </div>
             </div>
         </div>`,
@@ -573,6 +574,12 @@ Vue.component('calendar-modal', {
         },
     },
     methods: {
+        dismissModal: function() {
+            $('#calendar-modal-add-event').modal('hide');
+        },
+        submitEvent:function() {
+            console.log('submitting');
+        },
         searchAttendees: function(search, loading) {
             var self = this;
 
