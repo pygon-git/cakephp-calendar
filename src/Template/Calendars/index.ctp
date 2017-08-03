@@ -21,12 +21,10 @@ echo $this->Html->script(
 
 echo $this->Html->script(
     [
-        'Qobo/Calendar.calendar.misc',
         'Qobo/Calendar.nlp',
         'Qobo/Calendar.rrule',
-        'https://unpkg.com/vue@2.3.4',
-        'https://unpkg.com/vue-select@2.2.0',
-        //'Qobo/Calendar.vue.min',
+        'Qobo/Calendar.vue.min',
+        'Qobo/Calendar.vue-select',
         'Qobo/Calendar.calendar.js',
     ],
     ['block' => 'scriptBotton']
