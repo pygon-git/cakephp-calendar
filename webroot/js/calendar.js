@@ -128,7 +128,7 @@ Vue.component('input-select', {
         </select>
     </div>`,
     props: ['options', 'name', 'label'],
-    data: function() {
+    data() {
         return {
             value: null,
         };
@@ -147,7 +147,7 @@ Vue.component('input-checkboxes', {
                 <input type="checkbox" v-model="values" :value="item.value"/>{{item.label}}
             </label>
         </div>`,
-    data: function() {
+    data() {
         return {
             options: [
                 {label: 'MO', value: 'MO'},
@@ -193,6 +193,7 @@ Vue.component('calendar-recurring-until', {
                         :disabled="rtype !== 'date'"
                         class-name="calendar-until-datetimepicker"
                         format="YYYY-MM-DD"
+                        isUp="true"
                         @date-changed="setUntilDate">
                     </input-datepicker>
             </label>
@@ -231,7 +232,7 @@ Vue.component('calendar-recurring-until', {
         },
     },
     methods: {
-        setUntilDate: function(val) {
+        setUntilDate(val) {
             this.valueDate = val;
         },
     },
@@ -326,12 +327,16 @@ Vue.component('input-datepicker', {
             <label v-if="label">{{label}}</label>
             <input type="text" :disabled="disabled" :name="name" :value="value" :class="className" class="form-control"/>
         </div>`,
-    props: ['name', 'className', 'label', 'disabled', 'isStart', 'dateMoment','format'],
+    props: ['name', 'className', 'label', 'disabled', 'isStart', 'dateMoment','format', 'isUp'],
     beforeMount: function() {
         if (this.format) {
             this.pickerOptions.format = this.format;
         } else {
             this.pickerOptions.format = 'YYYY-MM-DD HH:mm';
+        }
+
+        if (this.isUp) {
+            this.pickerOptions.drops = 'up';
         }
     },
     mounted: function() {
@@ -341,7 +346,6 @@ Vue.component('input-datepicker', {
         $(self.$el).find('input').on('apply.daterangepicker', function(ev, picker) {
             self.momentObject = moment(picker.startDate);
             self.value = picker.startDate.format(self.pickerOptions.format);
-
             self.$emit('date-changed', self.value, self.momentObject)
         });
     },
