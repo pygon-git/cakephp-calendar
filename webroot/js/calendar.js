@@ -65,7 +65,6 @@ Vue.component('calendar', {
             var self = this;
             // @FIXME: remove only the ones that deserve it.
             this.calendarEvents = [];
-
             if (!this.events.length) {
                 return;
             }
@@ -187,7 +186,7 @@ Vue.component('calendar-recurring-until', {
         <div class='form-group radio'>
             <label>
                 <input type="radio" v-model="rtype" value="date">
-                Until Date:
+                Until Date (not including):
                 <input-datepicker
                         name="CalendarEvents[until]"
                         :disabled="rtype !== 'date'"
@@ -408,6 +407,7 @@ Vue.component('calendar-modal', {
                                         :event-click="eventClick"
                                         @date-updated="setDateRange">
                                     </input-datepicker-range>
+
                                     <div class="col-xs-12 col-md-12">
                                         <div class="form-group text">
                                             <label> Attendees: </label>
@@ -420,6 +420,21 @@ Vue.component('calendar-modal', {
                                             </v-select>
                                         </div>
                                     </div>
+
+                                    <div class="col-xs-12 col-md-12" v-if="!isRecurring">
+                                        <div class="form-group text">
+                                        <label>Title:</label>
+                                        <input type="text" v-model="title" class="form-control"/>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-xs-12 col-md-12" v-if="!isRecurring">
+                                        <div class="form-group text">
+                                            <label>Content:</label>
+                                            <textarea v-model="content" class="form-control"></textarea>
+                                        </div>
+                                    </div>
+
                                     <div class="col-xs-12 col-md-12">
                                         <div class="row">
                                             <div class="col-sm-6">
@@ -430,19 +445,36 @@ Vue.component('calendar-modal', {
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="col-xs-12 col-md-12" v-if="isRecurring">
-                                        <input-select name="CalendarEvents[frequency]" :options="frequencies" label="Frequency:" @changed="getFrequency"></input-select>
+
+                                    <div class="col-xs-12 col-md-12">
                                     </div>
+
+                                    <div class="col-xs-12 col-md-12" v-if="isRecurring">
+                                        <input-select
+                                            name="CalendarEvents[frequency]"
+                                            :options="frequencies"
+                                            label="Frequency:"
+                                            @changed="getFrequency">
+                                        </input-select>
+                                    </div>
+
                                     <div class="col-xs-12 col-md-12" v-if="isWeekly || isYearly || isDaily">
-                                        <input-select name="CalendarEvents[intervals]" :options="frequencyIntervals" label="Interval:" @changed="getInterval"></input-select>
+                                        <input-select
+                                            name="CalendarEvents[intervals]"
+                                            :options="frequencyIntervals"
+                                            label="Interval:"
+                                            @changed="getInterval">
+                                        </input-select>
                                     </div>
 
                                     <div class="col-xs-12 col-md-12" v-if="isWeekly">
                                         <input-checkboxes @changed="getWeekDays"></input-checkboxes>
                                     </div>
+
                                     <div class="col-xs-12 col-md-12" v-if="isRecurring">
                                         <calendar-recurring-until @data-changed="getUntil"></calendar-recurring-until>
                                     </div>
+
                                     <div class="col-xs-12 col-md-12" v-if="isRecurring">
                                         Recurring Event: {{rruleResult}}
                                     </div>
@@ -551,33 +583,42 @@ Vue.component('calendar-modal', {
         },
     },
     methods: {
-        dismissModal: function() {
+        dismissModal() {
             $('#calendar-modal-add-event').modal('hide');
         },
-        submitEvent: function() {
+        submitEvent() {
+            var self = this;
             var postdata = {
                 CalendarEvents: {
-                    calendar_id: this.calendarId,
-                    title: '',
-                    content: '',
+                    calendar_id: this.calendarId.value,
+                    title: this.title,
+                    content: this.content,
                     start_date: this.startDate,
                     end_date: this.endDate,
-                    event_type: '',
+                    event_type: ((this.eventType) ? this.eventType.value : null),
                     is_recurring: this.isRecurring,
-                    recurrence: [this.rrule]
+                    recurrence: [this.rrule],
                 }
             };
+            if (this.attendeesList.length) {
+                postdata.CalendarEvents['calendar_attendees'] = {
+                    '_ids' : []
+                };
 
+                this.attendeesList.forEach( (elem, key) => {
+                    postdata.CalendarEvents.calendar_attendees._ids.push(elem.value);
+                });
+            }
             $.ajax({
                 url: '/calendars/calendar-events/add',
                 method:'POST',
                 dataType: 'json',
                 data: postdata
             }).then( (resp) => {
-                console.log(resp);
+                self.$emit('event-saved', resp);
             });
         },
-        searchAttendees: function(search, loading) {
+        searchAttendees(search, loading) {
             var self = this;
 
             if (search.length > 2) {
@@ -602,33 +643,33 @@ Vue.component('calendar-modal', {
                 });
             }
         },
-        getUntil: function(rtype, value) {
+        getUntil(rtype, value) {
             this.untilOption = rtype;
             this.untilValue = value;
         },
-        getFrequency:function(val) {
+        getFrequency(val) {
             this.frequency = val;
             if (!val) {
                 this.getRecurringRule();
             }
         },
-        getInterval:function(val) {
+        getInterval(val) {
             this.interval = val;
             if (!val) {
                 this.getRecurringRule();
             }
         },
-        getWeekDays: function(val) {
+        getWeekDays(val) {
             this.weekDays = val;
             if (!val) {
                 this.getRecurringRule();
             }
         },
-        setDateRange: function(startDate, endDate) {
+        setDateRange(startDate, endDate) {
             this.startDate = startDate;
             this.endDate = endDate;
         },
-        getEventTypes: function() {
+        getEventTypes() {
             var self = this;
 			this.eventTypes = [];
 			this.eventTypesList = [];
@@ -683,7 +724,7 @@ Vue.component('calendar-modal', {
             var rule = new RRule(opts);
 
             this.rruleResult = rule.toText();
-            this.rrule = rule.toString();
+            this.rrule = 'RRULE:' + rule.toString();
         }
     },
 });
@@ -835,7 +876,13 @@ var calendarApp = new Vue({
         addCalendarEvent: function(date, event, view) {
             this.eventClick = date;
             $('#calendar-modal-add-event').modal('toggle');
-        }
+        },
+        addEventToResources(event) {
+            if (event) {
+                this.events.push(event);
+                location.reload();
+            }
+        },
     }
 });
 // @codingStandardsIgnoreEnd

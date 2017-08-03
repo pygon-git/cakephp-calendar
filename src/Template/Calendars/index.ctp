@@ -126,7 +126,8 @@ $timezone = date_default_timezone_get();
             :timezone="timezone"
             :start="start"
             :end="end"
-            :event-click="eventClick">
+            :event-click="eventClick"
+            @event-saved="addEventToResources">
         </calendar-modal>
 
         <div class="modal fade" id="calendar-modal-view-event" tabindex="-1" role="dialog" aria-labelledby="calendar-modal-label">

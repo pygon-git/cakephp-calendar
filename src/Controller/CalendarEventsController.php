@@ -97,6 +97,10 @@ class CalendarEventsController extends AppController
             $data = $this->request->getData();
             $calendar = $this->Calendars->get($data['CalendarEvents']['calendar_id']);
 
+            if (!empty($data['CalendarEvents']['recurrence'])) {
+                $data['CalendarEvents']['recurrence'] = json_encode($data['CalendarEvents']['recurrence']);
+            }
+
             if (empty($data['CalendarEvents']['title'])) {
                 $data['CalendarEvents']['title'] = $calendar->name . ' - ' . Inflector::humanize($data['CalendarEvents']['event_type']);
             }
@@ -114,11 +118,16 @@ class CalendarEventsController extends AppController
             $entity = [
                 'id' => $saved->id,
                 'title' => $saved->title,
+                'content' => $saved->content,
                 'start_date' => $saved->start_date,
                 'end_date' => $saved->end_date,
                 'color' => $calendar->color,
                 'calendar_id' => $calendar->id,
-                'event_type' => $saved->event_type
+                'event_type' => $saved->event_type,
+                'is_recurring' => $saved->is_recurring,
+                'source' => $saved->source,
+                'source_id' => $saved->source_id,
+                'recurrence' => json_decode($saved->recurrence, true),
             ];
 
             if ($saved) {

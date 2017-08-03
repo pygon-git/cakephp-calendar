@@ -196,6 +196,20 @@ class CalendarEventsTable extends Table
                 ->contain(['CalendarAttendees'])
                 ->toArray();
 
+        $infiniteEvents = $this->getInfiniteEvents($calendar->id, $options);
+
+        if (!empty($infiniteEvents)) {
+            $eventIds = array_map(function ($item) {
+                return $item->id;
+            }, $resultSet);
+
+            foreach ($infiniteEvents as $item) {
+                if (!in_array($item->id, $eventIds)) {
+                    array_push($resultSet, $item);
+                }
+            }
+        }
+
         if (empty($resultSet)) {
             return $result;
         }
@@ -225,16 +239,15 @@ class CalendarEventsTable extends Table
 
             array_push($result, $eventItem);
 
-            $rule = $this->getRRuleConfiguration($eventItem);
+            $rule = $this->getRRuleConfiguration($eventItem['recurrence']);
 
             if (!empty($rule)) {
-                $rrule = new RRule($rule);
-
+                $rrule = new RRule($rule, new \DateTime($eventItem['start_date']));
                 $visibleRecurringEvents = $rrule->getOccurrencesBetween(
-                    $options['period']['start_date'],
-                    $options['period']['end_date']
+                    new \DateTime($eventItem['start_date']),
+                    new \DateTime($options['period']['end_date'])
                 );
-
+                //debug($visibleRecurringEvents);
                 if (!empty($visibleRecurringEvents)) {
                     $recurringEvents = $this->getRecurringEvents($eventItem, $visibleRecurringEvents);
 
@@ -243,6 +256,43 @@ class CalendarEventsTable extends Table
                     }
                 }
             }
+        }
+        //die('w00t');
+        return $result;
+    }
+
+    /**
+     * Get infinite calendar events for given calendar
+     *
+     * @param mixed $calendarId as its id.
+     * @param array $options containing month viewport (end/start interval).
+     *
+     * @return array $result containing event records
+     */
+    public function getInfiniteEvents($calendarId, $options = [])
+    {
+        $result = [];
+
+        $query = $this->find()
+            ->where([
+                'is_recurring' => true,
+                'calendar_id' => $calendarId
+            ])
+            ->contain(['CalendarAttendees']);
+
+        foreach ($query as $item) {
+            if (empty($item->recurrence)) {
+                continue;
+            }
+
+            $rule = $this->getRRuleConfiguration(json_decode($item->recurrence, true));
+            $rrule = new RRule($rule);
+
+            if (!$rrule->isInfinite()) {
+                continue;
+            }
+
+            $result[] = $item;
         }
 
         return $result;
@@ -323,19 +373,19 @@ class CalendarEventsTable extends Table
     /**
      * Get RRULE configuration from the event
      *
-     * @param array $event received from the calendar
+     * @param array $recurrence received from the calendar
      *
      * @return array $result containing the RRULE
      */
-    public function getRRuleConfiguration($event = null)
+    public function getRRuleConfiguration($recurrence = [])
     {
         $result = '';
 
-        if (empty($event['recurrence'])) {
+        if (empty($recurrence)) {
             return $result;
         }
 
-        foreach ($event['recurrence'] as $rule) {
+        foreach ($recurrence as $rule) {
             if (preg_match('/^RRULE/i', $rule)) {
                 $result = $rule;
             }
