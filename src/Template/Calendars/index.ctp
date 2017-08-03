@@ -107,7 +107,16 @@ $timezone = date_default_timezone_get();
             <div class="box">
                 <div class='box-body'>
                     <div id="qobrix-calendar">
-                        <calendar :ids="ids" :start="start" :timezone="timezone" :end="end" :events="events" :editable="editable" @interval-update="updateStartEnd" @event-info="getEventInfo" @add-event="addCalendarEvent"></calendar>
+                        <calendar
+                            :ids="ids"
+                            :start="start"
+                            :timezone="timezone"
+                            :end="end"
+                            :events="events"
+                            :editable="editable"
+                            @interval-update="updateStartEnd"
+                            @event-info="getEventInfo"
+                            @modal-add-event="addCalendarEvent"></calendar>
                     </div>
                 </div>
             </div>

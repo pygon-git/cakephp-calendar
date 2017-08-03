@@ -117,35 +117,13 @@ Vue.component('calendar', {
         };
 
         this.calendarInstance.fullCalendar(args);
-
-        $('.calendar-form-add-event').on('submit', function () {
-            self.addEvent($(this).serialize());
-            return false;
-        });
     },
     methods: {
         eventClick: function(calendarEvent) {
             this.$emit('event-info', calendarEvent);
         },
         dayClick: function(date, event, view) {
-            this.$emit('add-event', date, event, view);
-        },
-        addEvent: function(data) {
-            var url = '/calendars/calendar-events/add';
-            var self = this;
-            self.cal = $(self.$el);
-
-            $.ajax({
-                method: 'POST',
-                dataType: 'json',
-                url: url,
-                data: data
-            }).then(function (resp) {
-                if (resp.event.entity !== undefined) {
-                    self.events.push(resp.event.entity);
-                }
-                $('#calendar-modal-add-event').modal('toggle');
-            });
+            this.$emit('modal-add-event', date, event, view);
         }
     }
 });
@@ -488,6 +466,8 @@ Vue.component('calendar-modal', {
 			calendarId: null,
             startDate: null,
             endDate:null,
+            title: null,
+            content: null,
             attendees: [],
 			attendeesList: [],
             eventType: null,
@@ -577,8 +557,28 @@ Vue.component('calendar-modal', {
         dismissModal: function() {
             $('#calendar-modal-add-event').modal('hide');
         },
-        submitEvent:function() {
-            console.log('submitting');
+        submitEvent: function() {
+            var postdata = {
+                CalendarEvents: {
+                    calendar_id: this.calendarId,
+                    title: '',
+                    content: '',
+                    start_date: this.startDate,
+                    end_date: this.endDate,
+                    event_type: '',
+                    is_recurring: this.isRecurring,
+                    recurrence: [this.rrule]
+                }
+            };
+
+            $.ajax({
+                url: '/calendars/calendar-events/add',
+                method:'POST',
+                dataType: 'json',
+                data: postdata
+            }).then( (resp) => {
+                console.log(resp);
+            });
         },
         searchAttendees: function(search, loading) {
             var self = this;
