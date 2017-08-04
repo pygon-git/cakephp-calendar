@@ -247,7 +247,7 @@ class CalendarEventsTable extends Table
                     new \DateTime($eventItem['start_date']),
                     new \DateTime($options['period']['end_date'])
                 );
-                //debug($visibleRecurringEvents);
+
                 if (!empty($visibleRecurringEvents)) {
                     $recurringEvents = $this->getRecurringEvents($eventItem, $visibleRecurringEvents);
 
@@ -257,7 +257,7 @@ class CalendarEventsTable extends Table
                 }
             }
         }
-        //die('w00t');
+
         return $result;
     }
 
