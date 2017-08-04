@@ -14,7 +14,7 @@ CakePHP 3 plugin that uses FullCalendar JS (as part of AdminLTE) to manage calen
 
 Some of the things that we'll be adding shortly:
 - [x] Calendar Attendees search via auto-complete (using Select2 checkbox).
-- [x] Recurring calendar events. 
+- [x] Recurring calendar events.
 - [x] Prototyping calendar attendees.
 - [ ] Full re-write of jQuery to VueJS components.
 - [ ] FreeBusy Calendar implementation.
@@ -41,7 +41,7 @@ Plugin::load('Qobo/Calendar', ['bootstrap' => true, 'routes' => true]);
 
 Add missing database tables that will hold calendars/events/attendees in your app.
 
-```./bin/cake migrations migrate --plugin Qobo/Calendar``` 
+```./bin/cake migrations migrate --plugin Qobo/Calendar```
 
 
 ### JavaScript and Styling.
@@ -76,8 +76,10 @@ echo $this->Html->script(
 
 echo $this->Html->script(
     [
-        'Qobo/Calendar.calendar.misc',
+        'Qobo/Calendar.external/nlp',
+        'Qobo/Calendar.external/rrule',
         'Qobo/Calendar.vue.min',
+        'Qobo/Calendar.vue-select',
         'Qobo/Calendar.calendar.js',
     ],
     ['block' => 'scriptBotton']
