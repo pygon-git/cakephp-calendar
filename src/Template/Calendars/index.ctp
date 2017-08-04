@@ -5,7 +5,7 @@ echo $this->Html->css(
         'AdminLTE./plugins/daterangepicker/daterangepicker-bs3',
         'AdminLTE./plugins/select2/select2.min',
         'Qobo/Utils.select2-bootstrap.min',
-        'Qobo/Utils.select2-style',
+        'Qobo/Calendar.select2-style',
     ]
 );
 
@@ -21,9 +21,10 @@ echo $this->Html->script(
 
 echo $this->Html->script(
     [
-        'Qobo/Calendar.calendar.misc',
-        //'https://unpkg.com/vue@2.3.4',
+        'Qobo/Calendar.nlp',
+        'Qobo/Calendar.rrule',
         'Qobo/Calendar.vue.min',
+        'Qobo/Calendar.vue-select',
         'Qobo/Calendar.calendar.js',
     ],
     ['block' => 'scriptBotton']
@@ -104,21 +105,34 @@ $timezone = date_default_timezone_get();
             <div class="box">
                 <div class='box-body'>
                     <div id="qobrix-calendar">
-                        <calendar :ids="ids" :start="start" :timezone="timezone" :end="end" :events="events" :editable="editable" @interval-update="updateStartEnd" @event-info="getEventInfo" @add-event="addCalendarEvent"></calendar>
+                        <calendar
+                            :ids="ids"
+                            :start="start"
+                            :timezone="timezone"
+                            :end="end"
+                            :events="events"
+                            :editable="editable"
+                            @interval-update="updateStartEnd"
+                            @event-info="getEventInfo"
+                            @modal-add-event="addCalendarEvent"></calendar>
                     </div>
                 </div>
             </div>
         </div>
+        <calendar-modal
+            :calendars-list="calendarsList"
+            :timezone="timezone"
+            :start="start"
+            :end="end"
+            :event-click="eventClick"
+            @event-saved="addEventToResources">
+        </calendar-modal>
+
         <div class="modal fade" id="calendar-modal-view-event" tabindex="-1" role="dialog" aria-labelledby="calendar-modal-label">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
-
                 </div> <!-- //modal-content -->
             </div> <!-- // modal-dialog -->
         </div>
-        <?php
-            //add event modal form
-            echo $this->element('Qobo/Calendar.add_calendar_event', ['calendars' => $calendars]);
-        ?>
     </div> <!-- //end first row -->
 </section>
