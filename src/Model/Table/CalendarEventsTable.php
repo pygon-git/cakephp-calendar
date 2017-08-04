@@ -155,7 +155,7 @@ class CalendarEventsTable extends Table
      */
     public function getEvents($calendar, $options = [])
     {
-        $result = $conditions = [];
+        $result = $infiniteEvents = [];
 
         if (!$calendar) {
             return $result;
