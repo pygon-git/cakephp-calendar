@@ -152,7 +152,10 @@ class CalendarsTable extends Table
                 ->all();
         $result = $query->toArray();
 
-        // loading types for calendars and events.
+        if (empty($result)) {
+            return $result;
+        }
+
         $types = Configure::read('Calendar.Types');
 
         //adding event_types & events attached for the calendars
