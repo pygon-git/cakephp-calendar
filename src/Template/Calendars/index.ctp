@@ -5,7 +5,7 @@ echo $this->Html->css(
         'AdminLTE./plugins/daterangepicker/daterangepicker-bs3',
         'AdminLTE./plugins/select2/select2.min',
         'Qobo/Utils.select2-bootstrap.min',
-        'Qobo/Calendar.select2-style',
+        'Qobo/Calendar.calendar',
     ]
 );
 
@@ -21,8 +21,8 @@ echo $this->Html->script(
 
 echo $this->Html->script(
     [
-        'Qobo/Calendar.nlp',
-        'Qobo/Calendar.rrule',
+        'Qobo/Calendar.external/nlp',
+        'Qobo/Calendar.external/rrule',
         'Qobo/Calendar.vue.min',
         'Qobo/Calendar.vue-select',
         'Qobo/Calendar.calendar.js',
