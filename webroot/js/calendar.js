@@ -91,7 +91,7 @@ Vue.component('calendar', {
         self.calendarInstance = $(self.$el);
         var args = {
             header: {
-                left: 'prev,next today',
+                left: 'today, prev,next',
                 center: 'title',
                 right: 'month,agendaWeek,agendaDay'
             },
