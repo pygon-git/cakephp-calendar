@@ -196,7 +196,7 @@ class CalendarEventsTable extends Table
                 ->contain(['CalendarAttendees'])
                 ->toArray();
 
-        $infiniteEvents = $this->getInfiniteEvents($calendar->id, $options);
+        $infiniteEvents = $this->getInfiniteEvents($calendar->id, $resultSet, $options);
 
         if (!empty($infiniteEvents)) {
             $eventIds = array_map(function ($item) {
@@ -218,7 +218,7 @@ class CalendarEventsTable extends Table
             $extra = [];
             if (!empty($event['calendar_attendees'])) {
                 foreach ($event['calendar_attendees'] as $att) {
-                    $extra[] = $att->display_name;
+                    array_push($extra, $att->display_name);
                 }
             }
 
@@ -239,22 +239,10 @@ class CalendarEventsTable extends Table
 
             array_push($result, $eventItem);
 
-            $rule = $this->getRRuleConfiguration($eventItem['recurrence']);
+            $recurringEvents = $this->getRecurringEvents($eventItem, $options);
 
-            if (!empty($rule)) {
-                $rrule = new RRule($rule, new \DateTime($eventItem['start_date']));
-                $visibleRecurringEvents = $rrule->getOccurrencesBetween(
-                    new \DateTime($eventItem['start_date']),
-                    new \DateTime($options['period']['end_date'])
-                );
-
-                if (!empty($visibleRecurringEvents)) {
-                    $recurringEvents = $this->getRecurringEvents($eventItem, $visibleRecurringEvents);
-
-                    foreach ($recurringEvents as $item) {
-                        array_push($result, $item);
-                    }
-                }
+            if (!empty($recurringEvents)) {
+                $result = array_merge($result, $recurringEvents);
             }
         }
 
@@ -269,9 +257,9 @@ class CalendarEventsTable extends Table
      *
      * @return array $result containing event records
      */
-    public function getInfiniteEvents($calendarId, $options = [])
+    public function getInfiniteEvents($calendarId, $events, $options = [])
     {
-        $result = [];
+        $result = $existingEventIds = [];
 
         $query = $this->find()
             ->where([
@@ -280,8 +268,18 @@ class CalendarEventsTable extends Table
             ])
             ->contain(['CalendarAttendees']);
 
+        if (!$query) {
+            return $result;
+        }
+
+        if (!empty($events)) {
+            $existingEventIds = array_map(function ($item) {
+                return $item->id;
+            }, $events);
+        }
+
         foreach ($query as $item) {
-            if (empty($item->recurrence)) {
+            if (in_array($item->id, $existingEventIds) || empty($item->recurrence)) {
                 continue;
             }
 
@@ -292,7 +290,7 @@ class CalendarEventsTable extends Table
                 continue;
             }
 
-            $result[] = $item;
+            array_push($result, $item);
         }
 
         return $result;
@@ -306,13 +304,22 @@ class CalendarEventsTable extends Table
      *
      * @return array $result with assembled recurring entities
      */
-    public function getRecurringEvents($origin, array $eventDates = [])
+    public function getRecurringEvents($origin, array $options = [])
     {
         $result = [];
 
-        if (empty($eventDates)) {
+        $rule = $this->getRRuleConfiguration($eventItem['recurrence']);
+
+        if (empty($rule)) {
             return $result;
         }
+
+        $rrule = new RRule($rule, new \DateTime($origin['start_date']));
+
+        $eventDates = $rrule->getOccurrencesBetween(
+            new \DateTime($origin['start_date']),
+            new \DateTime($options['period']['end_date'])
+        );
 
         $startDateTime = new \DateTime($origin['start_date'], new \DateTimeZone('UTC'));
         $endDateTime = new \DateTime($origin['end_date'], new \DateTimeZone('UTC'));
