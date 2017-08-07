@@ -15,6 +15,7 @@ echo $this->Html->script(
         'AdminLTE./plugins/fullcalendar/fullcalendar.min.js',
         'AdminLTE./plugins/daterangepicker/daterangepicker',
         'AdminLTE./plugins/select2/select2.min',
+        'Qobo/Calendar.external/fullcalendar.min',
     ],
     ['block' => 'scriptBotton']
 );
@@ -34,7 +35,7 @@ $start = date('Y-m-01');
 $end = date('Y-m-t');
 $timezone = date_default_timezone_get();
 ?>
-<section class="content-header">
+<section class="content-header hidden-print">
     <div class="row">
         <div class="col-xs-12 col-md-6">
             <h4><?php echo __('Calendars'); ?></h4>
@@ -59,10 +60,10 @@ $timezone = date_default_timezone_get();
     <div class="row">
        <div class="col-md-4">
             <div class='box'>
-                <div class='box-header with-border'>
+                <div class='box-header with-border hidden-print'>
                     <h3 class='box-title'><?= __('Calendars');?></h3>
                 </div>
-                <div class='box-body'>
+                <div class='box-body hidden-print'>
                     <div class="row">
                         <div class="col-md-12">
                             <!-- loop through calendars -->
@@ -100,7 +101,6 @@ $timezone = date_default_timezone_get();
                 </div>
             </div>
         </div>
-
         <div class="col-md-8">
             <div class="box">
                 <div class='box-body'>
