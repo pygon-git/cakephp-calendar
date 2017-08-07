@@ -98,6 +98,13 @@ class SyncTask extends Shell
         return $output;
     }
 
+    /**
+     * syncAttendees method
+     *
+     * Synchronizing attendees (users) for calendar events auto-complete
+     *
+     * @return void
+     */
     protected function syncAttendees()
     {
         //sync all the attendees from users.
@@ -123,6 +130,16 @@ class SyncTask extends Shell
         }
     }
 
+    /**
+     * syncBirthdays method
+     *
+     * Create basic birthdays calendar with
+     * yearly recurring events
+     *
+     * @param Table $table of calendar instance.
+     *
+     * @return array $result containing users/events saved/updated.
+     */
     protected function syncBirthdays($table = null)
     {
         $result = [
@@ -145,7 +162,7 @@ class SyncTask extends Shell
             $entity = $table->newEntity();
             $entity->name = 'Birthdays';
             $entity->source = 'Plugin__';
-            $entity->color  = '#05497d';
+            $entity->color = '#05497d';
             $entity->icon = 'birthday-cake';
 
             $calendar = $table->save($entity);

@@ -241,7 +241,6 @@ class CalendarEventsTable extends Table
             return $result;
         }
 
-
         if (!empty($events)) {
             $existingEventIds = array_map(function ($item) {
                 return $item->id;
