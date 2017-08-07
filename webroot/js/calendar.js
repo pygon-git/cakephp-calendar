@@ -90,8 +90,16 @@ Vue.component('calendar', {
         var self = this;
         self.calendarInstance = $(self.$el);
         var args = {
+            customButtons: {
+                printButton: {
+                    text: 'Print',
+                    click: function() {
+                        window.print();
+                    }
+                }
+            },
             header: {
-                left: 'today, prev,next',
+                left: 'today, prev,next printButton',
                 center: 'title',
                 right: 'month,agendaWeek,agendaDay'
             },
