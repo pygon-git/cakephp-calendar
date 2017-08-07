@@ -130,8 +130,10 @@ class CalendarAttendeesController extends AppController
 
         $query = $this->CalendarAttendees->find()
             ->where([
-                'display_name LIKE' => "%$searchTerm%",
-                'contact_details LIKE' => "%$searchTerm%",
+                'OR' => [
+                    'display_name LIKE' => "%$searchTerm%",
+                    'contact_details LIKE' => "%$searchTerm%"
+                ]
             ]);
 
         $attendees = $query->toArray();
