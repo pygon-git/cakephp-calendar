@@ -85,7 +85,7 @@ $timezone = date_default_timezone_get();
                                             item-icon="eye"
                                             item-class="btn btn-default">
                                         </calendar-link>
-                                        <calendar-link
+                                        <calendar-link v-if="item.editable"
                                             item-url="<?= $this->Url->build(['plugin' => 'Qobo/Calendar', 'controller' => 'Calendars', 'action' => 'edit']);?>"
                                             :item-value="item.id"
                                             item-icon="pencil"
