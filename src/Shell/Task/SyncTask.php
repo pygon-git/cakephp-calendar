@@ -85,10 +85,26 @@ class SyncTask extends Shell
             }
         }
 
+        $this->syncAttendees();
+        $birthdays = $this->syncBirthdays($table);
+
+        $this->out(null);
+        $this->out('<success>Synchronization complete!</success>');
+
+        if (true == $this->params['verbose']) {
+            print_r($output);
+        }
+
+        return $output;
+    }
+
+    protected function syncAttendees()
+    {
         //sync all the attendees from users.
         $usersTable = TableRegistry::get('Users');
         $users = $usersTable->find()->all();
         $attendeesTable = TableRegistry::get('Qobo/Calendar.CalendarAttendees');
+
         foreach ($users as $user) {
             if (empty($user->email)) {
                 continue;
@@ -105,14 +121,66 @@ class SyncTask extends Shell
                 $saved = $attendeesTable->save($entity);
             }
         }
+    }
 
-        $this->out(null);
-        $this->out('<success>Synchronization complete!</success>');
+    protected function syncBirthdays($table = null)
+    {
+        $result = [
+            'error' => [],
+            'added' => [],
+            'updated' => [],
+        ];
 
-        if (true == $this->params['verbose']) {
-            print_r($output);
+        $eventsTable = TableRegistry::get('Qobo/Calendar.CalendarEvents');
+        $usersTable = TableRegistry::get('Users');
+        $users = $usersTable->find()->all();
+
+        $calendar = $table->find()
+            ->where([
+                'source' => 'Plugin__',
+                'name' => 'Birthdays',
+            ])->first();
+
+        if (empty($calendar)) {
+            $entity = $table->newEntity();
+            $entity->name = 'Birthdays';
+            $entity->source = 'Plugin__';
+            $entity->color  = '#05497d';
+            $entity->icon = 'birthday-cake';
+
+            $calendar = $table->save($entity);
         }
 
-        return $output;
+        foreach ($users as $k => $user) {
+            if (empty($user->birthdate)) {
+                $result['error'][] = "User ID: {$user->id} doesn't have birth date in the system";
+                continue;
+            }
+
+            $birthdayEvent = $eventsTable->find()
+                ->where([
+                    'calendar_id' => $calendar->id,
+                    'title' => 'Birthday',
+                    'content LIKE' => "%{$user->first_name} {$user->last_name}%",
+                    'is_recurring' => 1,
+                ])->first();
+
+            if (!$birthdayEvent) {
+                $entity = $eventsTable->newEntity();
+                $entity->calendar_id = $calendar->id;
+                $entity->title = 'Birthday';
+                $entity->content = sprintf("%s %s", $user->first_name, $user->last_name);
+                $entity->is_recurring = true;
+
+                $entity->start_date = date('Y-m-d 09:00:00', strtotime($user->birthdate));
+                $entity->end_date = date('Y-m-d 18:00:00', strtotime($user->birthdate));
+                $entity->recurrence = json_encode(['RRULE:FREQ=YEARLY']);
+                $birthdayEvent = $eventsTable->save($entity);
+
+                $result['added'][] = $birthdayEvent;
+            }
+        }
+
+        return $result;
     }
 }
