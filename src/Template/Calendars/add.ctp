@@ -50,6 +50,7 @@ foreach ($icons as $k => $v) {
                         'class' => 'select2',
                         'empty' => true
                     ]) ?>
+                    <?= $this->Form->control('is_public', ['label' => __('Publicly Accessible')]);?>
                 </div>
                 <div class="col-xs-12 col-md-6">
                     <?= $this->Form->input('color', [
