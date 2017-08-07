@@ -165,7 +165,7 @@ class CalendarEventsTable extends Table
         $infiniteEvents = $this->getInfiniteEvents($calendar->id, $events, $options);
 
         if (!empty($infiniteEvents)) {
-            $resultSet = array_merge($events, $infiniteEvents);
+            $events = array_merge($events, $infiniteEvents);
         }
 
         if (empty($events)) {
@@ -180,8 +180,14 @@ class CalendarEventsTable extends Table
                 }
             }
 
+            if (!empty($extra)) {
+                $title = sprintf("%s - %s", $event['title'], implode("\n", $extra));
+            } else {
+                $title = $event['title'];
+            }
+
             $eventItem = $this->prepareEventData($event, $calendar, [
-                'title' => sprintf("%s - %s", $event['title'], implode("\n", $extra)),
+                'title' => $title,
             ]);
 
             if (empty($eventItem)) {
@@ -213,16 +219,28 @@ class CalendarEventsTable extends Table
     {
         $result = $existingEventIds = [];
 
+        //limit start/end by month (not year, nor day).
+        $conditions = [
+            'is_recurring' => true,
+            'calendar_id' => $calendarId,
+        ];
+
+        if (!empty($options['period']['start_date'])) {
+            $conditions['MONTH(start_date) >='] = date('m', strtotime($options['period']['start_date']));
+        }
+
+        if (!empty($options['period']['end_date'])) {
+            $conditions['MONTH(end_date) <='] = date('m', strtotime($options['period']['end_date']));
+        }
+
         $query = $this->find()
-            ->where([
-                'is_recurring' => true,
-                'calendar_id' => $calendarId
-            ])
+            ->where($conditions)
             ->contain(['CalendarAttendees']);
 
         if (!$query) {
             return $result;
         }
+
 
         if (!empty($events)) {
             $existingEventIds = array_map(function ($item) {
