@@ -385,7 +385,19 @@ Vue.component('input-datepicker', {
 Vue.component('calendar-modal', {
     template: `<div class="modal fade" id="calendar-modal-add-event" tabindex="-1" role="dialog" aria-labelledby="calendar-modal-label">
             <div class="modal-dialog" role="document">
-                <div class="modal-content">
+                <div class="modal-content" v-if="calendarsList.length == 0">
+                     <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title" id="calendar-modal-label">Warning</h4>
+                    </div>
+                    <div class="modal-body">
+                        <p>You don't have permissions to add event to calendars.</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button v-on:click="dismissModal" class="btn btn-default">Close</button>
+                    </div>
+                </div>
+                <div class="modal-content" v-else>
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                         <h4 class="modal-title" id="calendar-modal-label">Add Event</h4>
@@ -452,9 +464,6 @@ Vue.component('calendar-modal', {
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
-
-                                    <div class="col-xs-12 col-md-12">
                                     </div>
 
                                     <div class="col-xs-12 col-md-12" v-if="isRecurring">
