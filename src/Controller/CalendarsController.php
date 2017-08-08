@@ -41,6 +41,19 @@ class CalendarsController extends AppController
     public function index()
     {
         $calendars = $this->Calendars->getCalendars();
+
+        $event = new Event('App.Calendars.checkCalendarsPermissions', $this, [
+            'entities' => $calendars,
+            'user' => $this->Auth->user(),
+            'options' => []
+        ]);
+
+        $this->eventManager()->dispatch($event);
+
+        if (!empty($event->result)) {
+            $calendars = $event->result;
+        }
+
         $this->set(compact('calendars'));
 
         if ($this->request->is('ajax')) {

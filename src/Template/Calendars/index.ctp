@@ -79,18 +79,19 @@ $timezone = date_default_timezone_get();
                                 </div>
                                 <div class="col-xs-4">
                                     <div class="btn-group btn-group-xs pull-right">
-                                        <calendar-link
+                                        <calendar-link v-if="item.permissions.view"
                                             item-url="<?= $this->Url->build(['plugin' => 'Qobo/Calendar', 'controller' => 'Calendars', 'action' => 'view']);?>"
                                             :item-value="item.id"
                                             item-icon="eye"
                                             item-class="btn btn-default">
                                         </calendar-link>
-                                        <calendar-link v-if="item.editable"
+                                        <calendar-link v-if="item.editable || item.permissions.edit"
                                             item-url="<?= $this->Url->build(['plugin' => 'Qobo/Calendar', 'controller' => 'Calendars', 'action' => 'edit']);?>"
                                             :item-value="item.id"
                                             item-icon="pencil"
                                             item-class="btn btn-default"
                                         ></calendar-link>
+
                                     </div>
                                 </div>
                             </div>
