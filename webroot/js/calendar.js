@@ -762,7 +762,9 @@ var calendarApp = new Vue({
             this.calendarsList = [];
             if (this.calendars) {
                this.calendars.forEach((elem, key) => {
-                    self.calendarsList.push( { value: elem.id, label: elem.name } );
+                    if (elem.permissions.edit) {
+                        self.calendarsList.push( { value: elem.id, label: elem.name } );
+                    }
                });
             }
         },
