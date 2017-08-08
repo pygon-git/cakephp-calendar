@@ -24,6 +24,7 @@ echo $this->Html->script(
         'Qobo/Calendar.external/nlp',
         'Qobo/Calendar.external/rrule',
         'Qobo/Calendar.vue.min',
+        //'https://unpkg.com/vue@2.4.2',
         'Qobo/Calendar.vue-select',
         'Qobo/Calendar.calendar.js',
     ],
@@ -73,7 +74,7 @@ $timezone = date_default_timezone_get();
                                         :label="item.name"
                                         :icon="item.icon"
                                         :value="item.id"
-                                        :item-active="item.active"
+                                        :item-active="false"
                                         @toggle-calendar="updateCalendarIds">
                                     </calendar-item>
                                 </div>
@@ -89,9 +90,8 @@ $timezone = date_default_timezone_get();
                                             item-url="<?= $this->Url->build(['plugin' => 'Qobo/Calendar', 'controller' => 'Calendars', 'action' => 'edit']);?>"
                                             :item-value="item.id"
                                             item-icon="pencil"
-                                            item-class="btn btn-default"
-                                        ></calendar-link>
-
+                                            item-class="btn btn-default">
+                                        </calendar-link>
                                     </div>
                                 </div>
                             </div>
@@ -114,7 +114,8 @@ $timezone = date_default_timezone_get();
                             :editable="editable"
                             @interval-update="updateStartEnd"
                             @event-info="getEventInfo"
-                            @modal-add-event="addCalendarEvent"></calendar>
+                            @modal-add-event="addCalendarEvent">
+                        </calendar>
                     </div>
                 </div>
             </div>

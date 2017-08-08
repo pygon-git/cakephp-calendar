@@ -40,7 +40,18 @@ class CalendarsController extends AppController
      */
     public function index()
     {
-        $calendars = $this->Calendars->getCalendars();
+        $calendars = [];
+        $data = $options = [];
+
+        if ($this->request->is(['post', 'put', 'patch'])) {
+            $data = $this->request->getData();
+            $options = [];
+            if (!empty($data['public'])) {
+                $options['conditions'] = ['is_public' => true];
+            }
+        }
+
+        $calendars = $this->Calendars->getCalendars($options);
 
         $event = new Event('App.Calendars.checkCalendarsPermissions', $this, [
             'entities' => $calendars,

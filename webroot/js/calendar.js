@@ -52,7 +52,7 @@ Vue.component('calendar-item', {
 
 Vue.component('calendar', {
     template: '<div></div>',
-    props: ['ids', 'events', 'editable', 'start', 'end', 'timezone'],
+    props: ['ids', 'events', 'editable', 'start', 'end', 'timezone', 'public'],
     data() {
         return {
             calendarInstance: null,
@@ -112,9 +112,6 @@ Vue.component('calendar', {
             firstDay: 1,
             defaultDate: moment(this.start),
             editable: this.editable,
-            dayClick(date, jsEvent, view) {
-                self.$emit('modal-add-event', date, jsEvent, view);
-            },
             eventClick(event) {
                 self.$emit('event-info', event);
             },
@@ -122,6 +119,14 @@ Vue.component('calendar', {
                 self.$emit('interval-update', view.start.format(this.format), view.end.format(this.format));
             }
         };
+
+        //@TODO: editable/public/active flags should
+        // be sorted out.
+        if (this.public != 'true') {
+            args.dayClick = function(date, jsEvent, view) {
+                self.$emit('modal-add-event', date, jsEvent, view);
+            };
+        }
 
         this.calendarInstance.fullCalendar(args);
     },
@@ -759,6 +764,7 @@ var calendarApp = new Vue({
         end: null,
         timezone: null,
         eventClick: null,
+        public: null,
     },
     computed: {
         isIntervalChanged: function() {
@@ -791,8 +797,15 @@ var calendarApp = new Vue({
         this.start = this.$el.attributes.start.value;
         this.end = this.$el.attributes.end.value;
         this.timezone = this.$el.attributes.timezone.value;
+        if (this.$el.attributes.public) {
+            this.public = this.$el.attributes.public.value;
+        }
 
-        this.getCalendars();
+        if (this.public == 'true') {
+            this.getPublicCalendars();
+        } else {
+            this.getCalendars();
+        }
     },
     methods: {
         updateStartEnd: function (start, end) {
@@ -801,13 +814,29 @@ var calendarApp = new Vue({
         },
         getCalendars: function() {
             var self = this;
+            var postdata = {};
+
             $.ajax({
+                method: 'post',
                 dataType: 'json',
                 url: '/calendars/calendars/index',
             }).done( function(resp) {
                 self.calendars = resp;
+            });
+        },
+        getPublicCalendars: function() {
+            var self = this;
+            var postdata = {};
+
+            $.ajax({
+                method: 'post',
+                dataType: 'json',
+                url: '/calendars/calendars/index',
+                data: {public: self.public},
+            }).done( function(resp) {
+                self.calendars = resp;
                 self.calendars.forEach( function(elem, key) {
-                    if (elem.active == true) {
+                    if (elem.active == true && elem.is_public == true) {
                         self.ids.push(elem.id);
                         self.getEvents(elem.id);
                     }
