@@ -200,4 +200,14 @@ class CalendarEventsController extends AppController
         $this->set(compact('eventTypes'));
         $this->set('_serialize', 'eventTypes');
     }
+
+    /**
+     * Index method
+     *
+     * @return void
+     */
+    public function index()
+    {
+        //@TODO: used for BC-needs
+    }
 }

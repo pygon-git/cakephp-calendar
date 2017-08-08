@@ -283,8 +283,9 @@ class CalendarEventsTable extends Table
 
         $rrule = new RRule($rule, new \DateTime($origin['start_date']));
 
+        //new \DateTime($origin['start_date']),
         $eventDates = $rrule->getOccurrencesBetween(
-            new \DateTime($origin['start_date']),
+            new \DateTime($options['period']['start_date']),
             new \DateTime($options['period']['end_date'])
         );
 

@@ -52,7 +52,7 @@ Vue.component('calendar-item', {
 
 Vue.component('calendar', {
     template: '<div></div>',
-    props: ['ids', 'events', 'editable', 'start', 'end', 'timezone'],
+    props: ['ids', 'events', 'editable', 'start', 'end', 'timezone', 'public'],
     data() {
         return {
             calendarInstance: null,
@@ -112,9 +112,6 @@ Vue.component('calendar', {
             firstDay: 1,
             defaultDate: moment(this.start),
             editable: this.editable,
-            dayClick(date, jsEvent, view) {
-                self.$emit('modal-add-event', date, jsEvent, view);
-            },
             eventClick(event) {
                 self.$emit('event-info', event);
             },
@@ -122,6 +119,14 @@ Vue.component('calendar', {
                 self.$emit('interval-update', view.start.format(this.format), view.end.format(this.format));
             }
         };
+
+        //@TODO: editable/public/active flags should
+        // be sorted out.
+        if (this.public != 'true') {
+            args.dayClick = function(date, jsEvent, view) {
+                self.$emit('modal-add-event', date, jsEvent, view);
+            };
+        }
 
         this.calendarInstance.fullCalendar(args);
     },
@@ -385,7 +390,19 @@ Vue.component('input-datepicker', {
 Vue.component('calendar-modal', {
     template: `<div class="modal fade" id="calendar-modal-add-event" tabindex="-1" role="dialog" aria-labelledby="calendar-modal-label">
             <div class="modal-dialog" role="document">
-                <div class="modal-content">
+                <div class="modal-content" v-if="calendarsList.length == 0">
+                     <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title" id="calendar-modal-label">Warning</h4>
+                    </div>
+                    <div class="modal-body">
+                        <p>You don't have permissions to add event to calendars.</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button v-on:click="dismissModal" class="btn btn-default">Close</button>
+                    </div>
+                </div>
+                <div class="modal-content" v-else>
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                         <h4 class="modal-title" id="calendar-modal-label">Add Event</h4>
@@ -452,9 +469,6 @@ Vue.component('calendar-modal', {
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
-
-                                    <div class="col-xs-12 col-md-12">
                                     </div>
 
                                     <div class="col-xs-12 col-md-12" v-if="isRecurring">
@@ -750,6 +764,7 @@ var calendarApp = new Vue({
         end: null,
         timezone: null,
         eventClick: null,
+        public: null,
     },
     computed: {
         isIntervalChanged: function() {
@@ -762,7 +777,9 @@ var calendarApp = new Vue({
             this.calendarsList = [];
             if (this.calendars) {
                this.calendars.forEach((elem, key) => {
-                    self.calendarsList.push( { value: elem.id, label: elem.name } );
+                    if (elem.permissions.edit) {
+                        self.calendarsList.push( { value: elem.id, label: elem.name } );
+                    }
                });
             }
         },
@@ -780,8 +797,15 @@ var calendarApp = new Vue({
         this.start = this.$el.attributes.start.value;
         this.end = this.$el.attributes.end.value;
         this.timezone = this.$el.attributes.timezone.value;
+        if (this.$el.attributes.public) {
+            this.public = this.$el.attributes.public.value;
+        }
 
-        this.getCalendars();
+        if (this.public == 'true') {
+            this.getPublicCalendars();
+        } else {
+            this.getCalendars();
+        }
     },
     methods: {
         updateStartEnd: function (start, end) {
@@ -790,13 +814,29 @@ var calendarApp = new Vue({
         },
         getCalendars: function() {
             var self = this;
+            var postdata = {};
+
             $.ajax({
+                method: 'post',
                 dataType: 'json',
                 url: '/calendars/calendars/index',
             }).done( function(resp) {
                 self.calendars = resp;
+            });
+        },
+        getPublicCalendars: function() {
+            var self = this;
+            var postdata = {};
+
+            $.ajax({
+                method: 'post',
+                dataType: 'json',
+                url: '/calendars/calendars/index',
+                data: {public: self.public},
+            }).done( function(resp) {
+                self.calendars = resp;
                 self.calendars.forEach( function(elem, key) {
-                    if (elem.active == true) {
+                    if (elem.active == true && elem.is_public == true) {
                         self.ids.push(elem.id);
                         self.getEvents(elem.id);
                     }
