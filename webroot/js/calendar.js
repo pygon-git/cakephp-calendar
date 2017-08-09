@@ -480,7 +480,7 @@ Vue.component('calendar-modal', {
                                         </input-select>
                                     </div>
 
-                                    <div class="col-xs-12 col-md-12" v-if="isWeekly || isYearly || isDaily">
+                                    <div class="col-xs-12 col-md-12" v-if="isWeekly || isYearly || isDaily || isMonthly">
                                         <input-select
                                             name="CalendarEvents[intervals]"
                                             :options="frequencyIntervals"
