@@ -90,6 +90,7 @@ class SyncTask extends Shell
 
         $this->out(null);
         $this->out('<success>Synchronization complete!</success>');
+        $this->out(null);
 
         if (true == $this->params['verbose']) {
             print_r($output);
@@ -111,8 +112,14 @@ class SyncTask extends Shell
         $usersTable = TableRegistry::get('Users');
         $users = $usersTable->find()->all();
         $attendeesTable = TableRegistry::get('Qobo/Calendar.CalendarAttendees');
+        $result = [];
 
-        foreach ($users as $user) {
+        $progress = $this->helper('Progress');
+        $progress->init();
+        $this->info('Syncing attendees...');
+
+        $count = 1;
+        foreach ($users as $k => $user) {
             if (empty($user->email)) {
                 continue;
             }
@@ -126,8 +133,22 @@ class SyncTask extends Shell
                 $entity->contact_details = $user->email;
 
                 $saved = $attendeesTable->save($entity);
+                if ($saved) {
+                    array_push($result, $saved);
+                }
             }
+
+            $progress->increment(100 / ++$count);
+            $progress->draw();
         }
+
+        $this->out(null);
+
+        if (!empty($result)) {
+            $this->out('<success> [' . count($result) . ']Attendees synchronized!</success>');
+        }
+
+        $this->out(null);
     }
 
     /**
@@ -152,6 +173,10 @@ class SyncTask extends Shell
         $usersTable = TableRegistry::get('Users');
         $users = $usersTable->find()->all();
 
+        $progress = $this->helper('Progress');
+        $progress->init();
+        $this->info('Syncing birthday calendar...');
+
         $calendar = $table->find()
             ->where([
                 'source' => 'Plugin__',
@@ -168,6 +193,7 @@ class SyncTask extends Shell
             $calendar = $table->save($entity);
         }
 
+        $count = 1;
         foreach ($users as $k => $user) {
             if (empty($user->birthdate)) {
                 $result['error'][] = "User ID: {$user->id} doesn't have birth date in the system";
@@ -177,7 +203,6 @@ class SyncTask extends Shell
             $birthdayEvent = $eventsTable->find()
                 ->where([
                     'calendar_id' => $calendar->id,
-                    'title' => 'Birthday',
                     'content LIKE' => "%{$user->first_name} {$user->last_name}%",
                     'is_recurring' => 1,
                 ])->first();
@@ -185,7 +210,7 @@ class SyncTask extends Shell
             if (!$birthdayEvent) {
                 $entity = $eventsTable->newEntity();
                 $entity->calendar_id = $calendar->id;
-                $entity->title = 'Birthday';
+                $entity->title = sprintf("%s %s", $user->first_name, $user->last_name);
                 $entity->content = sprintf("%s %s", $user->first_name, $user->last_name);
                 $entity->is_recurring = true;
 
@@ -195,8 +220,22 @@ class SyncTask extends Shell
                 $birthdayEvent = $eventsTable->save($entity);
 
                 $result['added'][] = $birthdayEvent;
+            } else {
+                $entity = $eventsTable->patchEntity($birthdayEvent, [
+                    'title' => sprintf("%s %s", $user->first_name, $user->last_name),
+                ]);
+
+                $birthdayEvent = $eventsTable->save($entity);
+                $result['updated'][] = $birthdayEvent;
             }
+
+            $progress->increment(100 / ++$count);
+            $progress->draw();
         }
+
+        $this->out(null);
+        $this->out('<success> Added [' . count($result['added']) . '], Updated [' . count($result['updated']) . '] events!</success>');
+        $this->out(null);
 
         return $result;
     }
