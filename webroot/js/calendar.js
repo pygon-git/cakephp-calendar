@@ -552,6 +552,7 @@ Vue.component('calendar-modal', {
     computed: {
         isDaily: function() {
             if (this.frequency === 3 && this.isRecurring) {
+                this.weekDays = [];
                 this.getRecurringRule();
                 return true;
             }
@@ -560,6 +561,7 @@ Vue.component('calendar-modal', {
         },
         isMonthly: function() {
             if (this.frequency === 1 && this.isRecurring) {
+                this.weekDays = [];
                 this.getRecurringRule();
                 return true;
             }
@@ -576,6 +578,7 @@ Vue.component('calendar-modal', {
         },
         isYearly: function() {
             if (this.frequency === 0 && this.isRecurring) {
+                this.weekDays = [];
                 this.getRecurringRule();
                 return true;
             }
