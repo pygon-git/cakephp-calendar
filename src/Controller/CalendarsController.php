@@ -134,10 +134,6 @@ class CalendarsController extends AppController
         if ($this->request->is(['patch', 'post', 'put'])) {
             $data = $this->request->getData();
 
-            if (empty($data['source'])) {
-                $data['source'] = 'Plugin__';
-            }
-
             if (empty($data['source_id'])) {
                 $data['source_id'] = $calendar->id;
             }
