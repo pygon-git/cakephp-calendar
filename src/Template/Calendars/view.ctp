@@ -20,6 +20,7 @@
 
                 if ($elementFound) {
                     echo $this->element('CsvMigrations.Menu/view_top', [
+                        'user' => $user,
                         'options' => [
                             'entity' => $calendar,
                             ],
