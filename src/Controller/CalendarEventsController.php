@@ -95,11 +95,10 @@ class CalendarEventsController extends AppController
 
         if ($this->request->is(['patch', 'post', 'put'])) {
             $data = $this->request->getData();
+
             $calendar = $this->Calendars->get($data['CalendarEvents']['calendar_id']);
 
-            if (empty($data['CalendarEvents']['title'])) {
-                $data['CalendarEvents']['title'] = $calendar->name . ' - ' . Inflector::humanize($data['CalendarEvents']['event_type']);
-            }
+            $data['CalendarEvents']['title'] = $this->CalendarEvents->setEventTitle($data, $calendar);
 
             $calendarEvent = $this->CalendarEvents->patchEntity(
                 $calendarEvent,

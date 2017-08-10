@@ -8,6 +8,7 @@ use Cake\I18n\Time;
 use Cake\ORM\Query;
 use Cake\ORM\RulesChecker;
 use Cake\ORM\Table;
+use Cake\Utility\Inflector;
 use Cake\Validation\Validator;
 use \ArrayObject;
 use \RRule\RRule;
@@ -513,5 +514,28 @@ class CalendarEventsTable extends Table
                 ->toArray();
 
         return $result;
+    }
+
+    /**
+     * Set Event Title
+     *
+     * @param array $data from the request
+     * @param \Cake\Model\Entity $calendar from db
+     *
+     * @return string $title with the event content
+     */
+    public function setEventTitle($data, $calendar)
+    {
+        $title = $data['CalendarEvents']['title'];
+
+        if (empty($title)) {
+            $title .= $calendar->name;
+        }
+
+        if (!empty($data['CalendarEvents']['event_type'])) {
+            $title .= ' - ' . Inflector::humanize($data['CalendarEvents']['event_type']);
+        }
+
+        return $title;
     }
 }
