@@ -146,4 +146,25 @@ class CalendarEventsTableTest extends TestCase
         $result = $this->CalendarEvents->getEventTypes($testCalendar);
         $this->assertEquals([ ['name' => 'foo', 'value' => 'foo'] ], $result);
     }
+
+    /**
+     * @dataProvider testGetRRuleConfigurationProvider
+     * @exp
+     */
+    public function testGetRRuleConfguration($data, $expected, $msg)
+    {
+        $result = $this->CalendarEvents->getRRuleConfiguration($data);
+
+        $this->assertEquals($result, $expected, $msg);
+    }
+
+    public function testGetRRuleConfigurationProvider()
+    {
+        return [
+            [ ['foo' => 'bar'], '', 'RRule wasnt found'],
+            [ [], '', 'Empty array' ],
+            [ ['RRULE:FREQ=YEARLY'], 'RRULE:FREQ=YEARLY', 'Couldnt fetch correct RRULE element for array' ],
+        ];
+    }
+
 }

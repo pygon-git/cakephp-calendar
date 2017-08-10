@@ -373,7 +373,7 @@ class CalendarEventsTable extends Table
      *
      * @return array $result containing the RRULE
      */
-    public function getRRuleConfiguration($recurrence = [])
+    public function getRRuleConfiguration(array $recurrence = [])
     {
         $result = '';
 
