@@ -149,7 +149,6 @@ class CalendarEventsTable extends Table
 
         $options = array_merge($options, ['calendar_id' => $calendar->id]);
         $resultSet = $this->findCalendarEvents($options);
-
         if (empty($resultSet)) {
             return $result;
         }

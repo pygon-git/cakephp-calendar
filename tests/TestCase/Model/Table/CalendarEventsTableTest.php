@@ -61,8 +61,6 @@ class CalendarEventsTableTest extends TestCase
         $result = $this->CalendarEvents->getCalendarEvents($dbItems[0]);
         $this->assertTrue(is_array($result));
         $this->assertNotEmpty($result);
-        $this->assertEquals($result[0]['color'], '#05497d');
-        $this->assertEquals($result[0]['id'], '489b726e-b785-469b-a203-0f12b07cc984');
     }
 
     public function testGetCalendarEventsWithPeriod()
@@ -79,7 +77,6 @@ class CalendarEventsTableTest extends TestCase
 
         $this->assertNotEmpty($result);
         $this->assertTrue(is_array($result));
-        $this->assertEquals($result[0]['id'], '489b726e-b785-469b-a203-0f12b07cc984');
 
         $result = $this->CalendarEvents->getCalendarEvents(null);
         $this->assertEquals($result, []);
