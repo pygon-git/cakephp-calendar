@@ -154,21 +154,11 @@ class CalendarsTable extends Table
             return $result;
         }
 
-        $types = Configure::read('Calendar.Types');
+        $this->CalendarEvents = TableRegistry::get('Qobo/Calendar.CalendarEvents');
 
         //adding event_types & events attached for the calendars
         foreach ($result as $k => $calendar) {
-            $result[$k]->event_types = [];
-
-            if (empty($types)) {
-                continue;
-            }
-
-            foreach ($types as $type) {
-                if ($type['value'] == $calendar->calendar_type) {
-                    $result[$k]->event_types = $type['types'];
-                }
-            }
+            $result[$k]->event_types = $this->CalendarEvents->getEventTypes($calendar);
         }
 
         return $result;

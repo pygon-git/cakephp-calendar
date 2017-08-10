@@ -702,7 +702,7 @@ Vue.component('calendar-modal', {
             if (this.calendarId.value) {
                 $.ajax({
                     url: '/calendars/calendar-events/get-event-types',
-                    data: { id: this.calendarId.value },
+                    data: { calendar_id: this.calendarId.value },
                     dataType: 'json',
                     method: 'post',
                 }).done(function(types) {

@@ -1,6 +1,7 @@
 <?php
 namespace Qobo\Calendar\Model\Table;
 
+use Cake\Core\Configure;
 use Cake\Datasource\EntityInterface;
 use Cake\Event\Event;
 use Cake\Event\EventManager;
@@ -398,13 +399,34 @@ class CalendarEventsTable extends Table
      */
     public function getEventTypes($calendar = null)
     {
-        $result = [];
+        $type = 'default';
+        $result = $eventTypes = [];
 
-        if (!$calendar || !isset($calendar['calendar']['event_types'])) {
+        if (!$calendar) {
             return $result;
         }
 
-        foreach ($calendar['calendar']['event_types'] as $k => $eventType) {
+        if (!empty($calendar->calendar_type)) {
+            $type = $calendar->calendar_type;
+        }
+
+        if (!empty($calendar->event_types)) {
+            $eventTypes = $calendar->event_types;
+        }
+
+        if (empty($eventTypes)) {
+            $types = Configure::read('Calendar.Types');
+
+            if (!empty($types)) {
+                foreach ($types as $k => $item) {
+                    if ($type == $item['value']) {
+                        $eventTypes = $item['types'];
+                    }
+                }
+            }
+        }
+
+        foreach ($eventTypes as $eventType) {
             array_push($result, $eventType);
         }
 

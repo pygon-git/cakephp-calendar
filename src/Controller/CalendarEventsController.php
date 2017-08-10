@@ -167,29 +167,29 @@ class CalendarEventsController extends AppController
     }
 
     /**
-     * array $eventTypes of the current calendar type.
+     * Get Event types based on the calendar id
      *
      * @return void
      */
     public function getEventTypes()
     {
-        $calendar = null;
         $eventTypes = [];
 
         if ($this->request->is(['post', 'patch', 'put'])) {
             $data = $this->request->getData();
 
-            $event = new Event('Plugin.Calendars.Model.getCalendars', $this, [
-                'options' => $data,
+            $this->Calendars = TableRegistry::Get('Qobo/Calendar.Calendars');
+
+            $calendars = $this->Calendars->getCalendars([
+                'conditions' => [
+                    'id' => $data['calendar_id'],
+                ],
             ]);
 
-            EventManager::instance()->dispatch($event);
-
-            if (!empty($event->result)) {
-                $calendar = array_shift($event->result);
+            if (!empty($calendars)) {
+                $calendar = array_shift($calendars);
+                $eventTypes = $this->CalendarEvents->getEventTypes($calendar);
             }
-
-            $eventTypes = $this->CalendarEvents->getEventTypes($calendar);
         }
 
         $this->set(compact('eventTypes'));
