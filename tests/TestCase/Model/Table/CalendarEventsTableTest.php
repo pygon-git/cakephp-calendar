@@ -90,7 +90,6 @@ class CalendarEventsTableTest extends TestCase
         $this->assertEmpty($result);
     }
 
-
     public function testGetRecurringEvents()
     {
         $event = $this->CalendarEvents->find()

@@ -79,7 +79,5 @@ class CalendarsFixture extends TestFixture
             'trashed' => null,
             'calendar_type' => null,
         ],
-
-
     ];
 }
