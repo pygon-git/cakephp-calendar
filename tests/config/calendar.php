@@ -4,42 +4,42 @@ return [
     'Calendar' => [
         'Types' => [
             [
-                'name' => 'Actitivies',
-                'value' => 'user_activities',
+                'name' => 'Default',
+                'value' => 'default',
                 'types' => [
-                    'calls' => [
-                        'name' => 'Calls',
-                        'value' => 'calls',
-                        'minDuration' => '30 minutes',
-                    ],
-                    'meetings' => [
-                        'name' => 'Meetings',
-                        'value' => 'meetings',
-                        'minDuration' => '1 hour',
-                    ],
-                    'tasks' => [
-                        'name' => 'Tasks',
-                        'value' => 'tasks',
-                        'minDuration' => '1 hour',
+                    'default' => [
+                        'name' => 'Event',
+                        'value' => 'default_event',
                     ],
                 ],
             ],
             [
-                'name' => 'HR',
-                'value' => 'hr',
+                'name' => 'Shifts',
+                'value' => 'shifts',
                 'types' => [
-                    'annual_leaves' => [
-                        'name' => 'Annual Leaves',
-                        'value' => 'annual_leaves',
-                        'minDuration' => '1 day',
+                    'morning_shift' => [
+                        'name' => 'Morning Shift',
+                        'value' => 'morning_shift',
+                        'start_time' => '09:00',
+                        'end_time' => '17:00',
+                        'exclude_fields' => ['title', 'content'],
                     ],
-                    'birthdays' => [
-                        'name' => 'Birthdays',
-                        'value' => 'birthdays',
-                        'minDuration' => '1 day',
+                    'evening_shift' => [
+                        'name' => 'Evening Shift',
+                        'value' => 'evening_shift',
+                        'start_time' => '17:00',
+                        'end_time' => '01:00',
+                        'exclude_fields' => ['title', 'content'],
+                    ],
+                    'night_shift' => [
+                        'name' => 'Night Shift',
+                        'value' => 'night_shift',
+                        'start_time' => '01:00',
+                        'end_time' => '09:00',
+                        'exclude_fields' => ['title', 'content'],
                     ],
                 ],
             ],
         ], // Types
-    ], // Calendar
+    ]
 ];

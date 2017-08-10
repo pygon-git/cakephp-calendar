@@ -26,6 +26,7 @@ class CalendarsFixture extends TestFixture
         'created' => ['type' => 'datetime', 'length' => null, 'null' => false, 'default' => null, 'comment' => '', 'precision' => null],
         'modified' => ['type' => 'datetime', 'length' => null, 'null' => false, 'default' => null, 'comment' => '', 'precision' => null],
         'trashed' => ['type' => 'datetime', 'length' => null, 'null' => true, 'default' => null, 'comment' => '', 'precision' => null],
+        'calendar_type' => ['type' => 'string', 'length' => 255, 'null' => true, 'default' => null, 'collate' => 'utf8_general_ci', 'comment' => '', 'precision' => null, 'fixed' => null],
         '_constraints' => [
             'primary' => ['type' => 'primary', 'columns' => ['id'], 'length' => []],
         ],
@@ -51,7 +52,8 @@ class CalendarsFixture extends TestFixture
             'source' => 'source-1',
             'created' => '2017-05-22 11:19:02',
             'modified' => '2017-05-22 11:19:02',
-            'trashed' => null
+            'trashed' => null,
+            'calendar_type' => null,
         ],
         [
             'id' => '9390cbc1-dc1d-474a-a372-de92dce85aaa',
@@ -62,7 +64,8 @@ class CalendarsFixture extends TestFixture
             'source' => null,
             'created' => '2017-05-22 11:19:02',
             'modified' => '2017-05-22 11:19:02',
-            'trashed' => null
+            'trashed' => null,
+            'calendar_type' => 'default',
         ],
 
     ];
