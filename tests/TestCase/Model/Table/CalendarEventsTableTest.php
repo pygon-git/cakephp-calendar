@@ -85,4 +85,39 @@ class CalendarEventsTableTest extends TestCase
         $this->assertEquals($result, []);
         $this->assertTrue(is_array($result));
     }
+
+    /**
+     * @dataProvider testEventTitleProvider
+     */
+    public function testSetEventTitle($data, $expected)
+    {
+        $calendars = TableRegistry::get('Qobo/Calendar.Calendars');
+        $dbItems = $calendars->getCalendars();
+
+        $title = $this->CalendarEvents->setEventTitle($data, $dbItems[0]);
+        $this->assertEquals($title, $expected);
+    }
+
+    public function testEventTitleProvider()
+    {
+        return [
+            [
+                ['CalendarEvents' => [
+                    'start_date' => '2017-09-01 09:00:00',
+                    'end_date' => '2017-09-02 09:00:00'
+                    ]
+                ],
+                'Calendar - 1 Event',
+            ],
+            [
+                ['CalendarEvents' => [
+                    'start_date' => '2017-09-01 09:00:00',
+                    'end_date' => '2017-09-02 09:00:00',
+                    'event_type' => 'foobar',
+                    ]
+                ],
+                'Calendar - 1 - Foobar',
+            ]
+        ];
+    }
 }

@@ -526,14 +526,16 @@ class CalendarEventsTable extends Table
      */
     public function setEventTitle($data, $calendar)
     {
-        $title = $data['CalendarEvents']['title'];
+        $title = (!empty($data['CalendarEvents']['title']) ? $data['CalendarEvents']['title'] : '');
 
         if (empty($title)) {
             $title .= $calendar->name;
-        }
 
-        if (!empty($data['CalendarEvents']['event_type'])) {
-            $title .= ' - ' . Inflector::humanize($data['CalendarEvents']['event_type']);
+            if (!empty($data['CalendarEvents']['event_type'])) {
+                $title .= ' - ' . Inflector::humanize($data['CalendarEvents']['event_type']);
+            } else {
+                $title .= ' Event';
+            }
         }
 
         return $title;
