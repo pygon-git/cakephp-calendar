@@ -854,7 +854,7 @@ var calendarApp = new Vue({
                 dataType: 'json',
                 url: url,
                 data: {
-                    'calendarId': id,
+                    'calendar_id': id,
                     'period': {
                         'start_date': this.start,
                         'end_date': this.end,

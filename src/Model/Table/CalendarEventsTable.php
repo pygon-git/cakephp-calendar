@@ -125,7 +125,7 @@ class CalendarEventsTable extends Table
             return $result;
         }
 
-        $options = array_merge($options, ['calendarId' => $calendar->id]);
+        $options = array_merge($options, ['calendar_id' => $calendar->id]);
         $resultSet = $this->findCalendarEvents($options);
 
         if (empty($resultSet)) {
@@ -475,8 +475,8 @@ class CalendarEventsTable extends Table
     {
         $conditions = [];
 
-        if (!empty($options['calendarId'])) {
-            $conditions['calendar_id'] = $options['calendarId'];
+        if (!empty($options['calendar_id'])) {
+            $conditions['calendar_id'] = $options['calendar_id'];
         }
 
         if (!empty($options['period']['start_date'])) {
