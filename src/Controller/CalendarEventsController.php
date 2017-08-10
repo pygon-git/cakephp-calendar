@@ -97,10 +97,6 @@ class CalendarEventsController extends AppController
             $data = $this->request->getData();
             $calendar = $this->Calendars->get($data['CalendarEvents']['calendar_id']);
 
-            if (!empty($data['CalendarEvents']['recurrence'])) {
-                $data['CalendarEvents']['recurrence'] = json_encode($data['CalendarEvents']['recurrence']);
-            }
-
             if (empty($data['CalendarEvents']['title'])) {
                 $data['CalendarEvents']['title'] = $calendar->name . ' - ' . Inflector::humanize($data['CalendarEvents']['event_type']);
             }

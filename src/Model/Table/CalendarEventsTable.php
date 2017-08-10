@@ -1,6 +1,7 @@
 <?php
 namespace Qobo\Calendar\Model\Table;
 
+use Cake\Datasource\EntityInterface;
 use Cake\Event\Event;
 use Cake\Event\EventManager;
 use Cake\I18n\Time;
@@ -8,6 +9,7 @@ use Cake\ORM\Query;
 use Cake\ORM\RulesChecker;
 use Cake\ORM\Table;
 use Cake\Validation\Validator;
+use \ArrayObject;
 use \RRule\RRule;
 
 /**
@@ -107,6 +109,24 @@ class CalendarEventsTable extends Table
         $rules->add($rules->existsIn(['calendar_id'], 'Calendars'));
 
         return $rules;
+    }
+
+    /**
+     * beforeMarshal method
+     *
+     * We make sure that recurrence rule is saved as JSON.
+     *
+     * @param \Cake\Event\Event $event passed through the callback
+     * @param \ArrayObject $data about to be saved
+     * @param \ArrayObject $options to be passed
+     *
+     * @return void
+     */
+    public function beforeMarshal(Event $event, ArrayObject $data, ArrayObject $options)
+    {
+        if (!empty($data['recurrence'])) {
+            $data['recurrence'] = json_encode($data['recurrence']);
+        }
     }
 
     /**
