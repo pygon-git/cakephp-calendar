@@ -166,4 +166,21 @@ class CalendarEventsTableTest extends TestCase
             [ ['RRULE:FREQ=YEARLY'], 'RRULE:FREQ=YEARLY', 'Couldnt fetch correct RRULE element for array' ],
         ];
     }
+
+    public function testSetIdSuffix()
+    {
+        $event = [
+            'id' => '123',
+            'start_date' => '2019-08-01 09:00:00',
+            'end_date' => '2019-08-02 09:00:00',
+        ];
+
+        $eventObj = (object)$event;
+
+        $result = $this->CalendarEvents->setIdSuffix($event);
+        $resultObj = $this->CalendarEvents->setIdSuffix($eventObj);
+
+        $this->assertEquals('1564639200_1564725600', $result);
+        $this->assertEquals('1564639200_1564725600', $resultObj);
+    }
 }
