@@ -510,7 +510,8 @@ Vue.component('calendar-modal', {
                     </div>
                 </div>
             </div>
-        </div>`,
+        </div>
+        `,
     props: ['calendarsList', 'timezone', 'eventClick'],
     data: function() {
         return {
@@ -553,6 +554,7 @@ Vue.component('calendar-modal', {
         isDaily: function() {
             if (this.frequency === 3 && this.isRecurring) {
                 this.weekDays = [];
+                this.setFrequencyIntervals(365);
                 this.getRecurringRule();
                 return true;
             }
@@ -562,6 +564,7 @@ Vue.component('calendar-modal', {
         isMonthly: function() {
             if (this.frequency === 1 && this.isRecurring) {
                 this.weekDays = [];
+                this.setFrequencyIntervals(12);
                 this.getRecurringRule();
                 return true;
             }
@@ -570,6 +573,7 @@ Vue.component('calendar-modal', {
         },
         isWeekly: function() {
             if (this.frequency === 2 && this.isRecurring) {
+                this.setFrequencyIntervals(52);
                 this.getRecurringRule();
                 return true;
             }
@@ -579,6 +583,7 @@ Vue.component('calendar-modal', {
         isYearly: function() {
             if (this.frequency === 0 && this.isRecurring) {
                 this.weekDays = [];
+                this.setFrequencyIntervals(10);
                 this.getRecurringRule();
                 return true;
             }
@@ -608,6 +613,12 @@ Vue.component('calendar-modal', {
         },
     },
     methods: {
+        setFrequencyIntervals: function(end) {
+            this.frequencyIntervals = [];
+            for(var i = 1; i <= end; i++) {
+                this.frequencyIntervals.push({ value: i, label: i.toString() });
+            }
+        },
         dismissModal() {
             $('#calendar-modal-add-event').modal('hide');
         },
