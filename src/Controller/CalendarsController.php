@@ -130,18 +130,10 @@ class CalendarsController extends AppController
      */
     public function edit($id = null)
     {
-        $calendar = $this->Calendars->get($id, [
-            'contain' => []
-        ]);
+        $calendar = $this->Calendars->get($id);
 
         if ($this->request->is(['patch', 'post', 'put'])) {
-            $data = $this->request->getData();
-
-            if (empty($data['source_id'])) {
-                $data['source_id'] = $calendar->id;
-            }
-
-            $calendar = $this->Calendars->patchEntity($calendar, $data);
+            $calendar = $this->Calendars->patchEntity($calendar, $this->request->getData());
 
             if ($this->Calendars->save($calendar)) {
                 $this->Flash->success(__('The calendar has been saved.'));
@@ -152,7 +144,7 @@ class CalendarsController extends AppController
         }
 
         $this->set(compact('calendar'));
-        $this->set('_serialize', ['calendar']);
+        $this->set('_serialize', 'calendar');
     }
 
     /**
