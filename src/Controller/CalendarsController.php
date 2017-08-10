@@ -42,6 +42,7 @@ class CalendarsController extends AppController
     {
         $calendars = $options = [];
 
+        // ajax-based request for public calendars
         if ($this->request->is(['post', 'put', 'patch'])) {
             $data = $this->request->getData();
 
@@ -59,16 +60,10 @@ class CalendarsController extends AppController
         ]);
 
         $this->eventManager()->dispatch($event);
-
-        if (!empty($event->result)) {
-            $calendars = $event->result;
-        }
+        $calendars = $event->result;
 
         $this->set(compact('calendars'));
-
-        if ($this->request->is('ajax')) {
-            $this->set('_serialize', 'calendars');
-        }
+        $this->set('_serialize', 'calendars');
     }
 
     /**
@@ -92,7 +87,7 @@ class CalendarsController extends AppController
         }
 
         $this->set('calendar', $calendar);
-        $this->set('_serialize', ['calendar']);
+        $this->set('_serialize', 'calendar');
     }
 
     /**
@@ -168,7 +163,9 @@ class CalendarsController extends AppController
     }
 
     /**
-     * Get Calendar Events
+     * Get Events method
+     *
+     * Return events array based on calendar_id passed
      *
      * @return void
      */
@@ -195,7 +192,6 @@ class CalendarsController extends AppController
 
                 $events = $eventsTable->getEvents($calendar, $data);
             }
-
         }
 
         $this->set(compact('events'));
