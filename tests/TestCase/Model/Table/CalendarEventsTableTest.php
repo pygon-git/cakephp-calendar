@@ -146,5 +146,4 @@ class CalendarEventsTableTest extends TestCase
         $result = $this->CalendarEvents->getEventTypes($testCalendar);
         $this->assertEquals([ ['name' => 'foo', 'value' => 'foo'] ], $result);
     }
-
 }
