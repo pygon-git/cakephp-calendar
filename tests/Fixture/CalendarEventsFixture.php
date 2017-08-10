@@ -122,7 +122,5 @@ class CalendarEventsFixture extends TestFixture
             'is_recurring' => 1,
             'recurrence' => '',
         ],
-
-
     ];
 }
