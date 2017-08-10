@@ -156,10 +156,6 @@ class CalendarEventsTable extends Table
         foreach ($resultSet as $k => $event) {
             $eventItem = $this->prepareEventData($event, $calendar);
 
-            if (empty($eventItem)) {
-                continue;
-            }
-
             array_push($result, $eventItem);
         }
 
