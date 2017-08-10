@@ -166,5 +166,4 @@ class CalendarEventsTableTest extends TestCase
             [ ['RRULE:FREQ=YEARLY'], 'RRULE:FREQ=YEARLY', 'Couldnt fetch correct RRULE element for array' ],
         ];
     }
-
 }
