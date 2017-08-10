@@ -40,12 +40,11 @@ class CalendarsController extends AppController
      */
     public function index()
     {
-        $calendars = [];
-        $data = $options = [];
+        $calendars = $options = [];
 
         if ($this->request->is(['post', 'put', 'patch'])) {
             $data = $this->request->getData();
-            $options = [];
+
             if (!empty($data['public'])) {
                 $options['conditions'] = ['is_public' => true];
             }
@@ -82,7 +81,11 @@ class CalendarsController extends AppController
     public function view($id = null)
     {
         $calendar = null;
-        $calendars = $this->Calendars->getCalendars(['id' => $id]);
+        $calendars = $this->Calendars->getCalendars([
+            'conditions' => [
+                'id' => $id
+            ]
+        ]);
 
         if (!empty($calendars)) {
             $calendar = array_shift($calendars);
@@ -188,7 +191,11 @@ class CalendarsController extends AppController
         if (!empty($data['calendarId'])) {
             $data['id'] = $data['calendarId'];
 
-            $calendars = $this->Calendars->getCalendars($data);
+            $calendars = $this->Calendars->getCalendars([
+                'conditions' => [
+                    'id' => $data['calendarId'],
+                ]
+            ]);
 
             if (!empty($calendars)) {
                 $calendar = $calendars[0];

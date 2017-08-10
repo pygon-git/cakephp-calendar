@@ -140,9 +140,7 @@ class CalendarsTable extends Table
     {
         $result = $conditions = [];
 
-        if (!empty($options['id'])) {
-            $conditions['id'] = $options['id'];
-        } elseif (!empty($options['conditions'])) {
+        if (!empty($options['conditions'])) {
             $conditions = $options['conditions'];
         }
 
