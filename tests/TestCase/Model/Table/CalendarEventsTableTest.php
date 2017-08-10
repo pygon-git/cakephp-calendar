@@ -86,7 +86,7 @@ class CalendarEventsTableTest extends TestCase
             'calendar_id' => '9390cbc1-dc1d-474a-a372-de92dce85aac',
         ];
 
-        $result = $this->CalendarEvents->getEvents($dbItems[0], $options);
+        $result = $this->CalendarEvents->getCalendarEvents($dbItems[0], $options);
         $this->assertEmpty($result);
     }
 
