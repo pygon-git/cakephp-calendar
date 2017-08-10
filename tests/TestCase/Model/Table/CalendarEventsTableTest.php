@@ -70,6 +70,27 @@ class CalendarEventsTableTest extends TestCase
         $this->assertNotEmpty($result);
     }
 
+    public function testGetEventsNoEvents()
+    {
+        $result = $this->CalendarEvents->getEvents(null);
+        $this->assertEquals($result, []);
+
+        $this->Calendars = TableRegistry::get('Qobo/Calendar.Calendars');
+        $dbItems = $this->Calendars->getCalendars([
+            'conditions' => [
+                'id' => '9390cbc1-dc1d-474a-a372-de92dce85aac',
+            ]
+        ]);
+
+        $options = [
+            'calendar_id' => '9390cbc1-dc1d-474a-a372-de92dce85aac',
+        ];
+
+        $result = $this->CalendarEvents->getEvents($dbItems[0], $options);
+        $this->assertEmpty($result);
+    }
+
+
     public function testGetRecurringEvents()
     {
         $event = $this->CalendarEvents->find()

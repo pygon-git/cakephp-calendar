@@ -207,10 +207,6 @@ class CalendarEventsTable extends Table
                 'title' => $title,
             ]);
 
-            if (empty($eventItem)) {
-                continue;
-            }
-
             array_push($result, $eventItem);
 
             $recurringEvents = $this->getRecurringEvents($eventItem, $options);
