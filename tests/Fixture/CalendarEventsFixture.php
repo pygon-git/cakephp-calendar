@@ -68,8 +68,8 @@ class CalendarEventsFixture extends TestFixture
             'modified' => '2017-08-10 15:25:38',
             'trashed' => null,
             'event_type' => 'Lorem ipsum dolor sit amet',
-            'is_recurring' => 1,
-            'recurrence' => '["RRULE:FREQ=YEARLY"]'
+            'is_recurring' => 0,
+            'recurrence' => '',
         ],
         [
             'id' => '688580e6-2224-4dcb-a8df-32337b82e1e4',
@@ -88,6 +88,41 @@ class CalendarEventsFixture extends TestFixture
             'is_recurring' => 0,
             'recurrence' => null,
         ],
+        [
+            'id' => '688580e6-2224-4dcb-a8df-32337b82e1e5',
+            'calendar_id' => '9390cbc1-dc1d-474a-a372-de92dce85aaf',
+            'source_id' => null,
+            'source' => null,
+            'title' => 'Recurring Annual Event with 5 count',
+            'content' => 'Description of recurring event',
+            'start_date' => '2017-08-10 09:20:00',
+            'end_date' => '2017-08-11 15:20:00',
+            'duration' => null,
+            'created' => '2017-08-10 15:25:38',
+            'modified' => '2017-08-10 15:25:38',
+            'trashed' => null,
+            'event_type' => 'default_event',
+            'is_recurring' => 1,
+            'recurrence' => '["RRULE:FREQ=YEARLY;COUNT=5"]',
+        ],
+        [
+            'id' => '688580e6-2224-4dcb-a8df-32337b82e1e6',
+            'calendar_id' => '9390cbc1-dc1d-474a-a372-de92dce85aaf',
+            'source_id' => null,
+            'source' => null,
+            'title' => 'Recurring Annual Event with 5 count',
+            'content' => 'Description of recurring event',
+            'start_date' => '2017-08-10 09:20:00',
+            'end_date' => '2017-08-11 15:20:00',
+            'duration' => null,
+            'created' => '2017-08-10 15:25:38',
+            'modified' => '2017-08-10 15:25:38',
+            'trashed' => null,
+            'event_type' => 'special_event',
+            'is_recurring' => 1,
+            'recurrence' => '',
+        ],
+
 
     ];
 }

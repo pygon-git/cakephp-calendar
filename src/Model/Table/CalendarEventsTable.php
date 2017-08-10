@@ -246,12 +246,14 @@ class CalendarEventsTable extends Table
             'calendar_id' => $calendarId,
         ];
 
-        if (!empty($options['period']['start_date'])) {
-            $conditions['MONTH(start_date) >='] = date('m', strtotime($options['period']['start_date']));
-        }
+        if (!empty($options['period'])) {
+            if (!empty($options['period']['start_date'])) {
+                $conditions['MONTH(start_date) >='] = date('m', strtotime($options['period']['start_date']));
+            }
 
-        if (!empty($options['period']['end_date'])) {
-            $conditions['MONTH(end_date) <='] = date('m', strtotime($options['period']['end_date']));
+            if (!empty($options['period']['end_date'])) {
+                $conditions['MONTH(end_date) <='] = date('m', strtotime($options['period']['end_date']));
+            }
         }
 
         $query = $this->find()
@@ -372,7 +374,7 @@ class CalendarEventsTable extends Table
      *
      * @return array $result containing the RRULE
      */
-    public function getRRuleConfiguration(array $recurrence = [])
+    public function getRRuleConfiguration($recurrence = [])
     {
         $result = '';
 
