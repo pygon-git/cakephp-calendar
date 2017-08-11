@@ -2,4 +2,3 @@ languages:
   - php
 exclude:
   - /config/.*
-  - /tests/.*
