@@ -1,13 +1,17 @@
 <?php
 namespace Qobo\Calendar\Model\Table;
 
+use Cake\Core\Configure;
+use Cake\Datasource\EntityInterface;
 use Cake\Event\Event;
 use Cake\Event\EventManager;
 use Cake\I18n\Time;
 use Cake\ORM\Query;
 use Cake\ORM\RulesChecker;
 use Cake\ORM\Table;
+use Cake\Utility\Inflector;
 use Cake\Validation\Validator;
+use \ArrayObject;
 use \RRule\RRule;
 
 /**
@@ -110,6 +114,24 @@ class CalendarEventsTable extends Table
     }
 
     /**
+     * beforeMarshal method
+     *
+     * We make sure that recurrence rule is saved as JSON.
+     *
+     * @param \Cake\Event\Event $event passed through the callback
+     * @param \ArrayObject $data about to be saved
+     * @param \ArrayObject $options to be passed
+     *
+     * @return void
+     */
+    public function beforeMarshal(Event $event, ArrayObject $data, ArrayObject $options)
+    {
+        if (!empty($data['recurrence'])) {
+            $data['recurrence'] = json_encode($data['recurrence']);
+        }
+    }
+
+    /**
      * Get Events of specific calendar
      *
      * @param \Cake\ORM\Table $calendar record
@@ -125,19 +147,14 @@ class CalendarEventsTable extends Table
             return $result;
         }
 
-        $options = array_merge($options, ['calendarId' => $calendar->id]);
+        $options = array_merge($options, ['calendar_id' => $calendar->id]);
         $resultSet = $this->findCalendarEvents($options);
-
         if (empty($resultSet)) {
             return $result;
         }
 
         foreach ($resultSet as $k => $event) {
             $eventItem = $this->prepareEventData($event, $calendar);
-
-            if (empty($eventItem)) {
-                continue;
-            }
 
             array_push($result, $eventItem);
         }
@@ -181,18 +198,10 @@ class CalendarEventsTable extends Table
             }
 
             if (!empty($extra)) {
-                $title = sprintf("%s - %s", $event['title'], implode("\n", $extra));
-            } else {
-                $title = $event['title'];
+                $event['title'] .= ' - ' . implode("\n", $extra);
             }
 
-            $eventItem = $this->prepareEventData($event, $calendar, [
-                'title' => $title,
-            ]);
-
-            if (empty($eventItem)) {
-                continue;
-            }
+            $eventItem = $this->prepareEventData($event, $calendar);
 
             array_push($result, $eventItem);
 
@@ -225,17 +234,39 @@ class CalendarEventsTable extends Table
             'calendar_id' => $calendarId,
         ];
 
-        if (!empty($options['period']['start_date'])) {
-            $conditions['MONTH(start_date) >='] = date('m', strtotime($options['period']['start_date']));
+        $query = $this->find();
+        $query->where(['is_recurring' => true]);
+        $query->andWhere(['calendar_id' => $calendarId]);
+
+        //@NOTE: sqlite doesn't support date_format or month functions
+
+        if (!empty($options['period'])) {
+            if (!empty($options['period']['start_date'])) {
+                $start = $query->func()->date_format([
+                    'start_date' => 'identifier',
+                    "'%m'" => 'literal',
+                ]);
+                $query->select([
+                    'startEvent' => $start,
+                ]);
+
+                $query->andWhere(['startEvent >=' => date('m', strtotime($options['period']['start_date']))]);
+            }
+
+            if (!empty($options['period']['end_date'])) {
+                $end = $query->func()->date_format([
+                    'end_date' => 'identifier',
+                    "'%m'" => 'literal'
+                ]);
+                $query->select([
+                    'endEvent' => $end,
+                ]);
+                $query->andWhere(['endEvent <=' => date('m', strtotime($options['period']['end_date']))]);
+            }
         }
 
-        if (!empty($options['period']['end_date'])) {
-            $conditions['MONTH(end_date) <='] = date('m', strtotime($options['period']['end_date']));
-        }
-
-        $query = $this->find()
-            ->where($conditions)
-            ->contain(['CalendarAttendees']);
+        $query->select($this);
+        $query->contain(['CalendarAttendees']);
 
         if (!$query) {
             return $result;
@@ -377,13 +408,34 @@ class CalendarEventsTable extends Table
      */
     public function getEventTypes($calendar = null)
     {
-        $result = [];
+        $type = 'default';
+        $result = $eventTypes = [];
 
-        if (!$calendar || !isset($calendar['calendar']['event_types'])) {
+        if (!$calendar) {
             return $result;
         }
 
-        foreach ($calendar['calendar']['event_types'] as $k => $eventType) {
+        if (!empty($calendar->calendar_type)) {
+            $type = $calendar->calendar_type;
+        }
+
+        if (!empty($calendar->event_types)) {
+            $eventTypes = $calendar->event_types;
+        }
+
+        if (empty($eventTypes)) {
+            $types = Configure::read('Calendar.Types');
+
+            if (!empty($types)) {
+                foreach ($types as $k => $item) {
+                    if ($type == $item['value']) {
+                        $eventTypes = $item['types'];
+                    }
+                }
+            }
+        }
+
+        foreach ($eventTypes as $eventType) {
             array_push($result, $eventType);
         }
 
@@ -475,8 +527,8 @@ class CalendarEventsTable extends Table
     {
         $conditions = [];
 
-        if (!empty($options['calendarId'])) {
-            $conditions['calendar_id'] = $options['calendarId'];
+        if (!empty($options['calendar_id'])) {
+            $conditions['calendar_id'] = $options['calendar_id'];
         }
 
         if (!empty($options['period']['start_date'])) {
@@ -493,5 +545,30 @@ class CalendarEventsTable extends Table
                 ->toArray();
 
         return $result;
+    }
+
+    /**
+     * Set Event Title
+     *
+     * @param array $data from the request
+     * @param \Cake\Model\Entity $calendar from db
+     *
+     * @return string $title with the event content
+     */
+    public function setEventTitle($data, $calendar)
+    {
+        $title = (!empty($data['CalendarEvents']['title']) ? $data['CalendarEvents']['title'] : '');
+
+        if (empty($title)) {
+            $title .= $calendar->name;
+
+            if (!empty($data['CalendarEvents']['event_type'])) {
+                $title .= ' - ' . Inflector::humanize($data['CalendarEvents']['event_type']);
+            } else {
+                $title .= ' Event';
+            }
+        }
+
+        return $title;
     }
 }

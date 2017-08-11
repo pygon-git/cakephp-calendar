@@ -40,10 +40,10 @@ class EventsAttendeesFixture extends TestFixture
     public $records = [
         [
             'id' => '8e5223c7-fb0e-4cae-85a1-7f2dc52e1300',
-            'calendar_event_id' => '7662a4d0-f52e-46a2-b94b-3844ac02ae3b',
-            'calendar_attendee_id' => 'f62a89e0-ee98-44db-add8-e17273d5bd0d',
-            'trashed' => '2017-08-04 13:53:57',
-            'response_status' => 'Lorem ipsum dolor sit amet'
+            'calendar_event_id' => '688580e6-2224-4dcb-a8df-32337b82e1e3',
+            'calendar_attendee_id' => '12613e81-aa1b-4c59-9eb4-e4016ac47aef',
+            'trashed' => null,
+            'response_status' => 'needsAction'
         ],
     ];
 }

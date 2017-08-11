@@ -40,12 +40,12 @@ class CalendarsController extends AppController
      */
     public function index()
     {
-        $calendars = [];
-        $data = $options = [];
+        $calendars = $options = [];
 
+        // ajax-based request for public calendars
         if ($this->request->is(['post', 'put', 'patch'])) {
             $data = $this->request->getData();
-            $options = [];
+
             if (!empty($data['public'])) {
                 $options['conditions'] = ['is_public' => true];
             }
@@ -60,16 +60,10 @@ class CalendarsController extends AppController
         ]);
 
         $this->eventManager()->dispatch($event);
-
-        if (!empty($event->result)) {
-            $calendars = $event->result;
-        }
+        $calendars = $event->result;
 
         $this->set(compact('calendars'));
-
-        if ($this->request->is('ajax')) {
-            $this->set('_serialize', 'calendars');
-        }
+        $this->set('_serialize', 'calendars');
     }
 
     /**
@@ -82,14 +76,18 @@ class CalendarsController extends AppController
     public function view($id = null)
     {
         $calendar = null;
-        $calendars = $this->Calendars->getCalendars(['id' => $id]);
+        $calendars = $this->Calendars->getCalendars([
+            'conditions' => [
+                'id' => $id
+            ]
+        ]);
 
         if (!empty($calendars)) {
             $calendar = array_shift($calendars);
         }
 
         $this->set('calendar', $calendar);
-        $this->set('_serialize', ['calendar']);
+        $this->set('_serialize', 'calendar');
     }
 
     /**
@@ -127,22 +125,10 @@ class CalendarsController extends AppController
      */
     public function edit($id = null)
     {
-        $calendar = $this->Calendars->get($id, [
-            'contain' => []
-        ]);
+        $calendar = $this->Calendars->get($id);
 
         if ($this->request->is(['patch', 'post', 'put'])) {
-            $data = $this->request->getData();
-
-            if (empty($data['source'])) {
-                $data['source'] = 'Plugin__';
-            }
-
-            if (empty($data['source_id'])) {
-                $data['source_id'] = $calendar->id;
-            }
-
-            $calendar = $this->Calendars->patchEntity($calendar, $data);
+            $calendar = $this->Calendars->patchEntity($calendar, $this->request->getData());
 
             if ($this->Calendars->save($calendar)) {
                 $this->Flash->success(__('The calendar has been saved.'));
@@ -153,7 +139,7 @@ class CalendarsController extends AppController
         }
 
         $this->set(compact('calendar'));
-        $this->set('_serialize', ['calendar']);
+        $this->set('_serialize', 'calendar');
     }
 
     /**
@@ -177,28 +163,35 @@ class CalendarsController extends AppController
     }
 
     /**
-     * Get Calendar Events
+     * Get Events method
+     *
+     * Return events array based on calendar_id passed
      *
      * @return void
      */
     public function events()
     {
         $events = [];
-        $calendar = null;
 
-        $eventsTable = TableRegistry::get('Qobo/Calendar.CalendarEvents');
+        if ($this->request->is(['post', 'put', 'patch'])) {
+            $data = $this->request->getData();
 
-        $data = $this->request->getData();
-        if (!empty($data['calendarId'])) {
-            $data['id'] = $data['calendarId'];
+            if (!empty($data['calendar_id'])) {
+                $calendar = null;
+                $eventsTable = TableRegistry::get('Qobo/Calendar.CalendarEvents');
 
-            $calendars = $this->Calendars->getCalendars($data);
+                $calendars = $this->Calendars->getCalendars([
+                    'conditions' => [
+                        'id' => $data['calendar_id'],
+                    ]
+                ]);
 
-            if (!empty($calendars)) {
-                $calendar = $calendars[0];
+                if (!empty($calendars)) {
+                    $calendar = array_shift($calendars);
+                }
+
+                $events = $eventsTable->getEvents($calendar, $data);
             }
-
-            $events = $eventsTable->getEvents($calendar, $data);
         }
 
         $this->set(compact('events'));

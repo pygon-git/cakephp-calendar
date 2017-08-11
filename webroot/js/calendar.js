@@ -713,7 +713,7 @@ Vue.component('calendar-modal', {
             if (this.calendarId.value) {
                 $.ajax({
                     url: '/calendars/calendar-events/get-event-types',
-                    data: { id: this.calendarId.value },
+                    data: { calendar_id: this.calendarId.value },
                     dataType: 'json',
                     method: 'post',
                 }).done(function(types) {
@@ -865,7 +865,7 @@ var calendarApp = new Vue({
                 dataType: 'json',
                 url: url,
                 data: {
-                    'calendarId': id,
+                    'calendar_id': id,
                     'period': {
                         'start_date': this.start,
                         'end_date': this.end,
