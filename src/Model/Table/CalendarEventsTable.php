@@ -198,14 +198,10 @@ class CalendarEventsTable extends Table
             }
 
             if (!empty($extra)) {
-                $title = sprintf("%s - %s", $event['title'], implode("\n", $extra));
-            } else {
-                $title = $event['title'];
+                $event['title'] .= ' - ' . implode("\n", $extra);
             }
 
-            $eventItem = $this->prepareEventData($event, $calendar, [
-                'title' => $title,
-            ]);
+            $eventItem = $this->prepareEventData($event, $calendar);
 
             array_push($result, $eventItem);
 
