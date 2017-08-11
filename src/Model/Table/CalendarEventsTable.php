@@ -238,6 +238,8 @@ class CalendarEventsTable extends Table
         $query->where(['is_recurring' => true]);
         $query->andWhere(['calendar_id' => $calendarId]);
 
+        //@NOTE: sqlite doesn't support date_format or month functions
+
         if (!empty($options['period'])) {
             if (!empty($options['period']['start_date'])) {
                 $start = $query->func()->date_format([
@@ -247,8 +249,8 @@ class CalendarEventsTable extends Table
                 $query->select([
                     'startEvent' => $start,
                 ]);
-                $query->andWhere(['startEvent >=' => date('m', strtotime($options['period']['start_date']))]);
 
+                $query->andWhere(['startEvent >=' => date('m', strtotime($options['period']['start_date']))]);
             }
 
             if (!empty($options['period']['end_date'])) {

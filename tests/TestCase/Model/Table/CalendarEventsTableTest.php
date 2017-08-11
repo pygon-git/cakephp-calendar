@@ -257,4 +257,15 @@ class CalendarEventsTableTest extends TestCase
         $this->assertNotEmpty($result);
         $this->assertEquals($result, $resultObj);
     }
+
+    public function testGetEventInfo()
+    {
+        $eventId = '688580e6-2224-4dcb-a8df-32337b82e1e4';
+
+        $result = $this->CalendarEvents->getEventInfo(['id' => $eventId]);
+        $this->assertNotEmpty($result);
+
+        $result = $this->CalendarEvents->getEventInfo([]);
+        $this->assertEmpty($result);
+    }
 }
