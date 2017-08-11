@@ -122,5 +122,22 @@ class CalendarEventsFixture extends TestFixture
             'is_recurring' => 1,
             'recurrence' => '',
         ],
+        [
+            'id' => '688580e6-2224-4dcb-a8df-32337b82e1e7',
+            'calendar_id' => '9390cbc1-dc1d-474a-a372-de92dce85aba',
+            'source_id' => null,
+            'source' => null,
+            'title' => 'Recurring Event with Count 2',
+            'content' => 'Description of recurring event',
+            'start_date' => '2017-08-10 09:20:00',
+            'end_date' => '2017-08-11 15:20:00',
+            'duration' => null,
+            'created' => '2017-08-10 15:25:38',
+            'modified' => '2017-08-10 15:25:38',
+            'trashed' => null,
+            'event_type' => 'special_event',
+            'is_recurring' => 1,
+            'recurrence' => '["RRULE:FREQ=MONTHLY;COUNT=2"]',
+        ],
     ];
 }

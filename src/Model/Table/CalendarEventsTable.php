@@ -234,19 +234,37 @@ class CalendarEventsTable extends Table
             'calendar_id' => $calendarId,
         ];
 
+        $query = $this->find();
+        $query->where(['is_recurring' => true]);
+        $query->andWhere(['calendar_id' => $calendarId]);
+
         if (!empty($options['period'])) {
             if (!empty($options['period']['start_date'])) {
-                $conditions['MONTH(start_date) >='] = date('m', strtotime($options['period']['start_date']));
+                $start = $query->func()->date_format([
+                    'start_date' => 'identifier',
+                    "'%m'" => 'literal',
+                ]);
+                $query->select([
+                    'startEvent' => $start,
+                ]);
+                $query->andWhere(['startEvent >=' => date('m', strtotime($options['period']['start_date']))]);
+
             }
 
             if (!empty($options['period']['end_date'])) {
-                $conditions['MONTH(end_date) <='] = date('m', strtotime($options['period']['end_date']));
+                $end = $query->func()->date_format([
+                    'end_date' => 'identifier',
+                    "'%m'" => 'literal'
+                ]);
+                $query->select([
+                    'endEvent' => $end,
+                ]);
+                $query->andWhere(['endEvent <=' => date('m', strtotime($options['period']['end_date']))]);
             }
         }
 
-        $query = $this->find()
-            ->where($conditions)
-            ->contain(['CalendarAttendees']);
+        $query->select($this);
+        $query->contain(['CalendarAttendees']);
 
         if (!$query) {
             return $result;
