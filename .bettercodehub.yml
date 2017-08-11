@@ -1,5 +1,5 @@
 languages:
   - php
 exclude:
-  - config/.*
-  - tests/.*
+  - /config/.*
+  - /tests/.*
