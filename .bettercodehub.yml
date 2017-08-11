@@ -2,3 +2,4 @@ languages:
   - php
 exclude:
   - /config/.*
+  - /webroot/js/.*
