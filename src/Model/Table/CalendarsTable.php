@@ -695,46 +695,4 @@ class CalendarsTable extends Table
 
         return $result;
     }
-
-    /**
-     * Remove item from from the set
-     *
-     * @param ORM\Table $table instance of the target
-     * @param array $items containing current items
-     * @param array $options with extra config
-     *
-     * @return array $result containing the items that should be deleted.
-     */
-    public function attendeesToDelete($table, $items, $options = [])
-    {
-        $result = $conditions = [];
-        $sourceId = empty($options['source_id']) ? 'source_id' : $options['source_id'];
-
-        $query = $table->find();
-        $query->matching('CalendarEvents', function ($q) use ($options) {
-            return $q->where(['CalendarEvents.id' => $options['extra_fields']['calendar_event_id']]);
-        });
-
-        $query->all();
-        $dbItems = $query->toArray();
-        if (empty($dbItems) || empty($items)) {
-            return $result;
-        }
-
-        foreach ($dbItems as $key => $dbItem) {
-            foreach ($items as $k => $item) {
-                if ($dbItem->$sourceId == $item->$sourceId) {
-                    if (!isset($item->response_status) || 'declined' != $item->response_status) {
-                        unset($dbItems[$key]);
-                    }
-                }
-            }
-        }
-
-        if (!empty($dbItems)) {
-            $result = $dbItems;
-        }
-
-        return $result;
-    }
 }
