@@ -488,6 +488,7 @@ class CalendarEventsTable extends Table
             'calendar_id' => $calendar->id,
             'event_type' => (!empty($event['event_type']) ? $event['event_type'] : null),
             'is_recurring' => $event['is_recurring'],
+            'is_allday' => $event['is_allday'],
             'recurrence' => json_decode($event['recurrence'], true),
         ];
 

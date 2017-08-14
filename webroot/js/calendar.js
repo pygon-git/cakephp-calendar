@@ -77,6 +77,7 @@ Vue.component('calendar', {
                     start: moment().format(event.start_date),
                     end: moment().format(event.end_date),
                     calendar_id: event.calendar_id,
+                    allDay: event.is_allday,
                     event_type: event.event_type
                 });
             });
