@@ -859,7 +859,7 @@ var calendarApp = new Vue({
         },
         getEvents: function(id) {
             var self = this;
-            var url = '/calendars/calendars/events'; //: string
+            var url = '/calendars/calendar-events/index'; //: string
             $.ajax({
                 method: 'POST',
                 dataType: 'json',

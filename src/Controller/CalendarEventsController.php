@@ -203,6 +203,28 @@ class CalendarEventsController extends AppController
      */
     public function index()
     {
-        //@TODO: used for BC-needs
+        $events = [];
+
+        if ($this->request->is(['post', 'put', 'patch'])) {
+            $data = $this->request->getData();
+            $this->Calendars = TableRegistry::get('Qobo/Calendar.Calendars');
+
+            if (!empty($data['calendar_id'])) {
+                $calendar = null;
+
+                $calendars = $this->Calendars->getCalendars([
+                    'conditions' => [
+                        'id' => $data['calendar_id'],
+                    ]
+                ]);
+
+                if (!empty($calendars)) {
+                    $events = $this->CalendarEvents->getEvents($calendars[0], $data);
+                }
+            }
+        }
+
+        $this->set(compact('events'));
+        $this->set('_serialize', 'events');
     }
 }
