@@ -108,6 +108,11 @@ class CalendarsTable extends Table
         if (empty($entity->source)) {
             $entity->source = 'Plugin__';
         }
+
+        // Default calendar color in case none is given.
+        if (empty($entity->color)) {
+            $entity->color = '#337ab7';
+        }
     }
 
     /**
