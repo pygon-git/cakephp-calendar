@@ -111,7 +111,7 @@ class CalendarsTable extends Table
 
         // Default calendar color in case none is given.
         if (empty($entity->color)) {
-            $entity->color = '#337ab7';
+            $entity->color = Configure::read('Calendar.Configs.color');
         }
     }
 
