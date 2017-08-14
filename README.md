@@ -1,4 +1,5 @@
-# CakePHP-Calendar Plugin
+CakePHP-Calendar Plugin
+=======================
 
 [![Build Status](https://travis-ci.org/QoboLtd/cakephp-calendar.svg?branch=master)](https://travis-ci.org/QoboLtd/cakephp-calendar)
 [![Latest Stable Version](https://poser.pugx.org/qobo/cakephp-calendar/v/stable)](https://packagist.org/packages/qobo/cakephp-calendar)
@@ -7,8 +8,8 @@
 [![License](https://poser.pugx.org/qobo/cakephp-calendar/license)](https://packagist.org/packages/qobo/cakephp-calendar)
 [![codecov](https://codecov.io/gh/QoboLtd/cakephp-calendar/branch/master/graph/badge.svg)](https://codecov.io/gh/QoboLtd/cakephp-calendar)
 
-CakePHP-Calendar Plugin
-=======================
+About
+-----
 
 CakePHP 3 plugin that uses FullCalendar JS (as part of AdminLTE) to manage calendar events and attendees.
 
@@ -19,16 +20,20 @@ Some of the things that we'll be adding shortly:
 - [ ] Full re-write of jQuery to VueJS components.
 - [ ] FreeBusy Calendar implementation.
 
+Developed by [Qobo](https://www.qobo.biz), used in [Qobrix](https://qobrix.com).
 
-### Note
+**NOTE**: The plugin is under development, so any **Bug Reports** and **Pull Requests** are more than welcomed.
 
-The plugin is under development, so any **Bugs** and **pull requests** are more than welcomed.
+Plugin installation
+-------------------
 
-### Plugin installation
+Install with composer:
 
-``` composer require qobo/cakephp-calendar ```
+```
+composer require qobo/cakephp-calendar
+```
 
-Don't forget to include it in the application. In `config/bootstrap.php`:
+Load plugin and its requirements in the application. In `config/bootstrap.php`:
 
 ```php
 # Optionally adding AdminLTE and Qobo Utils that are partially used inside.
@@ -37,16 +42,18 @@ Plugin::load('Qobo/Utils');
 Plugin::load('Qobo/Calendar', ['bootstrap' => true, 'routes' => true]);
 ```
 
-### Database Schema
+Run database schema migrations to create tables that will hold calendars, events, attendees, etc.:
 
-Add missing database tables that will hold calendars/events/attendees in your app.
+```
+./bin/cake migrations migrate --plugin Qobo/Calendar
+```
 
-```./bin/cake migrations migrate --plugin Qobo/Calendar```
-
+Customization
+-------------
 
 ### JavaScript and Styling.
 
-The plugin heavily rely on AdminLTE, Bootstrap for styling, so you should make some adjustments in `src/Template/Calendars/index.ctp` in order to get it running.
+The plugin heavily relies on AdminLTE Bootstrap theme for styling, so you should make some adjustments in `src/Template/Calendars/index.ctp` in order to get it running.
 
 ```php
 <?php
@@ -86,4 +93,5 @@ echo $this->Html->script(
 );
 ?>
 ```
+
 JavaScript files should go to your footer, so you can use native cake `fetch('scriptBottom')` and replace `scriptBotton` with `scriptBottom` in the index template (assuming that you have `$this->fetch('scriptBottom');` in your layout footer.
