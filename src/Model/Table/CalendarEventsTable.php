@@ -364,7 +364,7 @@ class CalendarEventsTable extends Table
     {
         $result = '';
 
-        if (empty($recurrence)) {
+        if (empty($recurrence) || is_null($recurrence)) {
             return $result;
         }
 
