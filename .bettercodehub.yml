@@ -1,5 +1,6 @@
-languages:
-  - php
 exclude:
-  - /config/.*
-  - /webroot/js/.*
+- /config/.*
+- /webroot/js/.*
+languages:
+- javascript
+- php
