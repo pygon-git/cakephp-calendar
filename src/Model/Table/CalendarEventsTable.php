@@ -177,7 +177,6 @@ class CalendarEventsTable extends Table
         if (!$calendar) {
             return $result;
         }
-
         $events = $this->findCalendarEvents($options);
         $infiniteEvents = $this->getInfiniteEvents($calendar->id, $events, $options);
 
@@ -202,7 +201,6 @@ class CalendarEventsTable extends Table
             }
 
             $eventItem = $this->prepareEventData($event, $calendar);
-
             array_push($result, $eventItem);
 
             $recurringEvents = $this->getRecurringEvents($eventItem, $options);
@@ -228,44 +226,25 @@ class CalendarEventsTable extends Table
     {
         $result = $existingEventIds = [];
 
-        //limit start/end by month (not year, nor day).
-        $conditions = [
-            'is_recurring' => true,
-            'calendar_id' => $calendarId,
-        ];
-
         $query = $this->find();
         $query->where(['is_recurring' => true]);
         $query->andWhere(['calendar_id' => $calendarId]);
 
         //@NOTE: sqlite doesn't support date_format or month functions
-
         if (!empty($options['period'])) {
             if (!empty($options['period']['start_date'])) {
-                $start = $query->func()->date_format([
-                    'start_date' => 'identifier',
-                    "'%m'" => 'literal',
+                $query->andWhere([
+                    'MONTH(start_date) >=' => date('m', strtotime($options['period']['start_date'])),
                 ]);
-                $query->select([
-                    'startEvent' => $start,
-                ]);
-
-                $query->andWhere(['startEvent >=' => date('m', strtotime($options['period']['start_date']))]);
             }
 
             if (!empty($options['period']['end_date'])) {
-                $end = $query->func()->date_format([
-                    'end_date' => 'identifier',
-                    "'%m'" => 'literal'
+                $query->andWhere([
+                    'MONTH(end_date) <=' => date('m', strtotime($options['period']['end_date'])),
                 ]);
-                $query->select([
-                    'endEvent' => $end,
-                ]);
-                $query->andWhere(['endEvent <=' => date('m', strtotime($options['period']['end_date']))]);
             }
         }
 
-        $query->select($this);
         $query->contain(['CalendarAttendees']);
 
         if (!$query) {
@@ -319,7 +298,6 @@ class CalendarEventsTable extends Table
             new \DateTime($options['period']['start_date']),
             new \DateTime($options['period']['end_date'])
         );
-
         $startDateTime = new \DateTime($origin['start_date'], new \DateTimeZone('UTC'));
         $endDateTime = new \DateTime($origin['end_date'], new \DateTimeZone('UTC'));
         $diff = $startDateTime->diff($endDateTime);

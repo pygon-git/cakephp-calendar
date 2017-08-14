@@ -171,30 +171,6 @@ class CalendarsController extends AppController
      */
     public function events()
     {
-        $events = [];
-
-        if ($this->request->is(['post', 'put', 'patch'])) {
-            $data = $this->request->getData();
-
-            if (!empty($data['calendar_id'])) {
-                $calendar = null;
-                $eventsTable = TableRegistry::get('Qobo/Calendar.CalendarEvents');
-
-                $calendars = $this->Calendars->getCalendars([
-                    'conditions' => [
-                        'id' => $data['calendar_id'],
-                    ]
-                ]);
-
-                if (!empty($calendars)) {
-                    $calendar = array_shift($calendars);
-                }
-
-                $events = $eventsTable->getEvents($calendar, $data);
-            }
-        }
-
-        $this->set(compact('events'));
-        $this->set('_serialize', 'events');
+        throw new \Cake\Network\Exception\NotImplementedException("events call moved to calendar-events controller as index");
     }
 }
