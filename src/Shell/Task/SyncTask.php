@@ -187,7 +187,6 @@ class SyncTask extends Shell
             $entity = $table->newEntity();
             $entity->name = 'Birthdays';
             $entity->source = 'Plugin__';
-            $entity->color = '#05497d';
             $entity->icon = 'birthday-cake';
 
             $calendar = $table->save($entity);
@@ -213,6 +212,7 @@ class SyncTask extends Shell
                 $entity->title = sprintf("%s %s", $user->first_name, $user->last_name);
                 $entity->content = sprintf("%s %s", $user->first_name, $user->last_name);
                 $entity->is_recurring = true;
+                $entity->is_allday = true;
 
                 $entity->start_date = date('Y-m-d 09:00:00', strtotime($user->birthdate));
                 $entity->end_date = date('Y-m-d 18:00:00', strtotime($user->birthdate));
@@ -223,6 +223,7 @@ class SyncTask extends Shell
             } else {
                 $entity = $eventsTable->patchEntity($birthdayEvent, [
                     'title' => sprintf("%s %s", $user->first_name, $user->last_name),
+                    'is_allday' => true,
                 ]);
 
                 $birthdayEvent = $eventsTable->save($entity);

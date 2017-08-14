@@ -5,6 +5,7 @@
 echo $this->Html->css(
     [
         'AdminLTE./plugins/select2/select2.min',
+        'AdminLTE./plugins/colorpicker/bootstrap-colorpicker.min',
         'Qobo/Utils.select2-bootstrap.min',
         'Qobo/Utils.select2-style',
     ],
@@ -14,10 +15,13 @@ echo $this->Html->css(
 echo $this->Html->script(
     [
         'AdminLTE./plugins/select2/select2.full.min',
+        'AdminLTE./plugins/colorpicker/bootstrap-colorpicker.min',
         'Qobo/Utils.select2.init',
     ],
     ['block' => 'scriptBotton']
 );
+
+echo $this->Html->scriptBlock("$(function() { $('.calendar-colorpicker').colorpicker(); });", ['block' => 'scriptBotton']);
 
 foreach ($icons as $k => $v) {
     $icons[$v] = '<i class="fa fa-' . $v . '"></i>&nbsp;&nbsp;' . $v;
@@ -56,9 +60,8 @@ foreach ($icons as $k => $v) {
                 </div>
                 <div class="col-xs-12 col-md-6">
                     <?= $this->Form->input('color', [
-                        'type' => 'select',
-                        'options' => $colors,
-                        'class' => 'select2',
+                        'type' => 'text',
+                        'class' => 'calendar-colorpicker',
                         'empty' => true
                     ]) ?>
                 </div>

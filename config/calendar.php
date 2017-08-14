@@ -2,6 +2,9 @@
 
 return [
     'Calendar' => [
+        'Configs' => [
+            'color' => '#337ab7',
+        ],
         'Types' => [
             [
                 'name' => 'Default',

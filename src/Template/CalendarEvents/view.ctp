@@ -35,9 +35,15 @@ if (!empty($calEvent->calendar_attendees)) {
         <div class="col-xs-12">
             <strong>When:</strong>
         </div>
-        <div class="col-xs-12">
-            <?= $calEvent->start_date->format('Y-m-d H:i'); ?> &#8212; <?= $calEvent->end_date->format('Y-m-d H:i'); ?>
-        </div>
+        <?php if (!$calEvent->is_allday) : ?>
+            <div class="col-xs-12">
+                <?= $calEvent->start_date->format('Y-m-d H:i'); ?> &#8212; <?= $calEvent->end_date->format('Y-m-d H:i'); ?>
+            </div>
+        <?php else :?>
+            <div class="col-xs-12">
+                <?= $calEvent->start_date->format('Y-m-d');?> - <?= __('All Day');?>
+            </div>
+        <?php endif; ?>
     </div>
     <?php if (!empty($calEvent->calendar_attendees)) : ?>
         <div class="row">
