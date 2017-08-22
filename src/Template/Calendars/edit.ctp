@@ -18,10 +18,10 @@ echo $this->Html->script(
         'AdminLTE./plugins/colorpicker/bootstrap-colorpicker.min',
         'Qobo/Utils.select2.init',
     ],
-    ['block' => 'scriptBotton']
+    ['block' => 'scriptBottom']
 );
 
-echo $this->Html->scriptBlock("$(function() { $('.calendar-colorpicker').colorpicker(); });", ['block' => 'scriptBotton']);
+echo $this->Html->scriptBlock("$(function() { $('.calendar-colorpicker').colorpicker(); });", ['block' => 'scriptBottom']);
 
 foreach ($icons as $k => $v) {
     $icons[$v] = '<i class="fa fa-' . $v . '"></i>&nbsp;&nbsp;' . $v;
