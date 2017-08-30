@@ -854,12 +854,14 @@ var calendarApp = new Vue({
                 data: {public: self.public},
             }).done( function(resp) {
                 self.calendars = resp;
-                self.calendars.forEach( function(elem, key) {
-                    if (elem.active == true && elem.is_public == true) {
-                        self.ids.push(elem.id);
-                        self.getEvents(elem.id);
-                    }
-                });
+                if (self.calendars) {
+                    self.calendars.forEach( function(elem, key) {
+                        if (elem.active == true && elem.is_public == true) {
+                            self.ids.push(elem.id);
+                            self.getEvents(elem.id);
+                        }
+                    });
+                }
             });
         },
         getEvents: function(id) {

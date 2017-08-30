@@ -3,6 +3,7 @@ echo $this->Html->css(
     [
         'Qobo/Calendar.fullcalendar.min.css',
         'AdminLTE./plugins/select2/select2.min',
+        'AdminLTE./plugins/daterangepicker/daterangepicker',
         'Qobo/Utils.select2-bootstrap.min',
         'Qobo/Calendar.calendar',
     ]
