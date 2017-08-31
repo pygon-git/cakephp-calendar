@@ -796,7 +796,7 @@ var calendarApp = new Vue({
             this.calendarsList = [];
             if (this.calendars) {
                this.calendars.forEach((elem, key) => {
-                    if (elem.permissions.edit) {
+                    if (elem.permissions.edit && elem.editable != false) {
                         self.calendarsList.push( { value: elem.id, label: elem.name } );
                     }
                });
