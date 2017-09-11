@@ -104,7 +104,6 @@ Vue.component('calendar', {
                 day: 'day'
             },
             firstDay: 1,
-            defaultDate: moment(this.start),
             editable: this.editable,
             eventClick(event) {
                 self.$emit('event-info', event);
