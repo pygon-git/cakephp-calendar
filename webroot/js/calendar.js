@@ -26,7 +26,7 @@ Vue.component('calendar-link', {
 Vue.component('calendar-item', {
     template: `<div class="form-group checkbox">
                 <label>
-                    <input type="checkbox" @click="toggleCalendar(value)" v-model="toggle" :value="value" :name="name" :multiple="{ multiple: itemIsMultiple }" :class="[itemClass]"/>
+                    <input type="checkbox" v-model="toggle" :value="value" :name="name" :multiple="{ multiple: itemIsMultiple }" :class="[itemClass]"/>
                         <icon-component v-if="icon" :name="icon"></icon-component>
                         {{label}}
                 </label>
@@ -43,9 +43,9 @@ Vue.component('calendar-item', {
             itemIsMultiple: true,
         };
     },
-    methods: {
-        toggleCalendar(calendarId) {
-            this.$emit('toggle-calendar', this.toggle, calendarId );
+    watch: {
+        toggle: function(val) {
+            this.$emit('toggle-calendar', this.toggle, this.value);
         }
     }
 });
