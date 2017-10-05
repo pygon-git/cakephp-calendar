@@ -10,6 +10,7 @@ use Cake\ORM\RulesChecker;
 use Cake\ORM\Table;
 use Cake\ORM\TableRegistry;
 use Cake\Validation\Validator;
+use Qobo\Calendar\Model\Table\CalendarEventsTable;
 use \ArrayObject;
 
 /**
@@ -408,9 +409,11 @@ class CalendarsTable extends Table
                     $result = $table->save($entity);
                 }
 
-                if (in_array($actionName, ['delete']) && !empty($item)) {
-                    if ($table->delete($item)) {
-                        $result[] = $item;
+                if ($table instanceof CalendarEventsTable) {
+                    if (in_array($actionName, ['delete']) && !empty($item)) {
+                        if ($table->delete($item)) {
+                            $result[] = $item;
+                        }
                     }
                 }
             }
