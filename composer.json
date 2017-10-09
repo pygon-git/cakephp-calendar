@@ -2,15 +2,17 @@
     "name": "qobo/cakephp-calendar",
     "description": "Calendaring plugin for CakePHP",
     "type": "cakephp-plugin",
-    "license": "GPL-2.0",
+    "license": "MIT",
     "authors": [
         {
-            "name": "Andrey Vystavkin",
-            "email": "andrey.vystavkin@gmail.com"
+            "name": "Qobo Ltd",
+            "email": "info@qobo.biz",
+            "homepage": "https://www.qobo.biz",
+            "role": "Developer"
         }
     ],
     "require": {
-        "qobo/cakephp-utils": "^5.0",
+        "qobo/cakephp-utils": "^6.0",
         "rlanvin/php-rrule": "^1.5"
     },
     "require-dev": {
