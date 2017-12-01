@@ -13,6 +13,7 @@ namespace Qobo\Calendar\Shell\Task;
 
 use Cake\Console\Shell;
 use Cake\ORM\TableRegistry;
+use Exception;
 use Qobo\Utils\Utility\FileLock;
 
 /**
@@ -181,7 +182,7 @@ class SyncTask extends Shell
      * Create basic birthdays calendar with
      * yearly recurring events
      *
-     * @param Table $table of calendar instance.
+     * @param \Cake\ORM\Table $table of calendar instance.
      *
      * @return array $result containing users/events saved/updated.
      */

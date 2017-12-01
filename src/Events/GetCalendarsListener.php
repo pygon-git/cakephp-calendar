@@ -36,7 +36,7 @@ class GetCalendarsListener implements EventListenerInterface
     /**
      * Re-broadcasting the event outside of the plugin
      *
-     * @param Cake\Event\Event $event received by the plugin
+     * @param \Cake\Event\Event $event received by the plugin
      * @param array $options for calendar conditions
      *
      * @return void
@@ -57,7 +57,7 @@ class GetCalendarsListener implements EventListenerInterface
     /**
      * Re-broadcasting the event outside of the plugin
      *
-     * @param Cake\Event\Event $event received by the plugin
+     * @param \Cake\Event\Event $event received by the plugin
      * @param \Cake\ORM\Entity $calendar instance
      * @param array $options for calendar conditions
      *
@@ -80,7 +80,7 @@ class GetCalendarsListener implements EventListenerInterface
     /**
      * Get calendars from the plugin only.
      *
-     * @param Cake\Event\Event $event passed through
+     * @param \Cake\Event\Event $event passed through
      * @param array $options for calendars
      *
      * @return void
@@ -122,7 +122,7 @@ class GetCalendarsListener implements EventListenerInterface
     /**
      * Get calendar events from the plugin only.
      *
-     * @param Cake\Event\Event $event passed through
+     * @param \Cake\Event\Event $event passed through
      * @param \Cake\ORM\Entity $calendar instance
      * @param array $options for calendars
      *

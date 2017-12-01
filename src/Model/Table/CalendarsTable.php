@@ -437,7 +437,7 @@ class CalendarsTable extends Table
      *
      * Checkes whether attendee should be added/updated/removed
      *
-     * @param ORM\Table $table instance
+     * @param \Cake\ORM\Table $table instance
      * @param array $diff containing the data
      * @param array $options with extra settings/fields to save/modify
      *
@@ -553,7 +553,7 @@ class CalendarsTable extends Table
     /**
      * Get Attendee difference
      *
-     * @param ORM\Table $table instance of attendees
+     * @param \Cake\ORM\Table $table instance of attendees
      * @param array $item of the record
      * @param array $options for extra fields/conditions
      *
@@ -662,7 +662,7 @@ class CalendarsTable extends Table
     /**
      * Remove item from from the set
      *
-     * @param ORM\Table $table instance of the target
+     * @param \Cake\ORM\Table $table instance of the target
      * @param array $items containing current items
      * @param array $options with extra config
      *

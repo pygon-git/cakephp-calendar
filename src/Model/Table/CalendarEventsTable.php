@@ -542,7 +542,7 @@ class CalendarEventsTable extends Table
      * Set Event Title
      *
      * @param array $data from the request
-     * @param \Cake\Model\Entity $calendar from db
+     * @param \Cake\Datasource\EntityInterface $calendar from db
      *
      * @return string $title with the event content
      */
