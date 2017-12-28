@@ -34,9 +34,8 @@ echo $this->Html->script(
     [
         'Qobo/Calendar.external/nlp',
         'Qobo/Calendar.external/rrule',
-        'Qobo/Calendar.vue.min',
-        //'https://unpkg.com/vue@2.4.2',
-        'Qobo/Calendar.vue-select',
+        'Qobo/Utils./plugins/vuejs/vue.min',
+        'Qobo/Utils./plugins/vuejs/extensions/vue-select',
         'Qobo/Calendar.calendar.js',
     ],
     ['block' => 'scriptBottom']
