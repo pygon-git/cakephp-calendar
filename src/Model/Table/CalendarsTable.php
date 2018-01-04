@@ -251,7 +251,7 @@ class CalendarsTable extends Table
     /**
      * Synchronize calendar events
      *
-     * @param \Model\Entity\Calendar $calendar instance from the db
+     * @param \Cake\ORM\Entity $calendar instance from the db
      * @param array $data with extra configs
      *
      * @return array $result with events responses.
@@ -305,7 +305,7 @@ class CalendarsTable extends Table
     /**
      * Synchronize calendar events
      *
-     * @param \Model\Entity\Calendar $calendar instance from the db
+     * @param \Cake\ORM\Entity $calendar instance from the db
      * @param array $options with extra configs
      *
      * @return array $result with events responses.
