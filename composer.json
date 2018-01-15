@@ -13,7 +13,7 @@
     ],
     "require": {
         "qobo/cakephp-utils": "^6.0",
-        "rlanvin/php-rrule": "^1.5"
+        "rlanvin/php-rrule": "^1.6"
     },
     "require-dev": {
         "phpunit/phpunit":"^5.0",
