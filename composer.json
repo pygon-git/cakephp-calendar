@@ -1,6 +1,6 @@
 {
-    "name": "qobo/cakephp-calendar",
-    "description": "Calendaring plugin for CakePHP",
+    "name": "pygon-git/cakephp-calendar",
+    "description": "Calendaring plugin for CakePHP forked from QoboLtd/cakephp-calendar",
     "type": "cakephp-plugin",
     "license": "MIT",
     "authors": [
@@ -9,6 +9,12 @@
             "email": "info@qobo.biz",
             "homepage": "https://www.qobo.biz",
             "role": "Developer"
+        },
+        {
+            "name": "Brian French",
+            "email": "fr3nch13@gmail.com",
+            "homepage": "https://www.fr3nch.com",
+            "role": "Developer - Forked"
         }
     ],
     "require": {
